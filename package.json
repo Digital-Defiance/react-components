@@ -1,0 +1,71 @@
+{
+  "name": "@digitaldefiance/express-suite-react-components",
+  "version": "2.1.35",
+  "description": "React MUI components for Digital Defiance Express Suite",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "scripts": {
+    "build": "npx nx build digitaldefiance-express-suite-react-components",
+    "build:stream": "npx nx build --outputStyle=stream digitaldefiance-express-suite-react-components",
+    "build:logged": "npx nx build --outputStyle=stream digitaldefiance-express-suite-react-components 2>&1 | ansifilter -o build.log",
+    "test": "npx nx test digitaldefiance-express-suite-react-components",
+    "test:stream": "npx nx test --outputStyle=stream digitaldefiance-express-suite-react-components",
+    "test:logged": "npx nx test --outputStyle=stream digitaldefiance-express-suite-react-components 2>&1 | ansifilter -o test.log",
+    "test:coverage": "npx jest --coverage --testPathPattern=digitaldefiance-express-suite-react-components --coverageReporters=text",
+    "lint": "npx nx lint digitaldefiance-express-suite-react-components",
+    "lint:fix": "npx nx lint digitaldefiance-express-suite-react-components --fix",
+    "prettier:check": "prettier --check 'src/**/*.{ts,tsx}'",
+    "prettier:fix": "prettier --write 'src/**/*.{ts,tsx}'",
+    "format": "npx nx format:write --projects=digitaldefiance-express-suite-react-components",
+    "format:check": "npx nx format:check --projects=digitaldefiance-express-suite-react-components",
+    "prepublishOnly": "npx nx build digitaldefiance-express-suite-react-components",
+    "publish:public": "npm publish --access public"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "dependencies": {
+    "@digitaldefiance/i18n-lib": "2.1.32",
+    "@digitaldefiance/suite-core-lib": "2.1.35",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^7.0.2",
+    "@mui/material": "^7.0.2",
+    "@mui/system": "^7.0.2",
+    "@mui/x-date-pickers": "^8.9.0",
+    "axios": "^1.9.0",
+    "formik": "^2.4.6",
+    "react-number-format": "^5.4.4",
+    "react-router-dom": "^6.29.0",
+    "yup": "^1.6.1"
+  },
+  "devDependencies": {
+    "@digitaldefiance/express-suite-test-utils": "1.0.6",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
+    "@types/react": "19.0.0",
+    "@types/react-dom": "19.0.0",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "ts-jest": "^29.4.5"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "keywords": [
+    "react",
+    "mui",
+    "components",
+    "typescript"
+  ],
+  "author": "Digital Defiance",
+  "license": "MIT",
+  "packageManager": "yarn@4.10.3"
+}

@@ -1,0 +1,45 @@
+{
+  "name": "digitaldefiance-express-suite-react-components",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/digitaldefiance-express-suite-react-components/src",
+  "projectType": "library",
+  "tags": [],
+  "implicitDependencies": ["digitaldefiance-suite-core-lib"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{workspaceRoot}/dist/packages/digitaldefiance-express-suite-react-components"],
+      "options": {
+        "outputPath": "dist/packages/digitaldefiance-express-suite-react-components",
+        "tsConfig": "packages/digitaldefiance-express-suite-react-components/tsconfig.lib.json",
+        "packageJson": "packages/digitaldefiance-express-suite-react-components/package.json",
+        "main": "packages/digitaldefiance-express-suite-react-components/src/index.ts",
+        "assets": [
+          {
+            "input": "packages/digitaldefiance-express-suite-react-components",
+            "glob": "README.md",
+            "output": "."
+          }
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": [
+        "{workspaceRoot}/coverage/packages/digitaldefiance-express-suite-react-components"
+      ],
+      "options": {
+        "jestConfig": "packages/digitaldefiance-express-suite-react-components/jest.config.js"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": [
+          "packages/digitaldefiance-express-suite-react-components/src/**/*.{ts,tsx}",
+          "packages/digitaldefiance-express-suite-react-components/tests/**/*.{ts,tsx}"
+        ]
+      }
+    }
+  }
+}
