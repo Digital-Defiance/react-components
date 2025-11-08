@@ -261,6 +261,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### v2.1.37
+
+- Fix package/exports/index
+
 ### v2.1.36
 
 - Fix package/exports/index
