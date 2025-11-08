@@ -2,6 +2,8 @@
 
 React MUI components library for Digital Defiance Express Suite applications.
 
+Part of [Express Suite](https://github.com/Digital-Defiance/express-suite)
+
 ## Installation
 
 ```bash
@@ -258,6 +260,10 @@ interface RegisterFormProps {
 MIT © Digital Defiance
 
 ## ChangeLog
+
+### v2.1.36
+
+- Fix package/exports/index
 
 ### v2.1.35
 

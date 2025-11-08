@@ -1,9 +1,9 @@
 {
   "name": "@digitaldefiance/express-suite-react-components",
-  "version": "2.1.35",
+  "version": "2.1.36",
   "description": "React MUI components for Digital Defiance Express Suite",
-  "main": "src/index.js",
-  "types": "src/index.d.ts",
+  "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "build": "npx nx build digitaldefiance-express-suite-react-components",
     "build:stream": "npx nx build --outputStyle=stream digitaldefiance-express-suite-react-components",
