@@ -261,6 +261,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### v2.1.40
+
+- Alignment
+
 ### v2.1.38
 
 - Fix package/exports/index
