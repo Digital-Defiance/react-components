@@ -263,6 +263,10 @@ MIT © Digital Defiance
 
 ### v2.1.40
 
+- Alignment/upgrade all packages
+
+### v2.1.40
+
 - Alignment with Express Suite packages
 - All packages updated to v2.1.40 (i18n, ecies-lib, node-ecies-lib, suite-core-lib, node-express-suite, express-suite-react-components)
 - Test utilities remain at v1.0.7
