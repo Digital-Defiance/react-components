@@ -261,6 +261,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### v2.1.52
+
+- Export wrappers
+
 ### v2.1.51
 
 - Try to fix exports again
