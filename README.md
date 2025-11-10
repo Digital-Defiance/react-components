@@ -261,7 +261,13 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### v2.1.48
+
+- Fix ApiAccess
+
 ### v2.1.47
+
+- Big update
 
 ### v2.1.43
 

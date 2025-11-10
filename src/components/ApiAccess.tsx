@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { FC, useState } from 'react';
 import { SuiteCoreComponentId, SuiteCoreStringKey } from '@digitaldefiance/suite-core-lib';
-import { useI18n } from '../contexts';
+import { useAuth, useI18n } from '../contexts';
 
 const ApiAccessContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -39,7 +39,6 @@ const ApiAccessTitle = styled(Typography)(({ theme }) => ({
 }));
 
 export interface ApiAccessProps {
-  token: string | null;
   labels?: {
     title?: string;
     tokenNotAvailable?: string;
@@ -52,9 +51,9 @@ export interface ApiAccessProps {
 }
 
 export const ApiAccess: FC<ApiAccessProps> = ({
-  token,
   labels = {},
 }) => {
+  const { token } = useAuth();
   const { tComponent } = useI18n();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isError, setIsError] = useState(false);
