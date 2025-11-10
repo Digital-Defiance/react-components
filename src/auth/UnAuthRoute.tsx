@@ -26,3 +26,5 @@ export const UnAuthRoute: FC<UnAuthRouteProps> = ({
 
   return <>{children}</>;
 };
+
+export default UnAuthRoute;

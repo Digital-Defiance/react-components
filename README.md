@@ -261,6 +261,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### v2.1.51
+
+- Try to fix exports again
+
 ### v2.1.50
 
 - Fix PrivateRoute/UnAuthRoute

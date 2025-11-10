@@ -9,7 +9,7 @@ interface PrivateRouteProps {
   redirectTo?: string;
 }
 
-const PrivateRoute: FC<PrivateRouteProps> = ({ children, redirectTo }) => {
+export const PrivateRoute: FC<PrivateRouteProps> = ({ children, redirectTo }) => {
   const { tComponent } = useI18n();
   const { isAuthenticated, isCheckingAuth } = useContext(AuthContext);
   const location = useLocation();
