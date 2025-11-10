@@ -43,13 +43,13 @@ export const VerifyEmailPage: FC<VerifyEmailPageProps> = ({
   );
 
   const translatedLabels = {
-    title: labels.title || t(tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Common_EmailVerification)),
-    success: labels.success || t(tComponent(SuiteCoreComponentId, SuiteCoreStringKey.EmailVerification_Success)),
-    failed: labels.failed || t(tComponent(SuiteCoreComponentId, SuiteCoreStringKey.EmailVerification_Failed)),
-    noToken: labels.noToken || t(tComponent(SuiteCoreComponentId, SuiteCoreStringKey.NoVerificationTokenProvided)),
-    proceedToLogin: labels.proceedToLogin || t(tComponent(SuiteCoreComponentId, SuiteCoreStringKey.ProceedToLogin)),
-    contactSupport: labels.contactSupport || t(tComponent(SuiteCoreComponentId, SuiteCoreStringKey.HavingTroubleContactSupport)),
-    requestNewEmail: labels.requestNewEmail || t(tComponent(SuiteCoreComponentId, SuiteCoreStringKey.RequestNewVerificationEmail)),
+    title: labels.title || t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_EmailVerification)),
+    success: labels.success || t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.EmailVerification_Success)),
+    failed: labels.failed || t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.EmailVerification_Failed)),
+    noToken: labels.noToken || t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.NoVerificationTokenProvided)),
+    proceedToLogin: labels.proceedToLogin || t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.ProceedToLogin)),
+    contactSupport: labels.contactSupport || t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.HavingTroubleContactSupport)),
+    requestNewEmail: labels.requestNewEmail || t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.RequestNewVerificationEmail)),
   };
 
   useEffect(() => {

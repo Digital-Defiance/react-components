@@ -1,23 +1,23 @@
 import {
-  CoreLanguageCode,
   GlobalActiveContext,
   IActiveContext,
   LanguageRegistry,
   I18nEngine,
+  CoreLanguageCode,
 } from '@digitaldefiance/i18n-lib';
 import { createContext, FC, ReactNode, useCallback, useContext, useState } from 'react';
 
 export interface I18nProviderProps {
   children: ReactNode;
   i18nEngine: I18nEngine;
-  onLanguageChange?: (language: CoreLanguageCode) => Promise<void>;
+  onLanguageChange?: (language: string) => Promise<void>;
 }
 
 export interface I18nContextType {
-  t: (key: string, vars?: Record<string, string | number>, language?: CoreLanguageCode) => string;
-  tComponent: <TStringKey extends string>(componentId: string, stringKey: TStringKey) => string;
-  changeLanguage: (language: CoreLanguageCode) => void;
-  currentLanguage: CoreLanguageCode;
+  t: (key: string, vars?: Record<string, string | number>, language?: string) => string;
+  tComponent: <TStringKey extends string>(componentId: string, stringKey: TStringKey, vars?: Record<string, string | number>, language?: string) => string;
+  changeLanguage: (language: string) => void;
+  currentLanguage: string;
 }
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
@@ -28,15 +28,15 @@ export const I18nProvider: FC<I18nProviderProps> = ({
   onLanguageChange,
 }) => {
   const context = GlobalActiveContext.getInstance<
-    CoreLanguageCode,
-    IActiveContext<CoreLanguageCode>
+    string,
+    IActiveContext<string>
   >();
-  const [currentLanguage, setCurrentLanguage] = useState<CoreLanguageCode>(
+  const [currentLanguage, setCurrentLanguage] = useState<string>(
     context.userLanguage
   );
 
   const changeLanguage = useCallback(
-    async (language: CoreLanguageCode) => {
+    async (language: string) => {
       const languageDetails = LanguageRegistry.getLanguageByCode(language);
       if (language && languageDetails) {
         context.userLanguage = language;
@@ -53,15 +53,15 @@ export const I18nProvider: FC<I18nProviderProps> = ({
   );
 
   const t = useCallback(
-    (key: string, vars?: Record<string, string | number>, language?: CoreLanguageCode) => {
-      return i18nEngine.t(key, vars, language);
+    (key: string, vars?: Record<string, string | number>, language?: string) => {
+      return i18nEngine.t(key, vars, language ?? currentLanguage);
     },
-    [i18nEngine]
+    [i18nEngine, currentLanguage]
   );
 
   const tComponent = useCallback(
-    <TStringKey extends string>(componentId: string, stringKey: TStringKey): string => {
-      return i18nEngine.translate(componentId, stringKey, undefined, currentLanguage);
+    <TStringKey extends string>(componentId: string, stringKey: TStringKey, vars?: Record<string, string | number>, language?: string): string => {
+      return i18nEngine.translate(componentId, stringKey, vars, language ?? currentLanguage);
     },
     [currentLanguage, i18nEngine]
   );

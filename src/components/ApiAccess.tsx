@@ -55,18 +55,18 @@ export const ApiAccess: FC<ApiAccessProps> = ({
   token,
   labels = {},
 }) => {
-  const { t, tComponent } = useI18n();
+  const { tComponent } = useI18n();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isError, setIsError] = useState(false);
 
   const translatedLabels = {
-    title: labels.title || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.ApiAccess_Title),
-    tokenNotAvailable: labels.tokenNotAvailable || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.ApiAccess_TokenNotAvailable),
-    copyButton: labels.copyButton || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Common_CopyToClipboard),
-    notificationTitle: labels.notificationTitle || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Common_Notification),
-    copied: labels.copied || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Common_CopiedToClipboard),
-    copyFailed: labels.copyFailed || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Error_FailedToCopy),
-    ok: labels.ok || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Common_OK),
+    title: labels.title || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.ApiAccess_Title),
+    tokenNotAvailable: labels.tokenNotAvailable || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.ApiAccess_TokenNotAvailable),
+    copyButton: labels.copyButton || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_CopyToClipboard),
+    notificationTitle: labels.notificationTitle || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Notification),
+    copied: labels.copied || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_CopiedToClipboard),
+    copyFailed: labels.copyFailed || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Error_FailedToCopy),
+    ok: labels.ok || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_OK),
   };
 
   const copyToClipboard = async () => {

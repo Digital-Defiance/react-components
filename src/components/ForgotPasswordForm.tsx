@@ -25,21 +25,21 @@ export const ForgotPasswordForm: FC<ForgotPasswordFormProps> = ({
   emailValidation,
   labels = {},
 }) => {
-  const { t, tComponent } = useI18n();
+  const { tComponent } = useI18n();
   const [success, setSuccess] = useState(false);
   const [apiError, setApiError] = useState<string>('');
 
   const validation = {
     email: emailValidation || Yup.string()
-      .email(tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Validation_InvalidEmail))
-      .required(tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
+      .email(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_InvalidEmail))
+      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
   };
 
   const translatedLabels = {
-    title: labels.title || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.ForgotPassword_Title),
-    email: labels.email || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Common_Email),
-    sendResetLink: labels.sendResetLink || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.ForgotPassword_SendResetLink),
-    successMessage: labels.successMessage || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.PasswordReset_Success),
+    title: labels.title || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.ForgotPassword_Title),
+    email: labels.email || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Email),
+    sendResetLink: labels.sendResetLink || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.ForgotPassword_SendResetLink),
+    successMessage: labels.successMessage || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordReset_Success),
   };
 
   const formik = useFormik<ForgotPasswordFormValues>({
@@ -55,7 +55,7 @@ export const ForgotPasswordForm: FC<ForgotPasswordFormProps> = ({
         setSuccess(true);
         setApiError('');
       } catch (error: any) {
-        setApiError(error.response?.data?.message || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.ForgotPassword_Error));
+        setApiError(error.response?.data?.message || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.ForgotPassword_Error));
         setSuccess(false);
       }
     },

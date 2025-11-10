@@ -261,6 +261,12 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### v2.1.47
+
+### v2.1.43
+
+- Update TranslatedTitle to be generic
+
 ### v2.1.40
 
 - Alignment/upgrade all packages

@@ -19,5 +19,6 @@ export * from './SideMenu';
 export * from './SideMenuListItem';
 export * from './TopMenu';
 export * from './TranslatedTitle';
+export * from './UserMenu';
 export * from './UserLanguageSelector';
 export * from './VerifyEmailPage';

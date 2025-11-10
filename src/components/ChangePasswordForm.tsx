@@ -50,23 +50,23 @@ export const ChangePasswordForm: FC<ChangePasswordFormProps> = ({
   const [apiError, setApiError] = useState<string>('');
 
   const validation = {
-    currentPassword: currentPasswordValidation || Yup.string().required(tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
+    currentPassword: currentPasswordValidation || Yup.string().required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
     newPassword: newPasswordValidation || Yup.string()
-      .min(Constants.PasswordMinLength, tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordMinLengthTemplate))
-      .required(tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
+      .min(Constants.PasswordMinLength, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordMinLengthTemplate))
+      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
     confirmPassword: confirmPasswordValidation || Yup.string()
-      .oneOf([Yup.ref('newPassword')], tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordMatch))
-      .required(tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
+      .oneOf([Yup.ref('newPassword')], tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordMatch))
+      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
   };
 
   const labels = {
-    title: titleText || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Common_ChangePassword),
-    currentPassword: currentPasswordLabel || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Common_CurrentPassword),
-    newPassword: newPasswordLabel || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Common_NewPassword),
-    confirmPassword: confirmPasswordLabel || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Common_ConfirmNewPassword),
-    submitButton: submitButtonText || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Common_ChangePassword),
-    submittingButton: submittingButtonText || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Common_ChangingPassword),
-    success: successMessage || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.PasswordChange_Success),
+    title: titleText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ChangePassword),
+    currentPassword: currentPasswordLabel || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_CurrentPassword),
+    newPassword: newPasswordLabel || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_NewPassword),
+    confirmPassword: confirmPasswordLabel || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ConfirmNewPassword),
+    submitButton: submitButtonText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ChangePassword),
+    submittingButton: submittingButtonText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ChangingPassword),
+    success: successMessage || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordChange_Success),
   };
 
   const formik = useFormik<ChangePasswordFormValues>({

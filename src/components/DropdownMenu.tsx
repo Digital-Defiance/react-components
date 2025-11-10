@@ -1,45 +1,50 @@
 import { Box, Fade, IconButton, Menu, MenuItem } from '@mui/material';
 import { FC, MouseEvent, ReactElement, useCallback, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { IncludeOnMenu } from '../enumerations/IncludeOnMenu';
+import { IMenuOption } from '../interfaces/IMenuOption';
+import { useMenu } from '../contexts/MenuContext';
 
-export interface MenuOption {
-  id: string;
-  label: string;
-  icon?: ReactElement;
-  action?: () => void;
-  link?: string;
-}
-
-export interface DropdownMenuProps {
+interface DropdownMenuProps {
+  menuType: IncludeOnMenu;
   menuIcon: ReactElement;
-  options: MenuOption[];
-  onNavigate?: (link: string) => void;
 }
 
-export const DropdownMenu: FC<DropdownMenuProps> = ({ menuIcon, options, onNavigate }) => {
+export const DropdownMenu: FC<DropdownMenuProps> = ({ menuType, menuIcon }) => {
+  const { getMenuOptions } = useMenu();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
+  const navigate = useNavigate();
   const handleClose = useCallback(() => {
     setAnchorEl(null);
   }, []);
-
   const handleMenuItemClick = useCallback(
-    (option: MenuOption) => (event: React.MouseEvent<HTMLElement>) => {
+    (option: IMenuOption) => (event: React.MouseEvent<HTMLElement>) => {
       event.stopPropagation();
       if (option.action) {
         option.action();
-      } else if (option.link && onNavigate) {
-        onNavigate(option.link);
+      } else if (option.link !== undefined) {
+        if (
+          typeof option.link === 'object' &&
+          'pathname' in option.link &&
+          'state' in option.link
+        ) {
+          navigate(option.link.pathname, { state: option.link.state });
+        } else {
+          navigate(option.link);
+        }
       }
-      handleClose();
+      handleClose(); // Call handleClose after handling the click
     },
-    [onNavigate, handleClose]
+    [navigate, handleClose], // Add handleClose to the dependency array
   );
 
   const handleClick = useCallback((event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   }, []);
 
-  if (options.length === 0) {
+  const menuItems = getMenuOptions(menuType, false);
+
+  if (menuItems.length === 0) {
     return null;
   }
 
@@ -60,7 +65,7 @@ export const DropdownMenu: FC<DropdownMenuProps> = ({ menuIcon, options, onNavig
           },
         }}
       >
-        {options.map((option) => (
+        {menuItems.map((option) => (
           <MenuItem
             key={option.id}
             component="li"

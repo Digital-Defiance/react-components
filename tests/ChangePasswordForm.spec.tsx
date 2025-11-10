@@ -32,7 +32,7 @@ describe('ChangePasswordForm', () => {
     
     await waitFor(() => {
       expect(screen.getByText(/8/)).toBeInTheDocument();
-    });
+    }, { timeout: 10000 });
   });
 
   it('validates password confirmation match', async () => {

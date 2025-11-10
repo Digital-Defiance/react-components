@@ -1,26 +1,11 @@
+import { LanguageRegistry, LanguageDefinition } from '@digitaldefiance/i18n-lib';
 import { Button, Menu, MenuItem } from '@mui/material';
 import { FC, MouseEvent, useState } from 'react';
+import { useAuth } from '../contexts/AuthProvider';
 import { Flag } from './Flag';
 
-export interface LanguageOption {
-  code: string;
-  name: string;
-  countryCode: string;
-}
-
-export interface UserLanguageSelectorProps {
-  currentLanguage: string;
-  currentCountryCode: string;
-  languages: LanguageOption[];
-  onLanguageChange: (languageCode: string) => void;
-}
-
-export const UserLanguageSelector: FC<UserLanguageSelectorProps> = ({
-  currentLanguage,
-  currentCountryCode,
-  languages,
-  onLanguageChange,
-}) => {
+export const UserLanguageSelector: FC = () => {
+  const { language, setLanguage } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
@@ -31,21 +16,20 @@ export const UserLanguageSelector: FC<UserLanguageSelectorProps> = ({
     setAnchorEl(null);
   };
 
-  const handleLanguageChange = (languageCode: string) => {
-    onLanguageChange(languageCode);
+  const handleLanguageChange = (newLanguage: string) => {
+    setLanguage(newLanguage);
     handleClose();
   };
 
   return (
     <>
       <Button onClick={handleClick}>
-        <Flag languageCode={currentLanguage} countryCode={currentCountryCode} />
+        <Flag language={language} />
       </Button>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-        {languages.map((lang) => (
+        {Object.values(LanguageRegistry.getAllLanguages()).map((lang: LanguageDefinition) => (
           <MenuItem key={lang.code} onClick={() => handleLanguageChange(lang.code)}>
-            <Flag languageCode={lang.code} countryCode={lang.countryCode} sx={{ mr: 1 }} />{' '}
-            {lang.name}
+            <Flag language={lang.code} sx={{ mr: 1 }} /> {lang.name}
           </MenuItem>
         ))}
       </Menu>

@@ -15,6 +15,7 @@ module.exports = {
     }],
   },
   moduleNameMapper: {
+    '^@digitaldefiance/ecies-lib$': '<rootDir>/../digitaldefiance-ecies-lib/src/index.ts',
     '^@digitaldefiance/i18n-lib$': '<rootDir>/../digitaldefiance-i18n-lib/src/index.ts',
     '^@digitaldefiance/suite-core-lib$': '<rootDir>/../digitaldefiance-suite-core-lib/src/index.ts',
     '^bson$': '<rootDir>/../digitaldefiance-express-suite-test-utils/src/lib/bson-mock.ts',

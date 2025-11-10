@@ -38,20 +38,20 @@ export const ResetPasswordForm: FC<ResetPasswordFormProps> = ({
 
   const validation = {
     password: passwordValidation || Yup.string()
-      .min(Constants.PasswordMinLength, tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordMinLengthTemplate))
-      .required(tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
+      .min(Constants.PasswordMinLength, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordMinLengthTemplate))
+      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
     confirmPassword: confirmPasswordValidation || Yup.string()
-      .oneOf([Yup.ref('password')], tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordMatch))
-      .required(tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
+      .oneOf([Yup.ref('password')], tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordMatch))
+      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
   };
 
   const translatedLabels = {
-    title: labels.title || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.PasswordReset_Title),
-    password: labels.password || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Common_NewPassword),
-    confirmPassword: labels.confirmPassword || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Common_ConfirmNewPassword),
-    resetButton: labels.resetButton || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.PasswordReset_Button),
-    successMessage: labels.successMessage || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.PasswordReset_Success),
-    invalidToken: labels.invalidToken || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.ForgotPassword_InvalidToken),
+    title: labels.title || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordReset_Title),
+    password: labels.password || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_NewPassword),
+    confirmPassword: labels.confirmPassword || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ConfirmNewPassword),
+    resetButton: labels.resetButton || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordReset_Button),
+    successMessage: labels.successMessage || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordReset_Success),
+    invalidToken: labels.invalidToken || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.ForgotPassword_InvalidToken),
   };
 
   const formik = useFormik<ResetPasswordFormValues>({
@@ -74,7 +74,7 @@ export const ResetPasswordForm: FC<ResetPasswordFormProps> = ({
         setSuccess(true);
         setApiError('');
       } catch (error: any) {
-        setApiError(error.response?.data?.message || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Error_PasswordChange));
+        setApiError(error.response?.data?.message || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Error_PasswordChange));
         setSuccess(false);
       }
     },

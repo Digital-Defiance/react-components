@@ -43,22 +43,22 @@ export const BackupCodesForm: FC<BackupCodesFormProps> = ({
   const validation = {
     mnemonic: mnemonicValidation || Yup.string()
       .trim()
-      .matches(Constants.MnemonicRegex, tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Validation_MnemonicRegex))
+      .matches(Constants.MnemonicRegex, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_MnemonicRegex))
       .optional(),
     password: passwordValidation || Yup.string()
       .trim()
-      .matches(Constants.PasswordRegex, tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordRegexErrorTemplate))
+      .matches(Constants.PasswordRegex, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordRegexErrorTemplate))
       .optional(),
   };
 
   const translatedLabels = {
-    codesRemaining: labels.codesRemaining || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_CodesRemainingTemplate),
-    mnemonic: labels.mnemonic || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Common_Mnemonic),
-    password: labels.password || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Common_Password),
-    generateButton: labels.generateButton || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_GenerateNewCodes),
-    successTitle: labels.successTitle || tComponent(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_YourNewCodes),
-    xorError: tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Validation_MnemonicOrPasswordRequired),
-    unexpectedError: tComponent(SuiteCoreComponentId, SuiteCoreStringKey.Common_UnexpectedError),
+    codesRemaining: labels.codesRemaining || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_CodesRemainingTemplate),
+    mnemonic: labels.mnemonic || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Mnemonic),
+    password: labels.password || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Password),
+    generateButton: labels.generateButton || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_GenerateNewCodes),
+    successTitle: labels.successTitle || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_YourNewCodes),
+    xorError: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_MnemonicOrPasswordRequired),
+    unexpectedError: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_UnexpectedError),
   };
 
   const validationSchema = Yup.object({

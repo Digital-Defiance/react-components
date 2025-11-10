@@ -1,33 +1,38 @@
 import MenuIcon from '@mui/icons-material/Menu';
-import { AppBar, Box, Button, IconButton, Toolbar, Typography } from '@mui/material';
-import { FC, ReactNode, useState } from 'react';
+import {
+  AppBar,
+  Box,
+  Button,
+  IconButton,
+  Toolbar,
+  Typography,
+} from '@mui/material';
+import React, { FC, useContext, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { AuthContext } from '../contexts/AuthProvider';
+import { useI18n } from '../contexts/I18nProvider';
+import { IAppConfig } from '../interfaces/AppConfig';
 import { SideMenu } from './SideMenu';
-import { IMenuOption } from '../interfaces';
+import { UserLanguageSelector } from './UserLanguageSelector';
+import { UserMenu } from './UserMenu';
+import { SuiteCoreComponentId, SuiteCoreStringKey } from '@digitaldefiance/suite-core-lib';
 
 export interface TopMenuProps {
-  title: string;
-  logo?: string;
-  logoAlt?: string;
-  isAuthenticated?: boolean;
-  menuOptions: IMenuOption[];
-  authenticatedButtons?: ReactNode;
-  unauthenticatedButtons?: ReactNode;
-  rightContent?: ReactNode;
-  onNavigate?: (link: string | { pathname: string; state?: any }) => void;
+  Logo: React.ReactNode;
 }
 
-export const TopMenu: FC<TopMenuProps> = ({
-  title,
-  logo,
-  logoAlt,
-  isAuthenticated = false,
-  menuOptions,
-  authenticatedButtons,
-  unauthenticatedButtons,
-  rightContent,
-  onNavigate,
-}) => {
+export const TopMenu: FC<TopMenuProps> = ({ Logo }) => {
+  const { isAuthenticated } = useContext(AuthContext);
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
+
+  const handleOpenSideMenu = () => setIsSideMenuOpen(true);
+  const handleCloseSideMenu = () => setIsSideMenuOpen(false);
+  const { t, tComponent } = useI18n();
+  const appConfig: IAppConfig | undefined =
+    'APP_CONFIG' in window
+      ? ((window as any).APP_CONFIG as IAppConfig)
+      : undefined;
+  const siteTitle = t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_SiteTemplate));
 
   return (
     <AppBar position="fixed" sx={{ top: 10 }}>
@@ -38,32 +43,48 @@ export const TopMenu: FC<TopMenuProps> = ({
           color="inherit"
           aria-label="menu"
           sx={{ mr: 2 }}
-          onClick={() => setIsSideMenuOpen(true)}
+          onClick={handleOpenSideMenu}
         >
           <MenuIcon />
         </IconButton>
-        {logo && (
-          <Box
-            component="img"
-            sx={{ height: 40, width: 40, marginRight: 2 }}
-            alt={logoAlt || 'Logo'}
-            src={logo}
-          />
-        )}
+        <Box
+          sx={{
+            height: 40,
+            width: 40,
+            marginRight: 2,
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          {Logo}
+        </Box>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          {title}
+          {siteTitle}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {isAuthenticated ? authenticatedButtons : unauthenticatedButtons}
-          {rightContent}
+          {isAuthenticated ? (
+            <>
+              <Button color="inherit" component={Link} to="/dashboard">
+                {t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Dashboard))}
+              </Button>
+              <UserMenu />
+            </>
+          ) : (
+            <>
+              <Button color="inherit" component={Link} to="/login">
+                {t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_LoginButton))}
+              </Button>
+              <Button color="inherit" component={Link} to="/register">
+                {t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.RegisterButton))}
+              </Button>
+            </>
+          )}
+          <UserLanguageSelector />
         </Box>
       </Toolbar>
-      <SideMenu
-        isOpen={isSideMenuOpen}
-        onClose={() => setIsSideMenuOpen(false)}
-        menuOptions={menuOptions}
-        onNavigate={onNavigate}
-      />
+      <SideMenu isOpen={isSideMenuOpen} onClose={handleCloseSideMenu} />
     </AppBar>
   );
 };
+
+export default TopMenu;
