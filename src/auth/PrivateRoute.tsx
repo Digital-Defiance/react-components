@@ -1,30 +1,28 @@
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, useContext } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { AuthContext } from '../contexts/AuthProvider';
+import { useI18n } from '../contexts';
+import { SuiteCoreComponentId, SuiteCoreStringKey } from '@digitaldefiance/suite-core-lib';
 
-export interface PrivateRouteProps {
+interface PrivateRouteProps {
   children: ReactNode;
-  isAuthenticated: boolean;
-  isCheckingAuth: boolean;
   redirectTo?: string;
-  loadingComponent?: ReactNode;
 }
 
-export const PrivateRoute: FC<PrivateRouteProps> = ({
-  children,
-  isAuthenticated,
-  isCheckingAuth,
-  redirectTo = '/login',
-  loadingComponent = <div>Checking authentication...</div>,
-}) => {
+const PrivateRoute: FC<PrivateRouteProps> = ({ children, redirectTo }) => {
+  const { tComponent } = useI18n();
+  const { isAuthenticated, isCheckingAuth } = useContext(AuthContext);
   const location = useLocation();
 
   if (isCheckingAuth) {
-    return <>{loadingComponent}</>;
+    return <div>{tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_CheckingAuthentication)}...</div>;
   }
 
   if (!isAuthenticated) {
-    return <Navigate to={redirectTo} state={{ from: location }} replace />;
+    return <Navigate to={redirectTo ?? "/login"} state={{ from: location }} replace />;
   }
 
   return <>{children}</>;
 };
+
+export default PrivateRoute;

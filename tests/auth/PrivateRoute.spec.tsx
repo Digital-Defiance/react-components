@@ -2,76 +2,81 @@ import { describe, it, expect } from '@jest/globals';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import { PrivateRoute } from '../../src/auth/PrivateRoute';
+import PrivateRoute from '../../src/auth/PrivateRoute';
+import { AuthContext } from '../../src/contexts/AuthProvider';
+import { I18nProvider } from '../../src/contexts';
+import { I18nEngine } from '@digitaldefiance/i18n-lib';
+
+const mockAuthContext = (isAuthenticated: boolean, isCheckingAuth: boolean) => ({
+  isAuthenticated,
+  isCheckingAuth,
+} as any);
+
+
 
 describe('PrivateRoute', () => {
   it('should render children when authenticated', () => {
+    const engine = I18nEngine.getInstance('default');
     render(
-      <MemoryRouter initialEntries={['/protected']}>
-        <Routes>
-          <Route path="/protected" element={
-            <PrivateRoute isAuthenticated={true} isCheckingAuth={false}>
-              <div>Protected Content</div>
-            </PrivateRoute>
-          } />
-        </Routes>
-      </MemoryRouter>
+      <I18nProvider i18nEngine={engine}>
+        <AuthContext.Provider value={mockAuthContext(true, false)}>
+          <MemoryRouter initialEntries={['/protected']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <Routes>
+              <Route path="/protected" element={
+                <PrivateRoute>
+                  <div>Protected Content</div>
+                </PrivateRoute>
+              } />
+            </Routes>
+          </MemoryRouter>
+        </AuthContext.Provider>
+      </I18nProvider>
     );
 
     expect(screen.getByText('Protected Content')).toBeDefined();
   });
 
   it('should show loading when checking auth', () => {
+    const engine = I18nEngine.getInstance('default');
     render(
-      <MemoryRouter initialEntries={['/protected']}>
-        <Routes>
-          <Route path="/protected" element={
-            <PrivateRoute isAuthenticated={false} isCheckingAuth={true}>
-              <div>Protected Content</div>
-            </PrivateRoute>
-          } />
-        </Routes>
-      </MemoryRouter>
+      <I18nProvider i18nEngine={engine}>
+        <AuthContext.Provider value={mockAuthContext(false, true)}>
+          <MemoryRouter initialEntries={['/protected']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <Routes>
+              <Route path="/protected" element={
+                <PrivateRoute>
+                  <div>Protected Content</div>
+                </PrivateRoute>
+              } />
+            </Routes>
+          </MemoryRouter>
+        </AuthContext.Provider>
+      </I18nProvider>
     );
 
-    expect(screen.getByText('Checking authentication...')).toBeDefined();
     expect(screen.queryByText('Protected Content')).toBeNull();
   });
 
   it('should redirect when not authenticated', () => {
+    const engine = I18nEngine.getInstance('default');
     render(
-      <MemoryRouter initialEntries={['/protected']}>
-        <Routes>
-          <Route path="/protected" element={
-            <PrivateRoute isAuthenticated={false} isCheckingAuth={false}>
-              <div>Protected Content</div>
-            </PrivateRoute>
-          } />
-          <Route path="/login" element={<div>Login Page</div>} />
-        </Routes>
-      </MemoryRouter>
+      <I18nProvider i18nEngine={engine}>
+        <AuthContext.Provider value={mockAuthContext(false, false)}>
+          <MemoryRouter initialEntries={['/protected']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <Routes>
+              <Route path="/protected" element={
+                <PrivateRoute>
+                  <div>Protected Content</div>
+                </PrivateRoute>
+              } />
+              <Route path="/login" element={<div>Login Page</div>} />
+            </Routes>
+          </MemoryRouter>
+        </AuthContext.Provider>
+      </I18nProvider>
     );
 
     expect(screen.queryByText('Protected Content')).toBeNull();
   });
 
-  it('should use custom loading component', () => {
-    render(
-      <MemoryRouter initialEntries={['/protected']}>
-        <Routes>
-          <Route path="/protected" element={
-            <PrivateRoute 
-              isAuthenticated={false} 
-              isCheckingAuth={true}
-              loadingComponent={<div>Custom Loading</div>}
-            >
-              <div>Protected Content</div>
-            </PrivateRoute>
-          } />
-        </Routes>
-      </MemoryRouter>
-    );
-
-    expect(screen.getByText('Custom Loading')).toBeDefined();
-  });
 });

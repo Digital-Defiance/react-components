@@ -261,6 +261,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### v2.1.50
+
+- Fix PrivateRoute/UnAuthRoute
+
 ### v2.1.49
 
 - Add default exports

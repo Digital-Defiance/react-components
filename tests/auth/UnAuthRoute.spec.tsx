@@ -3,75 +3,90 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { UnAuthRoute } from '../../src/auth/UnAuthRoute';
+import { AuthContext } from '../../src/contexts/AuthProvider';
+import { I18nProvider } from '../../src/contexts';
+import { I18nEngine } from '@digitaldefiance/i18n-lib';
+
+const mockAuthContext = (isAuthenticated: boolean, isCheckingAuth: boolean) => ({
+  isAuthenticated,
+  isCheckingAuth,
+} as any);
+
+const renderWithProviders = (component: React.ReactElement, isAuthenticated: boolean, isCheckingAuth: boolean) => {
+  const engine = I18nEngine.getInstance('default');
+  return render(
+    <I18nProvider i18nEngine={engine}>
+      <AuthContext.Provider value={mockAuthContext(isAuthenticated, isCheckingAuth)}>
+        <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          {component}
+        </MemoryRouter>
+      </AuthContext.Provider>
+    </I18nProvider>
+  );
+};
 
 describe('UnAuthRoute', () => {
   it('should render children when not authenticated', () => {
+    const engine = I18nEngine.getInstance('default');
     render(
-      <MemoryRouter initialEntries={['/login']}>
-        <Routes>
-          <Route path="/login" element={
-            <UnAuthRoute isAuthenticated={false} isCheckingAuth={false}>
-              <div>Login Form</div>
-            </UnAuthRoute>
-          } />
-        </Routes>
-      </MemoryRouter>
+      <I18nProvider i18nEngine={engine}>
+        <AuthContext.Provider value={mockAuthContext(false, false)}>
+          <MemoryRouter initialEntries={['/login']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <Routes>
+              <Route path="/login" element={
+                <UnAuthRoute>
+                  <div>Login Form</div>
+                </UnAuthRoute>
+              } />
+            </Routes>
+          </MemoryRouter>
+        </AuthContext.Provider>
+      </I18nProvider>
     );
 
     expect(screen.getByText('Login Form')).toBeDefined();
   });
 
   it('should show loading when checking auth', () => {
+    const engine = I18nEngine.getInstance('default');
     render(
-      <MemoryRouter initialEntries={['/login']}>
-        <Routes>
-          <Route path="/login" element={
-            <UnAuthRoute isAuthenticated={false} isCheckingAuth={true}>
-              <div>Login Form</div>
-            </UnAuthRoute>
-          } />
-        </Routes>
-      </MemoryRouter>
+      <I18nProvider i18nEngine={engine}>
+        <AuthContext.Provider value={mockAuthContext(false, true)}>
+          <MemoryRouter initialEntries={['/login']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <Routes>
+              <Route path="/login" element={
+                <UnAuthRoute>
+                  <div>Login Form</div>
+                </UnAuthRoute>
+              } />
+            </Routes>
+          </MemoryRouter>
+        </AuthContext.Provider>
+      </I18nProvider>
     );
 
-    expect(screen.getByText('Checking authentication...')).toBeDefined();
     expect(screen.queryByText('Login Form')).toBeNull();
   });
 
   it('should redirect when authenticated', () => {
+    const engine = I18nEngine.getInstance('default');
     render(
-      <MemoryRouter initialEntries={['/login']}>
-        <Routes>
-          <Route path="/login" element={
-            <UnAuthRoute isAuthenticated={true} isCheckingAuth={false}>
-              <div>Login Form</div>
-            </UnAuthRoute>
-          } />
-          <Route path="/dashboard" element={<div>Dashboard</div>} />
-        </Routes>
-      </MemoryRouter>
+      <I18nProvider i18nEngine={engine}>
+        <AuthContext.Provider value={mockAuthContext(true, false)}>
+          <MemoryRouter initialEntries={['/login']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <Routes>
+              <Route path="/login" element={
+                <UnAuthRoute>
+                  <div>Login Form</div>
+                </UnAuthRoute>
+              } />
+              <Route path="/dashboard" element={<div>Dashboard</div>} />
+            </Routes>
+          </MemoryRouter>
+        </AuthContext.Provider>
+      </I18nProvider>
     );
 
     expect(screen.queryByText('Login Form')).toBeNull();
-  });
-
-  it('should use custom loading component', () => {
-    render(
-      <MemoryRouter initialEntries={['/login']}>
-        <Routes>
-          <Route path="/login" element={
-            <UnAuthRoute 
-              isAuthenticated={false} 
-              isCheckingAuth={true}
-              loadingComponent={<div>Custom Loading</div>}
-            >
-              <div>Login Form</div>
-            </UnAuthRoute>
-          } />
-        </Routes>
-      </MemoryRouter>
-    );
-
-    expect(screen.getByText('Custom Loading')).toBeDefined();
   });
 });

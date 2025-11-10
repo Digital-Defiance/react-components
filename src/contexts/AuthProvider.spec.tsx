@@ -124,7 +124,7 @@ Object.defineProperty(console, 'error', { value: consoleMock.error });
 
 // Test wrapper component
 const TestWrapper = ({ children }: { children: ReactNode }) => (
-  <BrowserRouter>
+  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
     <AuthProvider baseUrl="http://localhost:3000" constants={Constants} eciesConfig={ECIESConstants}>{children}</AuthProvider>
   </BrowserRouter>
 );

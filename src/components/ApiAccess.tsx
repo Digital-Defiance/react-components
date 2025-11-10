@@ -39,6 +39,7 @@ const ApiAccessTitle = styled(Typography)(({ theme }) => ({
 }));
 
 export interface ApiAccessProps {
+  token?: string | null;
   labels?: {
     title?: string;
     tokenNotAvailable?: string;
@@ -51,9 +52,11 @@ export interface ApiAccessProps {
 }
 
 export const ApiAccess: FC<ApiAccessProps> = ({
+  token: tokenProp,
   labels = {},
 }) => {
-  const { token } = useAuth();
+  const { token: authToken } = useAuth();
+  const token = tokenProp !== undefined ? tokenProp : authToken;
   const { tComponent } = useI18n();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isError, setIsError] = useState(false);

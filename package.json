@@ -1,6 +1,6 @@
 {
   "name": "@digitaldefiance/express-suite-react-components",
-  "version": "2.1.49",
+  "version": "2.1.50",
   "description": "React MUI components for Digital Defiance Express Suite",
   "main": "src/index.js",
   "types": "src/index.d.ts",
@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@digitaldefiance/i18n-lib": "2.1.40",
-    "@digitaldefiance/suite-core-lib": "2.1.46",
+    "@digitaldefiance/suite-core-lib": "2.1.50",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.0.2",
