@@ -61,3 +61,5 @@ export const ExpirationSecondsSelector: FC<ExpirationSecondsSelectorProps> = ({
     </TextField>
   );
 };
+
+export default ExpirationSecondsSelector;

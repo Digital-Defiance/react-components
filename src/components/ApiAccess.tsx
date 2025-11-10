@@ -127,3 +127,5 @@ export const ApiAccess: FC<ApiAccessProps> = ({
     </ApiAccessContainer>
   );
 };
+
+export default ApiAccess;

@@ -17,3 +17,5 @@ export const LogoutPage = ({ onLogout, onNavigate, redirectTo = '/login' }: Logo
 
   return null;
 };
+
+export default LogoutPage;

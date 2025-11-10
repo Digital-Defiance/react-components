@@ -116,3 +116,5 @@ export const ForgotPasswordForm: FC<ForgotPasswordFormProps> = ({
     </Container>
   );
 };
+
+export default ForgotPasswordForm;

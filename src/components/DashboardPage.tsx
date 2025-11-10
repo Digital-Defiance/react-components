@@ -20,3 +20,5 @@ export const DashboardPage: FC<DashboardPageProps> = ({ title = 'Dashboard', chi
     </Container>
   );
 };
+
+export default DashboardPage;

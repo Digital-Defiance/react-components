@@ -315,3 +315,5 @@ export const BackupCodeLoginForm: FC<BackupCodeLoginFormProps> = ({
     </Container>
   );
 };
+
+export default BackupCodeLoginForm;

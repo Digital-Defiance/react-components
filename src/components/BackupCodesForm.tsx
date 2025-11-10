@@ -194,3 +194,5 @@ export const BackupCodesForm: FC<BackupCodesFormProps> = ({
     </Container>
   );
 };
+
+export default BackupCodesForm;

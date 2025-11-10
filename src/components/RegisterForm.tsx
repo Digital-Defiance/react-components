@@ -329,3 +329,5 @@ export const RegisterForm: FC<RegisterFormProps> = ({
     </Container>
   );
 };
+
+export default RegisterForm;

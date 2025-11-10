@@ -261,6 +261,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### v2.1.49
+
+- Add default exports
+
 ### v2.1.48
 
 - Fix ApiAccess

@@ -282,3 +282,5 @@ export const LoginForm: FC<LoginFormProps> = ({
     </Container>
   );
 };
+
+export default LoginForm;

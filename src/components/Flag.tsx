@@ -49,3 +49,5 @@ export const Flag: FC<FlagProps> = ({ language, sx }) => {
     />
   );
 };
+
+export default Flag;

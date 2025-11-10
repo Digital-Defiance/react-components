@@ -36,3 +36,5 @@ export const UserLanguageSelector: FC = () => {
     </>
   );
 };
+
+export default UserLanguageSelector;

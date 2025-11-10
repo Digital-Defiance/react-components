@@ -56,3 +56,5 @@ export const CurrencyCodeSelector: FC<CurrencyCodeSelectorProps> = ({
     </Field>
   );
 };
+
+export default CurrencyCodeSelector;

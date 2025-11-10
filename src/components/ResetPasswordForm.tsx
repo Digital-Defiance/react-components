@@ -160,3 +160,5 @@ export const ResetPasswordForm: FC<ResetPasswordFormProps> = ({
     </Container>
   );
 };
+
+export default ResetPasswordForm;

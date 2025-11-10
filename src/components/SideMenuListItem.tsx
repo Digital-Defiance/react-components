@@ -56,3 +56,5 @@ export const SideMenuListItem: FC<SideMenuListItemProps> = ({
   }
   return null;
 };
+
+export default SideMenuListItem;

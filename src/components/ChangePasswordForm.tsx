@@ -178,3 +178,5 @@ export const ChangePasswordForm: FC<ChangePasswordFormProps> = ({
     </Container>
   );
 };
+
+export default ChangePasswordForm;

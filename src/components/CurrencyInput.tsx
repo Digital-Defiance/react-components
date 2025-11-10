@@ -11,7 +11,7 @@ export interface CurrencyInputProps {
   name: string;
 }
 
-function getCurrencyFormat(currencyCode: string = 'USD'): {
+export function getCurrencyFormat(currencyCode: string = 'USD'): {
   symbol: string;
   position: 'prefix' | 'postfix' | 'infix';
   groupSeparator: string;
@@ -87,3 +87,5 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
     />
   );
 };
+
+export default CurrencyInput;

@@ -88,3 +88,5 @@ export const DropdownMenu: FC<DropdownMenuProps> = ({ menuType, menuIcon }) => {
     </Box>
   );
 };
+
+export default DropdownMenu;

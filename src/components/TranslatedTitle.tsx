@@ -9,7 +9,7 @@ interface FCParams<TEnum extends string> {
   stringKey: TEnum;
 } 
 
-const TranslatedTitle = <TEnum extends string>({ componentId, stringKey }: FCParams<TEnum>): null => {
+export const TranslatedTitle = <TEnum extends string>({ componentId, stringKey }: FCParams<TEnum>): null => {
   const { tComponent, currentLanguage } = useI18n();
 
   useEffect(() => {

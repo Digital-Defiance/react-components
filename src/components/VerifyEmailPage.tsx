@@ -129,3 +129,5 @@ export const VerifyEmailPage: FC<VerifyEmailPageProps> = ({
     </Container>
   );
 };
+
+export default VerifyEmailPage;
