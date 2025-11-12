@@ -92,14 +92,6 @@ jest.mock('@ethereumjs/wallet', () => ({
   },
 }));
 
-jest.mock('react-router-dom', () => {
-  const actual = jest.requireActual('react-router-dom');
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate,
-  };
-});
-
 // Now import after mocks
 import { render, renderHook, act, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
@@ -125,7 +117,14 @@ Object.defineProperty(console, 'error', { value: consoleMock.error });
 // Test wrapper component
 const TestWrapper = ({ children }: { children: ReactNode }) => (
   <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-    <AuthProvider baseUrl="http://localhost:3000" constants={Constants} eciesConfig={ECIESConstants}>{children}</AuthProvider>
+    <AuthProvider 
+      baseUrl="http://localhost:3000" 
+      constants={Constants} 
+      eciesConfig={ECIESConstants}
+      onLogout={mockNavigate}
+    >
+      {children}
+    </AuthProvider>
   </BrowserRouter>
 );
 
@@ -560,7 +559,7 @@ describe('AuthProvider', () => {
       expect(result.current.userData).toBe(null);
       expect(result.current.mnemonic).toBeUndefined();
       expect(result.current.wallet).toBeUndefined();
-      expect(mockNavigate).toHaveBeenCalledWith('/');
+      expect(mockNavigate).toHaveBeenCalled();
     });
   });
 

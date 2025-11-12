@@ -23,7 +23,6 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { I18nProvider, useI18n } from './I18nProvider';
 import { createAuthService } from '../services/authService';
 import { createAuthenticatedApiClient } from '../services/authenticatedApi';
@@ -169,13 +168,18 @@ export type AuthProviderProps = {
   baseUrl: string;
   constants: IConstants;
   eciesConfig: IECIESConfig;
+  /**
+   * Optional callback to handle navigation after logout
+   * If not provided, logout will only clear auth state without navigation
+   */
+  onLogout?: () => void;
 };
 
 export const AuthContext = createContext<AuthContextData>(
   {} as AuthContextData,
 );
 
-const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig }: AuthProviderProps) => {
+const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout }: AuthProviderProps) => {
   const { changeLanguage, currentLanguage, t, tComponent } = useI18n();
   
   const authService = useMemo(() => createAuthService(constants, baseUrl, eciesConfig), [constants, baseUrl, eciesConfig]);
@@ -210,7 +214,6 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig }: AuthPr
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [token, setToken] = useState<string | null>(null);
   const [authState, setAuthState] = useState(0);
-  const navigate = useNavigate();
 
   const [currencyCode, setCurrencyCode] = useState<CurrencyCode>(() => {
     return new CurrencyCode(
@@ -523,8 +526,12 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig }: AuthPr
     clearWallet();
     setIsAuthenticated(false);
     setAuthState((prev) => prev + 1);
-    navigate('/');
-  }, [navigate, clearMnemonic, clearWallet]);
+    
+    // Call the optional navigation callback if provided
+    if (onLogout) {
+      onLogout();
+    }
+  }, [onLogout, clearMnemonic, clearWallet]);
 
   const verifyToken = useCallback(async (token: string) => {
     const requestUser = await authService.verifyToken(token);
@@ -674,7 +681,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig }: AuthPr
   );
 };
 
-export const AuthProvider = ({ children, baseUrl, constants, eciesConfig }: AuthProviderProps) => {
+export const AuthProvider = ({ children, baseUrl, constants, eciesConfig, onLogout }: AuthProviderProps) => {
   const authenticatedApi = useMemo(() => createAuthenticatedApiClient(baseUrl), [baseUrl]);
   
   const handleLanguageChange = async (newLanguage: string) => {
@@ -691,7 +698,7 @@ export const AuthProvider = ({ children, baseUrl, constants, eciesConfig }: Auth
 
   return (
     <I18nProvider i18nEngine={I18nEngine.getInstance()} onLanguageChange={handleLanguageChange}>
-      <AuthProviderInner baseUrl={baseUrl} constants={constants} eciesConfig={eciesConfig}>{children}</AuthProviderInner>
+      <AuthProviderInner baseUrl={baseUrl} constants={constants} eciesConfig={eciesConfig} onLogout={onLogout}>{children}</AuthProviderInner>
     </I18nProvider>
   );
 };

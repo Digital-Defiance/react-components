@@ -261,6 +261,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### v2.1.53
+
+- Fix authprovider
+
 ### v2.1.52
 
 - Export wrappers
