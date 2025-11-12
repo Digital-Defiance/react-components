@@ -261,6 +261,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### v2.1.54
+
+- Fix authprovider
+
 ### v2.1.53
 
 - Fix authprovider

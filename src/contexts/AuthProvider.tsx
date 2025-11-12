@@ -183,6 +183,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
   const { changeLanguage, currentLanguage, t, tComponent } = useI18n();
   
   const authService = useMemo(() => createAuthService(constants, baseUrl, eciesConfig), [constants, baseUrl, eciesConfig]);
+  const authenticatedApi = useMemo(() => createAuthenticatedApiClient(baseUrl), [baseUrl]);
   
   // Use the custom hooks for expiring values
   const mnemonicManager = useExpiringValue<SecureString>(
@@ -587,7 +588,18 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
     };
 
     const setLanguageAndUpdateUser = async (newLanguage: string) => {
+      // Change the language in the i18n context
       changeLanguage(newLanguage);
+      
+      // Update the user's language preference on the server if authenticated
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        try {
+          await authenticatedApi.post('/user/language', { language: newLanguage });
+        } catch (error) {
+          console.error('Failed to update user language:', error);
+        }
+      }
     };
 
     const setCurrencyCodeAndUpdateStorage = async (code: CurrencyCode) => {
@@ -637,6 +649,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       walletExpirationSeconds,
     };
   }, [
+    authenticatedApi,
     authState,
     backupCodeLogin,
     changeLanguage,
@@ -682,24 +695,10 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
 };
 
 export const AuthProvider = ({ children, baseUrl, constants, eciesConfig, onLogout }: AuthProviderProps) => {
-  const authenticatedApi = useMemo(() => createAuthenticatedApiClient(baseUrl), [baseUrl]);
-  
-  const handleLanguageChange = async (newLanguage: string) => {
-    // Only make API call if there's an auth token (user is logged in)
-    const token = localStorage.getItem('authToken');
-    if (!token) return;
-
-    try {
-      await authenticatedApi.post('/user/language', { language: newLanguage });
-    } catch (error) {
-      console.error('Failed to update user language:', error);
-    }
-  };
-
   return (
-    <I18nProvider i18nEngine={I18nEngine.getInstance()} onLanguageChange={handleLanguageChange}>
-      <AuthProviderInner baseUrl={baseUrl} constants={constants} eciesConfig={eciesConfig} onLogout={onLogout}>{children}</AuthProviderInner>
-    </I18nProvider>
+    <AuthProviderInner baseUrl={baseUrl} constants={constants} eciesConfig={eciesConfig} onLogout={onLogout}>
+      {children}
+    </AuthProviderInner>
   );
 };
 
