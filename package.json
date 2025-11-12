@@ -1,6 +1,6 @@
 {
   "name": "@digitaldefiance/express-suite-react-components",
-  "version": "2.1.54",
+  "version": "2.1.55",
   "description": "React MUI components for Digital Defiance Express Suite",
   "main": "src/index.js",
   "types": "src/index.d.ts",
@@ -23,7 +23,8 @@
   },
   "peerDependencies": {
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^6.29.0"
   },
   "dependencies": {
     "@digitaldefiance/i18n-lib": "2.1.40",
@@ -37,7 +38,6 @@
     "axios": "^1.9.0",
     "formik": "^2.4.6",
     "react-number-format": "^5.4.4",
-    "react-router-dom": "^6.29.0",
     "yup": "^1.6.1"
   },
   "devDependencies": {
