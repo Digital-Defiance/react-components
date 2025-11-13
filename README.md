@@ -261,6 +261,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### v2.1.56
+
+- Fix SideMenu
+
 ### v2.1.55
 
 - Fix peerDeps
