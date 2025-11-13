@@ -1,6 +1,6 @@
 {
   "name": "@digitaldefiance/express-suite-react-components",
-  "version": "2.1.56",
+  "version": "2.1.57",
   "description": "React MUI components for Digital Defiance Express Suite",
   "main": "src/index.js",
   "types": "src/index.d.ts",
@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@digitaldefiance/i18n-lib": "2.1.40",
-    "@digitaldefiance/suite-core-lib": "2.1.50",
+    "@digitaldefiance/suite-core-lib": "2.1.54",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.0.2",
@@ -41,7 +41,7 @@
     "yup": "^1.6.1"
   },
   "devDependencies": {
-    "@digitaldefiance/express-suite-test-utils": "1.0.7",
+    "@digitaldefiance/express-suite-test-utils": "1.0.8",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
