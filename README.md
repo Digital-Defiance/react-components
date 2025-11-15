@@ -297,6 +297,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### v2.3.3
+
+- Fix missing UnAuth component
+
 ### v2.3.2
 
 - Add missing UnAuth component, redo

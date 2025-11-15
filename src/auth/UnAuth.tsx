@@ -1,11 +1,11 @@
 import { FC, ReactNode, useContext } from 'react';
 import { AuthContext } from '../contexts/AuthProvider';
 
-interface UnAuthProps {
+export interface UnAuthProps {
   children: ReactNode;
 }
 
-const UnAuth: FC<UnAuthProps> = ({ children }) => {
+export const UnAuth: FC<UnAuthProps> = ({ children }) => {
   const { isAuthenticated, isCheckingAuth } = useContext(AuthContext);
 
   if (isCheckingAuth || isAuthenticated) {
@@ -14,5 +14,3 @@ const UnAuth: FC<UnAuthProps> = ({ children }) => {
 
   return <>{children}</>;
 };
-
-export default UnAuth;
