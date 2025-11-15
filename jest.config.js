@@ -2,6 +2,10 @@ module.exports = {
   displayName: 'digitaldefiance-express-suite-react-components',
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
+  testEnvironmentOptions: {
+    resources: 'usable',
+    runScripts: 'dangerously',
+  },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   coverageDirectory: '../../coverage/packages/digitaldefiance-express-suite-react-components',
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],

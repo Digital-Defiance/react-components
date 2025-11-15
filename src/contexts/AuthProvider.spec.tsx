@@ -94,7 +94,7 @@ jest.mock('@ethereumjs/wallet', () => ({
 
 // Now import after mocks
 import { render, renderHook, act, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import { createAuthenticatedApiClient } from '../services/authenticatedApi';
 import { Wallet } from '@ethereumjs/wallet';
 import { Constants } from '@digitaldefiance/suite-core-lib';
@@ -117,18 +117,16 @@ Object.defineProperty(console, 'error', { value: consoleMock.error });
 
 // Test wrapper component
 const TestWrapper = ({ children }: { children: ReactNode }) => (
-  <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-    <I18nProvider i18nEngine={null as any} onLanguageChange={async () => {}}>
-      <AuthProvider 
-        baseUrl="http://localhost:3000" 
-        constants={Constants} 
-        eciesConfig={ECIESConstants}
-        onLogout={mockNavigate}
-      >
-        {children}
-      </AuthProvider>
-    </I18nProvider>
-  </BrowserRouter>
+  <I18nProvider i18nEngine={null as any} onLanguageChange={async () => {}}>
+    <AuthProvider 
+      baseUrl="http://localhost:3000" 
+      constants={Constants} 
+      eciesConfig={ECIESConstants}
+      onLogout={mockNavigate}
+    >
+      {children}
+    </AuthProvider>
+  </I18nProvider>
 );
 
 // Helper to create mock user

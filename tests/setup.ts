@@ -5,8 +5,11 @@ global.TextEncoder = TextEncoder as any;
 global.TextDecoder = TextDecoder as any;
 
 import '@testing-library/jest-dom';
+import { configure } from '@testing-library/react';
 import { I18nEngine, createDefaultLanguages } from '@digitaldefiance/i18n-lib';
 import { Constants, createSuiteCoreComponentConfig } from '@digitaldefiance/suite-core-lib';
+
+configure({ reactStrictMode: true });
 
 beforeAll(() => {
   const languages = createDefaultLanguages();

@@ -2,9 +2,25 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { RegisterForm } from '../src/components/RegisterForm';
 import { I18nProvider } from '../src/contexts';
 import { I18nEngine } from '@digitaldefiance/i18n-lib';
-import { mockRegisterFormProps } from '@digitaldefiance/express-suite-test-utils';
 
 const mockOnSubmit = jest.fn();
+
+const mockTimezones = [
+  'America/New_York',
+  'America/Los_Angeles',
+  'Europe/London',
+  'Europe/Paris',
+  'Asia/Tokyo',
+  'UTC',
+];
+
+const mockGetInitialTimezone = (): string => 'UTC';
+
+const mockRegisterFormProps = {
+  timezones: mockTimezones,
+  getInitialTimezone: mockGetInitialTimezone,
+  onSubmit: mockOnSubmit,
+};
 
 const renderWithI18n = (component: React.ReactElement) => {
   const engine = I18nEngine.getInstance('default');

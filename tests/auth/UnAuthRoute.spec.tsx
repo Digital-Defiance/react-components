@@ -12,18 +12,7 @@ const mockAuthContext = (isAuthenticated: boolean, isCheckingAuth: boolean) => (
   isCheckingAuth,
 } as any);
 
-const renderWithProviders = (component: React.ReactElement, isAuthenticated: boolean, isCheckingAuth: boolean) => {
-  const engine = I18nEngine.getInstance('default');
-  return render(
-    <I18nProvider i18nEngine={engine}>
-      <AuthContext.Provider value={mockAuthContext(isAuthenticated, isCheckingAuth)}>
-        <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          {component}
-        </MemoryRouter>
-      </AuthContext.Provider>
-    </I18nProvider>
-  );
-};
+
 
 describe('UnAuthRoute', () => {
   it('should render children when not authenticated', () => {
