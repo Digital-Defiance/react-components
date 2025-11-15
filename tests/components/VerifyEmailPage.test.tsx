@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import { VerifyEmailPage } from '../src/components/VerifyEmailPage';
-import { I18nProvider } from '../src/contexts';
+import { VerifyEmailPage } from '../../src/components/VerifyEmailPage';
+import { I18nProvider } from '../../src/contexts';
 import { I18nEngine } from '@digitaldefiance/i18n-lib';
 
 const mockOnVerify = jest.fn();

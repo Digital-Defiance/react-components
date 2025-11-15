@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { LoginForm } from '../src/components/LoginForm';
-import { I18nProvider } from '../src/contexts';
+import { LoginForm } from '../../src/components/LoginForm';
+import { I18nProvider } from '../../src/contexts';
 import { I18nEngine } from '@digitaldefiance/i18n-lib';
 import * as Yup from 'yup';
 

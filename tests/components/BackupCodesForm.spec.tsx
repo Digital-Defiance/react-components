@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BackupCodesForm } from '../src/components/BackupCodesForm';
-import { I18nProvider } from '../src/contexts';
+import { BackupCodesForm } from '../../src/components/BackupCodesForm';
+import { I18nProvider } from '../../src/contexts';
 import { I18nEngine } from '@digitaldefiance/i18n-lib';
 
 const mockOnSubmit = jest.fn();

@@ -1,7 +1,7 @@
 import { Drawer, List } from '@mui/material';
 import { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IncludeOnMenu } from '../enumerations/IncludeOnMenu';
+import { MenuTypes } from '../types/MenuType';
 import { IMenuOption } from '../interfaces/IMenuOption';
 import { useMenu } from '../contexts/MenuContext';
 import { SideMenuListItem } from './SideMenuListItem';
@@ -15,7 +15,7 @@ export const SideMenu: FC<SideMenuProps> = ({ isOpen, onClose }) => {
   const { getMenuOptions } = useMenu();
   const navigate = useNavigate();
 
-  const menuOptions = getMenuOptions(IncludeOnMenu.SideMenu, true);
+  const menuOptions = getMenuOptions(MenuTypes.SideMenu, true);
 
   const handleNavigate = (link: string | { pathname: string; state?: any }) => {
     if (typeof link === 'string') {

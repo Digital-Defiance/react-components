@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { ApiAccess } from '../src/components/ApiAccess';
-import { I18nProvider } from '../src/contexts';
+import { ApiAccess } from '../../src/components/ApiAccess';
+import { I18nProvider } from '../../src/contexts';
 import { I18nEngine } from '@digitaldefiance/i18n-lib';
 
 const renderWithI18n = (component: React.ReactElement) => {

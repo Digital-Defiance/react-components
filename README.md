@@ -66,9 +66,45 @@ yarn add @digitaldefiance/express-suite-react-components
 ### Types & Interfaces
 
 - **IMenuOption** - Menu option interface
-- **IncludeOnMenu** - Menu location enumeration
+- **MenuType** - Extensible menu type system (see [Menu Type Extensibility Guide](docs/MENU_TYPE_EXTENSIBILITY.md))
 
 ## Usage
+
+### Menu System
+
+The menu system supports extensible menu types. See the [Menu Type Extensibility Guide](docs/MENU_TYPE_EXTENSIBILITY.md) for details on creating custom menus.
+
+```tsx
+import { TopMenu, MenuTypes, createMenuType } from '@digitaldefiance/express-suite-react-components';
+
+// Use built-in menu types
+const menuOptions = [
+  {
+    id: 'dashboard',
+    label: 'Dashboard',
+    link: '/dashboard',
+    includeOnMenus: [MenuTypes.SideMenu, MenuTypes.TopMenu],
+    index: 0,
+    requiresAuth: true,
+  },
+];
+
+// Create custom menu types
+const AdminMenu = createMenuType('AdminMenu');
+
+function App() {
+  return (
+    <TopMenu 
+      Logo={<MyLogo />}
+      additionalMenus={[{
+        menuType: AdminMenu,
+        menuIcon: <AdminIcon />,
+        priority: 10,
+      }]}
+    />
+  );
+}
+```
 
 ### Authentication
 
@@ -260,6 +296,41 @@ interface RegisterFormProps {
 MIT © Digital Defiance
 
 ## ChangeLog
+
+### v2.3.0
+
+#### Breaking Changes
+- **Removed `IncludeOnMenu` enum** - Replaced with extensible `MenuType` system using branded string types
+- Menu system now requires `MenuTypes` constant instead of enum values
+
+#### Added
+- **Extensible Menu Type System** - New `MenuType` branded string type with `createMenuType()` factory function
+- **`MenuTypes` constant** - Built-in menu types (SideMenu, TopMenu, UserMenu) replacing enum
+- **`createMenuType()` function** - Factory for creating custom menu types with type safety
+- **`AdditionalDropdownMenu` interface** - Support for custom dropdown menus in TopMenu component
+- **`additionalMenus` prop** on TopMenu - Allows adding custom menu dropdowns with priority ordering
+- **Menu Type Extensibility Guide** - Comprehensive documentation at `docs/MENU_TYPE_EXTENSIBILITY.md`
+
+#### Changed
+- **IMenuOption.includeOnMenus** - Now uses `MenuType[]` instead of `IncludeOnMenu[]`
+- **DropdownMenu.menuType** - Now accepts `MenuType` instead of `IncludeOnMenu`
+- **MenuContext.getMenuOptions** - Now accepts `MenuType` parameter instead of `IncludeOnMenu`
+- All menu components updated to use `MenuTypes` constant
+- Updated README with menu system usage examples and extensibility guide link
+
+#### Migration Guide
+```typescript
+// Old (v2.2.x)
+import { IncludeOnMenu } from '@digitaldefiance/express-suite-react-components';
+includeOnMenus: [IncludeOnMenu.SideMenu, IncludeOnMenu.UserMenu]
+
+// New (v2.3.0)
+import { MenuTypes } from '@digitaldefiance/express-suite-react-components';
+includeOnMenus: [MenuTypes.SideMenu, MenuTypes.UserMenu]
+
+// Create custom menu types
+import { createMenuType } from '@digitaldefiance/express-suite-react-components';
+const AdminMenu = createMenuType('AdminMenu');
 
 ### v2.2.1
 

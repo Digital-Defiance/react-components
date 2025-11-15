@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { ChangePasswordForm } from '../src/components/ChangePasswordForm';
-import { I18nProvider } from '../src/contexts';
+import { ChangePasswordForm } from '../../src/components/ChangePasswordForm';
+import { I18nProvider } from '../../src/contexts';
 import { I18nEngine } from '@digitaldefiance/i18n-lib';
 
 const mockOnSubmit = jest.fn();

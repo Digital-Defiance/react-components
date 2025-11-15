@@ -24,7 +24,7 @@ import {
   useState,
 } from 'react';
 import { useAuth } from './AuthProvider';
-import { IncludeOnMenu } from '../enumerations/IncludeOnMenu';
+import { MenuType, MenuTypes } from '../types/MenuType';
 import { useI18n } from './I18nProvider';
 import { IMenuOption } from '../interfaces/IMenuOption';
 import { useTheme } from './ThemeProvider';
@@ -36,7 +36,7 @@ interface MenuProviderProps {
 interface MenuContextType {
   menuOptions: IMenuOption[];
   getMenuOptions: (
-    menuType: IncludeOnMenu,
+    menuType: MenuType,
     includeDividers: boolean,
   ) => IMenuOption[];
   registerMenuOption: (option: IMenuOption) => () => void;
@@ -94,14 +94,14 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children }) => {
         icon: <DashboardIcon />,
         link: '/dashboard',
         requiresAuth: true,
-        includeOnMenus: [IncludeOnMenu.SideMenu],
+        includeOnMenus: [MenuTypes.SideMenu],
         index: index++,
       },
       {
         id: 'user-divider',
         label: '',
         divider: true,
-        includeOnMenus: [IncludeOnMenu.SideMenu],
+        includeOnMenus: [MenuTypes.SideMenu],
         index: index++,
         requiresAuth: false,
       },
@@ -111,7 +111,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children }) => {
         icon: <LogoutIcon />,
         link: '/logout',
         requiresAuth: true,
-        includeOnMenus: [IncludeOnMenu.UserMenu, IncludeOnMenu.SideMenu],
+        includeOnMenus: [MenuTypes.UserMenu, MenuTypes.SideMenu],
         index: index++,
       },
       {
@@ -120,7 +120,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children }) => {
         icon: <LoginIcon />,
         link: '/login',
         requiresAuth: false,
-        includeOnMenus: [IncludeOnMenu.UserMenu, IncludeOnMenu.SideMenu],
+        includeOnMenus: [MenuTypes.UserMenu, MenuTypes.SideMenu],
         index: index++,
       },
       {
@@ -129,7 +129,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children }) => {
         icon: <PersonAddIcon />,
         link: '/register',
         requiresAuth: false,
-        includeOnMenus: [IncludeOnMenu.UserMenu, IncludeOnMenu.SideMenu],
+        includeOnMenus: [MenuTypes.UserMenu, MenuTypes.SideMenu],
         index: index++,
       },
       {
@@ -138,7 +138,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children }) => {
         icon: <LockOpenIcon />,
         link: '/forgot-password',
         requiresAuth: false,
-        includeOnMenus: [IncludeOnMenu.UserMenu, IncludeOnMenu.SideMenu],
+        includeOnMenus: [MenuTypes.UserMenu, MenuTypes.SideMenu],
         index: index++,
       },
       {
@@ -147,7 +147,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children }) => {
         icon: <LockResetIcon />,
         link: '/change-password',
         requiresAuth: true,
-        includeOnMenus: [IncludeOnMenu.UserMenu, IncludeOnMenu.SideMenu],
+        includeOnMenus: [MenuTypes.UserMenu, MenuTypes.SideMenu],
         index: index++,
       },
       {
@@ -156,7 +156,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children }) => {
         icon: <KeyIcon />,
         link: '/backup-code',
         requiresAuth: false,
-        includeOnMenus: [IncludeOnMenu.UserMenu, IncludeOnMenu.SideMenu],
+        includeOnMenus: [MenuTypes.UserMenu, MenuTypes.SideMenu],
         index: index++,
       },
       {
@@ -165,14 +165,14 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children }) => {
         icon: <AutorenewIcon />,
         link: '/backup-codes',
         requiresAuth: true,
-        includeOnMenus: [IncludeOnMenu.UserMenu, IncludeOnMenu.SideMenu],
+        includeOnMenus: [MenuTypes.UserMenu, MenuTypes.SideMenu],
         index: index++,
       },
       {
         id: 'divider',
         label: '',
         divider: true,
-        includeOnMenus: [IncludeOnMenu.SideMenu],
+        includeOnMenus: [MenuTypes.SideMenu],
         index: index++,
         requiresAuth: false,
       },
@@ -182,7 +182,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children }) => {
         action: clearMnemonic,
         icon: <KeyIcon />,
         requiresAuth: true,
-        includeOnMenus: [IncludeOnMenu.UserMenu, IncludeOnMenu.SideMenu],
+        includeOnMenus: [MenuTypes.UserMenu, MenuTypes.SideMenu],
         index: index++,
         filter: () => !!mnemonic,
       },
@@ -192,7 +192,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children }) => {
         action: clearWallet,
         icon: <KeyIcon />,
         requiresAuth: true,
-        includeOnMenus: [IncludeOnMenu.UserMenu, IncludeOnMenu.SideMenu],
+        includeOnMenus: [MenuTypes.UserMenu, MenuTypes.SideMenu],
         index: index++,
         filter: () => !!wallet,
       },
@@ -201,7 +201,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children }) => {
         id: 'color-divider',
         label: '',
         divider: true,
-        includeOnMenus: [IncludeOnMenu.SideMenu],
+        includeOnMenus: [MenuTypes.SideMenu],
         index: index++,
         requiresAuth: undefined,
       },
@@ -212,7 +212,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children }) => {
             ? t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ThemeToggle_Light))
             : t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ThemeToggle_Dark)),
         icon: mode === 'dark' ? <Brightness7 /> : <Brightness4 />,
-        includeOnMenus: [IncludeOnMenu.SideMenu],
+        includeOnMenus: [MenuTypes.SideMenu],
         index: index++,
         requiresAuth: undefined,
         action: toggleColorMode,
@@ -224,7 +224,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children }) => {
   }, [t, tComponent, registeredOptions, user?.roles, mode, toggleColorMode]);
 
   const getMenuOptions = useCallback(
-    (menuType: IncludeOnMenu, includeDividers: boolean) => {
+    (menuType: MenuType, includeDividers: boolean) => {
       const MenuFilter = (o: IMenuOption) => {
         // Apply the custom filter first
         let customFilterPasses = true;

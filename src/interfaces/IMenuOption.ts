@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { IncludeOnMenu } from '../enumerations';
+import { MenuType } from '../types/MenuType';
 import { To } from 'react-router-dom';
 
 export interface IMenuOption {
@@ -14,7 +14,7 @@ export interface IMenuOption {
   /**
    * Where the menu option should be displayed
    */
-  includeOnMenus: IncludeOnMenu[];
+  includeOnMenus: MenuType[];
   /**
    * Display order for the menu option. Lower numbers are displayed first.
    */

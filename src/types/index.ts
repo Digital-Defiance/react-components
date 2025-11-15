@@ -1,2 +1,1 @@
-export * from './expirationSeconds';
-export * from './translation';
+export * from './MenuType';

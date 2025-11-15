@@ -2,7 +2,6 @@
 export * from './auth';
 export * from './components';
 export * from './contexts';
-export * from './enumerations';
 export * from './hooks';
 export * from './interfaces';
 export * from './services';
