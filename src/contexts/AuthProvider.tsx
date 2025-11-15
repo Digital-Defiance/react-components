@@ -11,7 +11,6 @@ import {
   CoreLanguageCode,
   CurrencyCode,
   DefaultCurrencyCode,
-  I18nEngine,
 } from '@digitaldefiance/i18n-lib';
 import { Wallet } from '@ethereumjs/wallet';
 import {
@@ -23,7 +22,7 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { I18nProvider, useI18n } from './I18nProvider';
+import { useI18n } from './I18nProvider';
 import { createAuthService } from '../services/authService';
 import { createAuthenticatedApiClient } from '../services/authenticatedApi';
 import { useExpiringValue } from '../hooks/useExpiringValue';

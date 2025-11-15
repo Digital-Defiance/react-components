@@ -1,16 +1,14 @@
-import { FC, ReactNode } from 'react';
-
+import { FC, ReactNode, useContext } from 'react';
+import { AuthContext } from '../contexts/AuthProvider';
 export interface PrivateProps {
   children: ReactNode;
-  isAuthenticated: boolean;
-  isCheckingAuth: boolean;
 }
 
 export const Private: FC<PrivateProps> = ({
   children,
-  isAuthenticated,
-  isCheckingAuth,
 }) => {
+  const { isAuthenticated, isCheckingAuth } = useContext(AuthContext);
+
   if (isCheckingAuth || !isAuthenticated) {
     return <></>;
   }
