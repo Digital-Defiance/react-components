@@ -261,6 +261,32 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### v2.2.1
+
+- Update BackupCodeLoginForm
+
+### v2.2.0
+
+#### Changed
+- Updated peer dependencies: pinned `react-router-dom` to `6.29.0`
+- Updated dependencies: `@digitaldefiance/i18n-lib` to `3.6.0`, `@digitaldefiance/suite-core-lib` to `2.2.1`
+- Updated dev dependencies: pinned `react` and `react-dom` to `19.0.0`, downgraded `@testing-library/react` to `16.0.1`
+- Replaced `BrowserRouter` with `MemoryRouter` in test files for better test isolation
+
+#### Added
+- Jest environment options: `resources: 'usable'` and `runScripts: 'dangerously'` for improved test compatibility
+- `@testing-library/react-hooks` dev dependency (`8.0.1`)
+- React strict mode configuration in test setup
+- Custom render utility with `MemoryRouter` wrapper in `tests/test-utils.tsx`
+
+#### Fixed
+- Test environment configuration for React 19 compatibility
+- Router setup in AuthProvider tests to use `MemoryRouter`
+
+#### Removed
+- Unused `renderWithProviders` helper function in UnAuthRoute tests
+- External mock dependency for RegisterForm tests (inlined mock data)
+
 ### v2.1.57
 
 - Update libs

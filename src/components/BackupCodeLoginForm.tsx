@@ -35,11 +35,7 @@ export interface BackupCodeLoginFormProps {
   >;
   onNavigate?: (path: string, state?: any) => void;
   isAuthenticated?: boolean;
-  emailValidation?: Yup.StringSchema;
-  usernameValidation?: Yup.StringSchema;
-  codeValidation?: Yup.StringSchema;
-  passwordValidation?: Yup.StringSchema;
-  confirmPasswordValidation?: Yup.StringSchema;
+  validationSchema?: Yup.ObjectSchema<any>;
   labels?: {
     title?: string;
     email?: string;
@@ -62,11 +58,7 @@ export const BackupCodeLoginForm: FC<BackupCodeLoginFormProps> = ({
   onSubmit,
   onNavigate,
   isAuthenticated = false,
-  emailValidation,
-  usernameValidation,
-  codeValidation,
-  passwordValidation,
-  confirmPasswordValidation,
+  validationSchema,
   labels = {},
 }) => {
   const { tComponent } = useI18n();
@@ -75,22 +67,6 @@ export const BackupCodeLoginForm: FC<BackupCodeLoginFormProps> = ({
   const [recoveredMnemonic, setRecoveredMnemonic] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [codesRemaining, setCodesRemaining] = useState<number | null>(null);
-
-  const validation = {
-    email: emailValidation || Yup.string()
-      .email(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_InvalidEmail))
-      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
-    username: usernameValidation || Yup.string()
-      .matches(Constants.UsernameRegex, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_UsernameRegexErrorTemplate))
-      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
-    code: codeValidation || Yup.string()
-      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required))
-      .matches(Constants.BACKUP_CODES.DisplayRegex, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_InvalidBackupCode)),
-    password: passwordValidation || Yup.string()
-      .matches(Constants.PasswordRegex, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordRegexErrorTemplate)),
-    confirmPassword: confirmPasswordValidation || Yup.string()
-      .oneOf([Yup.ref('newPassword')], tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordMatch)),
-  };
 
   const translatedLabels = {
     title: labels.title || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_Title),
@@ -110,11 +86,27 @@ export const BackupCodeLoginForm: FC<BackupCodeLoginFormProps> = ({
     unexpectedError: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_UnexpectedError),
   };
 
-  const validationSchema = Yup.object({
-    [loginType]: loginType === 'email' ? validation.email : validation.username,
-    code: validation.code,
-    newPassword: validation.password,
-    confirmNewPassword: validation.confirmPassword,
+  const yupFieldValidation = {
+    email: Yup.string()
+      .email(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_InvalidEmail))
+      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
+    username: Yup.string()
+      .matches(Constants.UsernameRegex, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_UsernameRegexErrorTemplate))
+      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
+    code: Yup.string()
+      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required))
+      .matches(Constants.BACKUP_CODES.DisplayRegex, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_InvalidBackupCode)),
+    password: Yup.string()
+      .matches(Constants.PasswordRegex, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordRegexErrorTemplate)),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref('newPassword')], tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordMatch)),
+  };
+
+  const yupSchema = validationSchema ?? Yup.object({
+    [loginType]: loginType === 'email' ? yupFieldValidation.email : yupFieldValidation.username,
+    code: yupFieldValidation.code,
+    newPassword: yupFieldValidation.password,
+    confirmNewPassword: yupFieldValidation.confirmPassword,
   });
 
   const formik = useFormik<BackupCodeLoginFormValues>({
@@ -126,7 +118,7 @@ export const BackupCodeLoginForm: FC<BackupCodeLoginFormProps> = ({
       confirmNewPassword: '',
       recoverMnemonic: false,
     },
-    validationSchema,
+    validationSchema: yupSchema,
     onSubmit: async (values, { setSubmitting }) => {
       try {
         const loginResult = await onSubmit(
