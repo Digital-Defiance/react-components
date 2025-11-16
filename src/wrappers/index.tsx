@@ -88,6 +88,7 @@ export const LoginFormWrapper: FC = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (values: LoginFormValues) => {
+    console.log('LoginFormWrapper handleSubmit called with:', { ...values, password: values.password ? '***' : undefined, mnemonic: values.mnemonic ? '***' : undefined });
     if (values.password) {
       const result = await passwordLogin(
         new SecureString(values.password),

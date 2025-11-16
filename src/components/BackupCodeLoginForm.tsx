@@ -102,13 +102,6 @@ export const BackupCodeLoginForm: FC<BackupCodeLoginFormProps> = ({
       .oneOf([Yup.ref('newPassword')], tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordMatch)),
   };
 
-  const yupSchema = validationSchema ?? Yup.object({
-    [loginType]: loginType === 'email' ? yupFieldValidation.email : yupFieldValidation.username,
-    code: yupFieldValidation.code,
-    newPassword: yupFieldValidation.password,
-    confirmNewPassword: yupFieldValidation.confirmPassword,
-  });
-
   const formik = useFormik<BackupCodeLoginFormValues>({
     initialValues: {
       email: '',
@@ -118,7 +111,13 @@ export const BackupCodeLoginForm: FC<BackupCodeLoginFormProps> = ({
       confirmNewPassword: '',
       recoverMnemonic: false,
     },
-    validationSchema: yupSchema,
+    validationSchema: validationSchema ?? Yup.object({
+      [loginType]: loginType === 'email' ? yupFieldValidation.email : yupFieldValidation.username,
+      code: yupFieldValidation.code,
+      newPassword: yupFieldValidation.password,
+      confirmNewPassword: yupFieldValidation.confirmPassword,
+    }),
+    enableReinitialize: true,
     onSubmit: async (values, { setSubmitting }) => {
       try {
         const loginResult = await onSubmit(
@@ -295,7 +294,11 @@ export const BackupCodeLoginForm: FC<BackupCodeLoginFormProps> = ({
                 <Button
                   fullWidth
                   variant="text"
-                  onClick={() => setLoginType(loginType === 'email' ? 'username' : 'email')}
+                  onClick={() => {
+                    const newType = loginType === 'email' ? 'username' : 'email';
+                    formik.setFieldValue(loginType, '');
+                    setLoginType(newType);
+                  }}
                 >
                   {loginType === 'email' ? translatedLabels.useUsername : translatedLabels.useEmail}
                 </Button>

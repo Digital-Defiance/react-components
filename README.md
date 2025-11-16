@@ -297,6 +297,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### v2.3.5
+
+- Login/BackupLogin form improvements
+
 ### v2.3.4
 
 - Simplify Private to use AuthContext and not need props

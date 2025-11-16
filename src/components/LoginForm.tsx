@@ -123,14 +123,6 @@ export const LoginForm: FC<LoginFormProps> = ({
       .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
   };
 
-  const validationSchema = Yup.object({
-    [loginType]: loginType === 'email' ? validation.email : validation.username,
-    ...(authType === 'mnemonic'
-      ? { mnemonic: validation.mnemonic }
-      : { password: validation.password }),
-    ...additionalValidation,
-  });
-
   const formik = useFormik<LoginFormValues>({
     initialValues: {
       email: '',
@@ -139,7 +131,14 @@ export const LoginForm: FC<LoginFormProps> = ({
       password: '',
       ...additionalInitialValues,
     },
-    validationSchema,
+    validationSchema: Yup.object({
+      [loginType]: loginType === 'email' ? validation.email : validation.username,
+      ...(authType === 'mnemonic'
+        ? { mnemonic: validation.mnemonic }
+        : { password: validation.password }),
+      ...additionalValidation,
+    }),
+    enableReinitialize: true,
     onSubmit,
   });
 
@@ -261,7 +260,11 @@ export const LoginForm: FC<LoginFormProps> = ({
                 <Button
                   fullWidth
                   variant="text"
-                  onClick={() => setLoginType(loginType === 'email' ? 'username' : 'email')}
+                  onClick={() => {
+                    const newType = loginType === 'email' ? 'username' : 'email';
+                    formik.setFieldValue(loginType, '');
+                    setLoginType(newType);
+                  }}
                 >
                   {loginType === 'email' ? labels.useUsername : labels.useEmail}
                 </Button>
@@ -270,7 +273,11 @@ export const LoginForm: FC<LoginFormProps> = ({
                 <Button
                   fullWidth
                   variant="text"
-                  onClick={() => setAuthType(authType === 'password' ? 'mnemonic' : 'password')}
+                  onClick={() => {
+                    const newType = authType === 'password' ? 'mnemonic' : 'password';
+                    formik.setFieldValue(authType, '');
+                    setAuthType(newType);
+                  }}
                 >
                   {authType === 'password' ? labels.useMnemonic : labels.usePassword}
                 </Button>
