@@ -13,6 +13,7 @@ import {
   Login as LoginIcon,
   ExitToApp as LogoutIcon,
   PersonAdd as PersonAddIcon,
+  Settings,
 } from '@mui/icons-material';
 import {
   FC,
@@ -35,6 +36,7 @@ import { useTheme } from './ThemeProvider';
 interface MenuProviderProps {
   children: ReactNode;
   menuConfigs?: IMenuConfig[];
+  enableBackupCodes?: boolean;
 }
 
 interface MenuContextType {
@@ -50,13 +52,13 @@ interface MenuContextType {
 
 const MenuContext = createContext<MenuContextType | undefined>(undefined);
 
-export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = [] }) => {
+export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = [], enableBackupCodes = true }) => {
   const { userData: user, isAuthenticated, mnemonic, clearMnemonic, wallet, clearWallet } = useAuth();
   const registeredMenuOptions = useRef(new Set<() => void>());
   const [registeredOptions, setRegisteredOptions] = useState<
     Map<string, IMenuOption>
   >(new Map<string, IMenuOption>());
-  const { t, tComponent } = useI18n();
+  const { tComponent } = useI18n();
   const { mode, toggleColorMode } = useTheme();
 
   const registerMenuOption = useCallback((option: IMenuOption) => {
@@ -95,7 +97,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = []
     const baseOptions: IMenuOption[] = [
       {
         id: 'dashboard',
-        label: t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Dashboard)),
+        label: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Dashboard),
         icon: <DashboardIcon />,
         link: '/dashboard',
         requiresAuth: true,
@@ -112,7 +114,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = []
       },
       {
         id: 'logout',
-        label: t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.LogoutButton)),
+        label: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.LogoutButton),
         icon: <LogoutIcon />,
         link: '/logout',
         requiresAuth: true,
@@ -121,7 +123,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = []
       },
       {
         id: 'login',
-        label: t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_LoginButton)),
+        label: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_LoginButton),
         icon: <LoginIcon />,
         link: '/login',
         requiresAuth: false,
@@ -130,7 +132,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = []
       },
       {
         id: 'register',
-        label: t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.RegisterButton)),
+        label: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.RegisterButton),
         icon: <PersonAddIcon />,
         link: '/register',
         requiresAuth: false,
@@ -139,7 +141,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = []
       },
       {
         id: 'forgot-password',
-        label: t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.ForgotPassword_Title)),
+        label: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.ForgotPassword_Title),
         icon: <LockOpenIcon />,
         link: '/forgot-password',
         requiresAuth: false,
@@ -148,16 +150,16 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = []
       },
       {
         id: 'change-password',
-        label: t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ChangePassword)),
+        label: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ChangePassword),
         icon: <LockResetIcon />,
         link: '/change-password',
         requiresAuth: true,
         includeOnMenus: [MenuTypes.UserMenu, MenuTypes.SideMenu],
         index: index++,
       },
-      {
+      ...(enableBackupCodes ? [{
         id: 'backup-code',
-        label: t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_Title)),
+        label: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_Title),
         icon: <KeyIcon />,
         link: '/backup-code',
         requiresAuth: false,
@@ -166,13 +168,13 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = []
       },
       {
         id: 'backup-codes',
-        label: t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_GenerateNewCodes)),
+        label: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_GenerateNewCodes),
         icon: <AutorenewIcon />,
         link: '/backup-codes',
         requiresAuth: true,
         includeOnMenus: [MenuTypes.UserMenu, MenuTypes.SideMenu],
         index: index++,
-      },
+      }] : []),
       {
         id: 'divider',
         label: '',
@@ -183,7 +185,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = []
       },
       {
         id: 'clear-mnemonic',
-        label: t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ClearMnemonic)),
+        label: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ClearMnemonic),
         action: clearMnemonic,
         icon: <KeyIcon />,
         requiresAuth: true,
@@ -193,7 +195,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = []
       },
       {
         id: 'clear-wallet',
-        label: t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ClearWallet)),
+        label: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ClearWallet),
         action: clearWallet,
         icon: <KeyIcon />,
         requiresAuth: true,
@@ -214,19 +216,28 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = []
         id: 'theme-toggle',
         label:
           mode === 'dark'
-            ? t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ThemeToggle_Light))
-            : t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ThemeToggle_Dark)),
+            ? tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ThemeToggle_Light)
+            : tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ThemeToggle_Dark),
         icon: mode === 'dark' ? <Brightness7 /> : <Brightness4 />,
         includeOnMenus: [MenuTypes.SideMenu],
         index: index++,
         requiresAuth: undefined,
         action: toggleColorMode,
       },
+      {
+        id: 'user-settings',
+        label: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Settings_Title),
+        icon: <Settings />,
+        link: '/user-settings',
+        requiresAuth: true,
+        includeOnMenus: [MenuTypes.UserMenu, MenuTypes.SideMenu],
+        index: index++,
+      }
     ];
 
     const allOptions = [...baseOptions, ...registeredOptions.values()];
     return allOptions.sort((a, b) => a.index - b.index);
-  }, [t, tComponent, registeredOptions, user?.roles, mode, toggleColorMode]);
+  }, [tComponent, registeredOptions, user?.roles, mode, toggleColorMode]);
 
   const getMenuOptions = useCallback(
     (menuType: MenuType, includeDividers: boolean) => {

@@ -43,13 +43,13 @@ export const VerifyEmailPage: FC<VerifyEmailPageProps> = ({
   );
 
   const translatedLabels = {
-    title: labels.title || t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_EmailVerification)),
-    success: labels.success || t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.EmailVerification_Success)),
-    failed: labels.failed || t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.EmailVerification_Failed)),
-    noToken: labels.noToken || t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.NoVerificationTokenProvided)),
-    proceedToLogin: labels.proceedToLogin || t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.ProceedToLogin)),
-    contactSupport: labels.contactSupport || t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.HavingTroubleContactSupport)),
-    requestNewEmail: labels.requestNewEmail || t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.RequestNewVerificationEmail)),
+    title: labels.title || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_EmailVerification),
+    success: labels.success || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.EmailVerification_Success),
+    failed: labels.failed || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.EmailVerification_Failed),
+    noToken: labels.noToken || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.NoVerificationTokenProvided),
+    proceedToLogin: labels.proceedToLogin || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.ProceedToLogin),
+    contactSupport: labels.contactSupport || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.HavingTroubleContactSupport),
+    requestNewEmail: labels.requestNewEmail || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.RequestNewVerificationEmail),
   };
 
   useEffect(() => {

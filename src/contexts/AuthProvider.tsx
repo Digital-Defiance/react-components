@@ -389,7 +389,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
   const passwordLogin: AuthContextData['passwordLogin'] = useCallback(
     async (password: SecureString, username?: string, email?: EmailString) => {
       if (!isPasswordLoginAvailable()) {
-        return { error: t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Error_Login_PasswordLoginNotSetup)), errorType: 'PasswordLoginNotSetup' };
+        return { error: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Error_Login_PasswordLoginNotSetup), errorType: 'PasswordLoginNotSetup' };
       }
       setLoading(true);
       const passwordLoginService: PasswordLoginService = getPasswordLoginService();
@@ -465,10 +465,10 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
         setLoading(false);
         setWallet(wallet);
         setMnemonic(mnemonic);
-        return { success: true, message: t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId,SuiteCoreStringKey.PasswordLogin_Setup_Success)) };
+        return { success: true, message: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId,SuiteCoreStringKey.PasswordLogin_Setup_Success) };
       } catch {
         setLoading(false);
-        return { success: false, message: t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordLogin_Setup_Failure)) };
+        return { success: false, message: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordLogin_Setup_Failure) };
       }
     },
     [setMnemonic, setWallet, t, tComponent],
@@ -557,7 +557,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
         }
     > => {
       if (!isPasswordLoginAvailable()) {
-        return { error: t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Error_Login_PasswordLoginNotSetup)), errorType: 'PasswordLoginNotSetup' };
+        return { error: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Error_Login_PasswordLoginNotSetup), errorType: 'PasswordLoginNotSetup' };
       }
       setLoading(true);
       try {
@@ -565,13 +565,13 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
         const { mnemonic, wallet } = await passwordLoginService.getWalletAndMnemonicFromLocalStorageBundle(new SecureString(currentPassword));
         if (!mnemonic) {
           setLoading(false);
-          return { error: t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordLogin_InvalidCurrentPassword)), errorType: 'InvalidCurrentPassword' };
+          return { error: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordLogin_InvalidCurrentPassword), errorType: 'InvalidCurrentPassword' };
         }
         await passwordLoginService.setupPasswordLoginLocalStorageBundle(mnemonic, new SecureString(newPassword));
         setLoading(false);
         setWallet(wallet);
         setMnemonic(mnemonic);
-        return { success: true, message: t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordChange_Success)) };
+        return { success: true, message: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordChange_Success) };
       } catch (error) {
         setLoading(false);
         return { error: 'Password change failed' };

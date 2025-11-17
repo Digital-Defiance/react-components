@@ -43,7 +43,7 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus }) => {
     'APP_CONFIG' in window
       ? ((window as any).APP_CONFIG as IAppConfig)
       : undefined;
-  const siteTitle = t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_SiteTemplate));
+  const siteTitle = tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_SiteTemplate);
 
   return (
     <AppBar position="fixed" sx={{ top: 10 }}>
@@ -76,7 +76,7 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus }) => {
           {isAuthenticated ? (
             <>
               <Button color="inherit" component={Link} to="/dashboard">
-                {t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Dashboard))}
+                {tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Dashboard)}
               </Button>
               {getTopMenus().map((menu, index) => 
                 menu.isUserMenu ? <UserMenu key={`user-menu`} /> : <DropdownMenu key={`menu-${index}`} menuType={menu.menuType} menuIcon={menu.menuIcon as ReactElement} />
@@ -85,10 +85,10 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus }) => {
           ) : (
             <>
               <Button color="inherit" component={Link} to="/login">
-                {t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_LoginButton))}
+                {tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_LoginButton)}
               </Button>
               <Button color="inherit" component={Link} to="/register">
-                {t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.RegisterButton))}
+                {tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.RegisterButton)}
               </Button>
             </>
           )}

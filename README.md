@@ -297,6 +297,12 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 2.4.4
+
+- Fix t(tComponent( calls
+- Add enableBackupCode to MenuProvider
+- Add User Settings to menu
+
 ### Version 2.4.3
 
 - Simplify UserSettingsForm/Wrapper
