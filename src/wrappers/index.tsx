@@ -9,9 +9,9 @@ import { RegisterForm, RegisterFormValues } from '../components/RegisterForm';
 import { LogoutPage } from '../components/LogoutPage';
 import { VerifyEmailPage } from '../components/VerifyEmailPage';
 import { UserSettingsForm, UserSettingsFormValues } from '../components/UserSettingsForm';
-import { useAuth } from '../contexts';
+import { useAuth, useTheme } from '../contexts';
 import { createAuthenticatedApiClient } from '../services';
-import { SuiteCoreStringKey, TranslatableSuiteError } from '@digitaldefiance/suite-core-lib';
+import { getSuiteCoreTranslation, SuiteCoreStringKey, TranslatableSuiteError } from '@digitaldefiance/suite-core-lib';
 
 export const BackupCodeLoginWrapper: FC = () => {
   const { backupCodeLogin, isAuthenticated } = useAuth();
@@ -186,7 +186,34 @@ export const UserSettingsFormWrapper: FC<UserSettingsFormWrapperProps> = ({
   languages
 }) => {
   const { userData, setCurrencyCode, setLanguage } = useAuth();
+  const { setColorMode } = useTheme();
   const api = createAuthenticatedApiClient(baseUrl);
+  const [initialValues, setInitialValues] = useState<UserSettingsFormValues>({
+    email: userData?.email || '',
+    timezone: userData?.timezone || 'UTC',
+    siteLanguage: userData?.siteLanguage || 'en-US',
+    currency: userData?.currency || 'USD',
+    darkMode: userData?.darkMode || false,
+    directChallenge: userData?.directChallenge || false,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const result = await api.get<{ settings: UserSettingsFormValues }>('/user/settings');
+        if (result?.data?.settings) {
+          setInitialValues(result.data.settings);
+        }
+      } catch (error) {
+        // Use fallback from userData
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSettings();
+  }, [api]);
 
   const handleSubmit = async (values: UserSettingsFormValues) => {
     try {
@@ -198,21 +225,19 @@ export const UserSettingsFormWrapper: FC<UserSettingsFormWrapperProps> = ({
       if (values.siteLanguage) {
         await setLanguage(values.siteLanguage);
       }
+      if (values.darkMode !== userData?.darkMode) {
+        setColorMode(values.darkMode ? 'dark' : 'light');
+      }
       
       return { success: true, message: result.data.message };
     } catch (error: any) {
-      return { error: error.response?.data?.message || 'Failed to update settings' };
+      return { error: error.response?.data?.message || getSuiteCoreTranslation(SuiteCoreStringKey.Settings_UpdateFailed) };
     }
   };
 
-  const initialValues: UserSettingsFormValues = {
-    email: userData?.email || '',
-    timezone: userData?.timezone || 'UTC',
-    siteLanguage: userData?.siteLanguage || 'en-US',
-    currency: userData?.currency || 'USD',
-    darkMode: userData?.darkMode || false,
-    directChallenge: userData?.directChallenge || false,
-  };
+  if (isLoading) {
+    return <div>{getSuiteCoreTranslation(SuiteCoreStringKey.Common_Loading)}...</div>;
+  }
 
   return (
     <UserSettingsForm

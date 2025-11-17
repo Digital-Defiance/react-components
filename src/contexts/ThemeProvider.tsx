@@ -10,6 +10,7 @@ import { FC, ReactNode, createContext, useContext, useMemo, useState } from 'rea
 
 export interface ThemeContextType {
   toggleColorMode: () => void;
+  setColorMode: (mode: PaletteMode) => void;
   mode: PaletteMode;
 }
 
@@ -35,6 +36,9 @@ export const AppThemeProvider: FC<AppThemeProviderProps> = ({ children, customTh
     () => ({
       toggleColorMode: () => {
         setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
+      },
+      setColorMode: (newMode: PaletteMode) => {
+        setMode(newMode);
       },
       mode,
     }),

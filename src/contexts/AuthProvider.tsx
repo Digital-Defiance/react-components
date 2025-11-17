@@ -23,6 +23,7 @@ import {
   useState,
 } from 'react';
 import { useI18n } from './I18nProvider';
+import { useTheme } from './ThemeProvider';
 import { createAuthService } from '../services/authService';
 import { createAuthenticatedApiClient } from '../services/authenticatedApi';
 import { useExpiringValue } from '../hooks/useExpiringValue';
@@ -180,6 +181,7 @@ export const AuthContext = createContext<AuthContextData>(
 
 const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout }: AuthProviderProps) => {
   const { changeLanguage, currentLanguage, t, tComponent } = useI18n();
+  const { setColorMode } = useTheme();
   
   const authService = useMemo(() => createAuthService(constants, baseUrl, eciesConfig), [constants, baseUrl, eciesConfig]);
   const authenticatedApi = useMemo(() => createAuthenticatedApiClient(baseUrl), [baseUrl]);
@@ -295,6 +297,8 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
         );
         setIsAuthenticated(true);
         setToken(token);
+        // Set theme based on user's darkMode preference
+        setColorMode((userData as IRequestUserDTO).darkMode ? 'dark' : 'light');
       }
     } catch (error) {
       console.error('Token verification failed:', error);
@@ -305,7 +309,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       setLoading(false);
       setIsCheckingAuth(false);
     }
-  }, [authService, clearMnemonic, clearWallet]);
+  }, [authService, clearMnemonic, clearWallet, setColorMode]);
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -341,11 +345,13 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
         setAuthState((prev) => prev + 1);
         localStorage.setItem('authToken', loginResult.token);
         localStorage.setItem('user', JSON.stringify(loginResult.user));
+        // Set theme based on user's darkMode preference
+        setColorMode(loginResult.user.darkMode ? 'dark' : 'light');
         return loginResult;
       }
       return loginResult;
     },
-    [authService, setMnemonic, setWallet],
+    [authService, setMnemonic, setWallet, setColorMode],
   );
 
   const emailChallengeLogin: AuthContextData['emailChallengeLogin'] =
@@ -371,10 +377,12 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
         setAuthState((prev) => prev + 1);
         localStorage.setItem('authToken', loginResult.token);
         localStorage.setItem('user', JSON.stringify(loginResult.user));
+        // Set theme based on user's darkMode preference
+        setColorMode(loginResult.user.darkMode ? 'dark' : 'light');
         return loginResult;
       }
       return loginResult;
-    }, [authService, setMnemonic, setWallet]);
+    }, [authService, setMnemonic, setWallet, setColorMode]);
 
   const getPasswordLoginService = useCallback(() => {
     const eciesService: ECIESService = new ECIESService(eciesConfig);
@@ -402,8 +410,12 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       setLoading(false);
       setWallet(wallet);
       setMnemonic(mnemonic);
+      // Set theme based on user's darkMode preference if login succeeded
+      if ('user' in loginResult) {
+        setColorMode(loginResult.user.darkMode ? 'dark' : 'light');
+      }
       return loginResult;
-    }, [authService, getPasswordLoginService, setMnemonic, setWallet, t, tComponent, isPasswordLoginAvailable]);
+    }, [authService, getPasswordLoginService, setMnemonic, setWallet, t, tComponent, isPasswordLoginAvailable, setColorMode]);
 
   const refreshToken: AuthContextData['refreshToken'] =
     useCallback(async () => {
@@ -504,6 +516,8 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
         if (loginResult.user) {
           setUser(loginResult.user);
           setIsAuthenticated(true);
+          // Set theme based on user's darkMode preference
+          setColorMode(loginResult.user.darkMode ? 'dark' : 'light');
         }
         setAuthState((prev) => prev + 1);
         return {
@@ -515,7 +529,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       }
       return loginResult;
     },
-    [baseUrl],
+    [baseUrl, setColorMode],
   );
 
   const logout = useCallback(async () => {

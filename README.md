@@ -297,6 +297,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 2.4.5
+
+- DarkMode improvements
+
 ### Version 2.4.4
 
 - Fix t(tComponent( calls
