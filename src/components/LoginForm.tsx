@@ -1,5 +1,6 @@
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
+  Alert,
   Box,
   Button,
   Container,
@@ -102,7 +103,7 @@ export const LoginForm: FC<LoginFormProps> = ({
     forgotPassword: forgotPasswordText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_ForgotPassword),
     signUp: signUpText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_SignUp),
     useUsername: useUsernameText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_UseUsername),
-    useEmail: useEmailText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_UseEmail),
+    useEmail: useEmailText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_UseEmailAddress),
     useMnemonic: useMnemonicText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_UseMnemonic),
     usePassword: usePasswordText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_UsePassword),
     toggleVisibility: toggleVisibilityLabel || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.TogglePasswordVisibility),
@@ -139,7 +140,15 @@ export const LoginForm: FC<LoginFormProps> = ({
       ...additionalValidation,
     }),
     enableReinitialize: true,
-    onSubmit,
+    onSubmit: async (values, { setStatus }) => {
+      try {
+        setStatus(null);
+        await onSubmit(values);
+      } catch (error: any) {
+        setStatus(error.message || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_UnexpectedError));
+        throw error;
+      }
+    },
   });
 
   return (
@@ -156,6 +165,11 @@ export const LoginForm: FC<LoginFormProps> = ({
           {labels.title}
         </Typography>
         <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 1, width: '100%' }}>
+          {formik.status && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {formik.status}
+            </Alert>
+          )}
           <TextField
             margin="normal"
             fullWidth

@@ -389,7 +389,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
   const passwordLogin: AuthContextData['passwordLogin'] = useCallback(
     async (password: SecureString, username?: string, email?: EmailString) => {
       if (!isPasswordLoginAvailable()) {
-        return { error: t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordLogin_Setup_NotAvailable)) };
+        return { error: t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Error_Login_PasswordLoginNotSetup)), errorType: 'PasswordLoginNotSetup' };
       }
       setLoading(true);
       const passwordLoginService: PasswordLoginService = getPasswordLoginService();
@@ -557,7 +557,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
         }
     > => {
       if (!isPasswordLoginAvailable()) {
-        return { error: t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordLogin_Setup_NotAvailable)) };
+        return { error: t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Error_Login_PasswordLoginNotSetup)), errorType: 'PasswordLoginNotSetup' };
       }
       setLoading(true);
       try {

@@ -2,6 +2,7 @@
 import { IRoleDTO, SuiteCoreComponentId } from '@digitaldefiance/suite-core-lib';
 import { SuiteCoreStringKey } from '@digitaldefiance/suite-core-lib';
 import {
+  AccountCircle,
   Autorenew as AutorenewIcon,
   Brightness4,
   Brightness7,
@@ -19,6 +20,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -27,10 +29,12 @@ import { useAuth } from './AuthProvider';
 import { MenuType, MenuTypes } from '../types/MenuType';
 import { useI18n } from './I18nProvider';
 import { IMenuOption } from '../interfaces/IMenuOption';
+import { IMenuConfig } from '../interfaces/IMenuConfig';
 import { useTheme } from './ThemeProvider';
 
 interface MenuProviderProps {
   children: ReactNode;
+  menuConfigs?: IMenuConfig[];
 }
 
 interface MenuContextType {
@@ -41,11 +45,12 @@ interface MenuContextType {
   ) => IMenuOption[];
   registerMenuOption: (option: IMenuOption) => () => void;
   registerMenuOptions: (options: IMenuOption[]) => () => void;
+  getTopMenus: () => Array<IMenuConfig>;
 }
 
 const MenuContext = createContext<MenuContextType | undefined>(undefined);
 
-export const MenuProvider: FC<MenuProviderProps> = ({ children }) => {
+export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = [] }) => {
   const { userData: user, isAuthenticated, mnemonic, clearMnemonic, wallet, clearWallet } = useAuth();
   const registeredMenuOptions = useRef(new Set<() => void>());
   const [registeredOptions, setRegisteredOptions] = useState<
@@ -246,14 +251,30 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children }) => {
     [isAuthenticated, menuOptions],
   );
 
+  useEffect(() => {
+    if (menuConfigs.length > 0) {
+      return registerMenuOptions(menuConfigs.flatMap(config => config.options));
+    }
+    return undefined;
+  }, [menuConfigs, registerMenuOptions]);
+
+  const getTopMenus = useCallback(() => {
+    const menus: Array<IMenuConfig & { isUserMenu?: boolean }> = [
+      ...menuConfigs.map(config => ({ ...config, isUserMenu: false })),
+      { menuType: MenuTypes.UserMenu, menuIcon: <AccountCircle />, priority: 0, options: [], isUserMenu: true }
+    ];
+    return menus.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+  }, [menuConfigs]);
+
   const contextValue = useMemo(() => {
     return {
       menuOptions: menuOptions,
       getMenuOptions: getMenuOptions,
       registerMenuOption: registerMenuOption,
       registerMenuOptions: registerMenuOptions,
+      getTopMenus: getTopMenus,
     };
-  }, [menuOptions, getMenuOptions, registerMenuOption, registerMenuOptions]);
+  }, [menuOptions, getMenuOptions, registerMenuOption, registerMenuOptions, getTopMenus]);
 
   const memoizedChildren = useMemo(() => children, [children]);
   return (

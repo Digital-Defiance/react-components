@@ -297,6 +297,30 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 2.4.0
+
+#### Changed
+- **Version Bump**: Updated from 2.3.5 to 2.4.0
+- **Dependency Update**: Upgraded `@digitaldefiance/suite-core-lib` from ^2.2.5 to ^2.2.10
+- **Translation Keys**: Replaced `Login_UseEmail` with `Login_UseEmailAddress` in BackupCodeLoginForm and LoginForm
+- **Error Messages**: Updated password login error to use `Error_Login_PasswordLoginNotSetup` instead of `PasswordLogin_Setup_NotAvailable` in AuthProvider
+
+#### Added
+- **Error Handling**: LoginForm now displays error messages via Alert component with Formik status
+- **Error Recovery**: LoginForm onSubmit wrapped with try-catch to capture and display errors
+- **Menu Context Integration**: TopMenu now uses `useMenu()` hook and `getTopMenus()` method
+- **Menu Types**: Added `AccountCircle` icon import and `IMenuConfig` interface import
+
+#### Fixed
+- **Import Path**: Corrected `IAppConfig` import path from `../interfaces/AppConfig` to `../interfaces/IAppConfig`
+- **Menu Rendering**: Simplified TopMenu additional menus logic to use centralized menu context
+- **Error Type**: Added `errorType: 'PasswordLoginNotSetup'` to password login error responses
+
+#### Technical
+- Enhanced error propagation in authentication flows
+- Improved menu configuration architecture with context-based management
+- Better alignment with suite-core-lib translation key naming conventions
+
 ### v2.3.5
 
 - Login/BackupLogin form improvements

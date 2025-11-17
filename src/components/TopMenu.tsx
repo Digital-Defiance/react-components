@@ -9,10 +9,11 @@ import {
   Typography,
 } from '@mui/material';
 import React, { FC, ReactElement, useContext, useState } from 'react';
+import { useMenu } from '../contexts/MenuContext';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthProvider';
 import { useI18n } from '../contexts/I18nProvider';
-import { IAppConfig } from '../interfaces/AppConfig';
+import { IAppConfig } from '../interfaces/IAppConfig';
 import { SideMenu } from './SideMenu';
 import { UserLanguageSelector } from './UserLanguageSelector';
 import { UserMenu } from './UserMenu';
@@ -32,6 +33,7 @@ export interface TopMenuProps {
 
 export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus }) => {
   const { isAuthenticated } = useContext(AuthContext);
+  const { getTopMenus } = useMenu();
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
 
   const handleOpenSideMenu = () => setIsSideMenuOpen(true);
@@ -76,14 +78,9 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus }) => {
               <Button color="inherit" component={Link} to="/dashboard">
                 {t(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Dashboard))}
               </Button>
-              {[
-                ...additionalMenus?.map((menu, index) => ({ ...menu, key: `custom-${index}`, isUserMenu: false })) ?? [],
-                { menuType: MenuTypes.UserMenu, menuIcon: <></>, priority: 0, key: 'user-menu', isUserMenu: true }
-              ]
-                .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0))
-                .map(menu => 
-                  menu.isUserMenu ? <UserMenu key={menu.key} /> : <DropdownMenu key={menu.key} menuType={menu.menuType} menuIcon={menu.menuIcon} />
-                )}
+              {getTopMenus().map((menu, index) => 
+                menu.isUserMenu ? <UserMenu key={`user-menu`} /> : <DropdownMenu key={`menu-${index}`} menuType={menu.menuType} menuIcon={menu.menuIcon as ReactElement} />
+              )}
             </>
           ) : (
             <>

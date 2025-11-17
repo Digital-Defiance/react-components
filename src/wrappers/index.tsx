@@ -10,6 +10,7 @@ import { LogoutPage } from '../components/LogoutPage';
 import { VerifyEmailPage } from '../components/VerifyEmailPage';
 import { useAuth } from '../contexts';
 import { createAuthenticatedApiClient } from '../services';
+import { SuiteCoreStringKey, TranslatableSuiteError } from '@digitaldefiance/suite-core-lib';
 
 export const BackupCodeLoginWrapper: FC = () => {
   const { backupCodeLogin, isAuthenticated } = useAuth();
@@ -88,12 +89,14 @@ export const LoginFormWrapper: FC = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (values: LoginFormValues) => {
-    console.log('LoginFormWrapper handleSubmit called with:', { ...values, password: values.password ? '***' : undefined, mnemonic: values.mnemonic ? '***' : undefined });
+    const email = values.email && values.email.trim().length > 0 ? new EmailString(values.email) : undefined;
+    const username = values.username && values.username.trim() ? values.username : undefined;
+    
     if (values.password) {
       const result = await passwordLogin(
         new SecureString(values.password),
-        values.username,
-        values.email ? new EmailString(values.email) : undefined
+        username,
+        email
       );
       if ('error' in result) {
         throw new Error(result.error);
@@ -102,13 +105,15 @@ export const LoginFormWrapper: FC = () => {
     } else if (values.mnemonic) {
       const result = await directLogin(
         new SecureString(values.mnemonic),
-        values.username,
-        values.email ? new EmailString(values.email) : undefined
+        username,
+        email
       );
       if ('error' in result) {
         throw new Error(result.error);
       }
       navigate('/dashboard');
+    } else {
+      throw new TranslatableSuiteError(SuiteCoreStringKey.Error_NoPasswordOrMnemonicProvided);
     }
   };
 

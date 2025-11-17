@@ -78,7 +78,7 @@ export const BackupCodeLoginForm: FC<BackupCodeLoginFormProps> = ({
     recoverMnemonic: labels.recoverMnemonic || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_RecoverMnemonic),
     login: labels.login || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_Login),
     useUsername: labels.useUsername || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_UseUsername),
-    useEmail: labels.useEmail || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_UseEmail),
+    useEmail: labels.useEmail || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_UseEmailAddress),
     dashboard: labels.dashboard || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Dashboard),
     generateNewCodes: labels.generateNewCodes || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_GenerateNewCodes),
     mnemonicLabel: labels.mnemonicLabel || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Mnemonic),

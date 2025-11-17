@@ -5,11 +5,8 @@ import {
   EmailString,
   hexToUint8Array,
   IECIESConfig,
-  MemberType,
-  SecureBuffer,
   SecureString,
   uint8ArrayToHex,
-  Member as FrontendMember,
 } from '@digitaldefiance/ecies-lib';
 import { getSuiteCoreTranslation, IConstants, IRequestUserDTO, SuiteCoreStringKey, TranslatableSuiteError } from '@digitaldefiance/suite-core-lib';
 import { CoreLanguageCode } from '@digitaldefiance/i18n-lib';
@@ -24,7 +21,6 @@ interface AuthContextFunctions {
 }
 
 export class AuthService {
-  private authContextFunctions: AuthContextFunctions | null = null;
   private eciesService: ECIESService;
   private cryptoCore: EciesCryptoCore;
   private apiClient: axios.AxiosInstance;
@@ -39,10 +35,6 @@ export class AuthService {
     this.cryptoCore = new EciesCryptoCore(eciesConfig);
     this.apiClient = createApiClient(this.baseUrl);
     this.authenticatedApiClient = createAuthenticatedApiClient(this.baseUrl);
-  }
-
-  setAuthContextFunctions(functions: AuthContextFunctions) {
-    this.authContextFunctions = functions;
   }
 
   getSiteDomain(): string {
@@ -131,26 +123,18 @@ export class AuthService {
     }
     try {
       const loginRequest = await this.apiClient.post('/user/request-direct-login');
-      const usernameOrEmail: string =
-        username ?? email !== undefined ? email!.email : '';
-      const emailString: EmailString = email
-        ? email
-        : new EmailString(`${username}@${this.getSiteDomain()}`);
       if (loginRequest.data.challenge) {
         const { wallet } = this.cryptoCore.walletAndSeedFromMnemonic(mnemonic);
-        const signingUser = new FrontendMember(
-          this.eciesService,
-          MemberType.User,
-          usernameOrEmail,
-          emailString,
-          wallet.getPublicKey(),
-          new SecureBuffer(wallet.getPrivateKey()),
-          wallet,
-        );
+        const publicKey = wallet.getPublicKey();
+        // Add 0x04 prefix for uncompressed public key
+        const publicKeyWithPrefix = new Uint8Array(publicKey.length + 1);
+        publicKeyWithPrefix[0] = 0x04;
+        publicKeyWithPrefix.set(publicKey, 1);
         const challengeBuffer = hexToUint8Array(loginRequest.data.challenge);
-        const signature = await signingUser.sign(challengeBuffer);
+        const privateKeyBuffer = wallet.getPrivateKey();
+        const signature = this.eciesService.signMessage(privateKeyBuffer, challengeBuffer);
         const signatureHex = uint8ArrayToHex(signature);
-        const loginResponse = await this.apiClient.post('/user/direct-login', {
+        const loginResponse = await this.apiClient.post('/user/direct-challenge', {
           username: username,
           email: email ? email.email : undefined,
           challenge: loginRequest.data.challenge,
@@ -167,6 +151,21 @@ export class AuthService {
       }
     } catch (error) {
       if (isAxiosError(error) && error.response) {
+        // Check for DirectChallengeNotEnabled error
+        if (error.response.status === 403 && error.response.data.errorType === 'DirectChallengeNotEnabledError') {
+          return {
+            error: getSuiteCoreTranslation(SuiteCoreStringKey.Error_Login_DirectChallengeNotEnabled),
+            errorType: 'DirectChallengeNotEnabled',
+          };
+        }
+        // Check for PasswordLoginNotEnabled error
+        if (error.response.status === 403 && error.response.data.errorType === 'PasswordLoginNotEnabledError') {
+          return {
+            error: getSuiteCoreTranslation(SuiteCoreStringKey.Error_Login_PasswordLoginNotEnabled),
+            errorType: 'PasswordLoginNotEnabled',
+          };
+        }
+        
         return {
           error:
             error.response.data.error?.message ??
@@ -178,6 +177,7 @@ export class AuthService {
             : {}),
         };
       }
+      console.error('directLogin: non-axios error:', error);
     }
     return {
       error: getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
@@ -235,23 +235,10 @@ export class AuthService {
       };
     }
     try {
-      const usernameOrEmail: string =
-        username ?? email !== undefined ? email!.email : '';
-      const emailString: EmailString = email
-        ? email
-        : new EmailString(`${username}@${this.getSiteDomain()}`);
       const { wallet } = this.cryptoCore.walletAndSeedFromMnemonic(mnemonic);
-      const signingUser = new FrontendMember(
-        this.eciesService,
-        MemberType.User,
-        usernameOrEmail,
-        emailString,
-        wallet.getPublicKey(),
-        new SecureBuffer(wallet.getPrivateKey()),
-        wallet,
-      );
       const challengeBuffer = hexToUint8Array(token);
-      const signature = await signingUser.sign(challengeBuffer);
+      const privateKeyBuffer = wallet.getPrivateKey();
+      const signature = this.eciesService.signMessage(privateKeyBuffer, challengeBuffer);
       const signatureHex = uint8ArrayToHex(signature);
       const response = await this.apiClient.post('/user/email-login', {
         token,
