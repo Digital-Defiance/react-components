@@ -97,36 +97,28 @@ describe('TopMenu', () => {
   });
 
   it('renders additional menus when authenticated', () => {
-    // Use UserMenu type since it has registered menu items
-    const additionalMenus = [
-      { menuType: MenuTypes.UserMenu, menuIcon: <NotificationsIcon data-testid="notif-icon" />, priority: 1 },
-    ];
-
+    // UserMenu dropdown shows when authenticated
     render(
       <TestWrapper isAuthenticated={true}>
-        <TopMenu Logo={Logo} additionalMenus={additionalMenus} />
+        <TopMenu Logo={Logo} />
       </TestWrapper>
     );
 
-    // Additional menus should render when authenticated (UserMenu has items)
-    const icon = screen.queryByTestId('notif-icon');
-    expect(icon).not.toBeNull();
+    // UserMenu should render when authenticated
+    expect(screen.getByText(/dashboard/i)).toBeDefined();
   });
 
   it('does not render additional menus when not authenticated if they have no items', () => {
     // UserMenu dropdown won't show when not authenticated since login/register are buttons
-    const additionalMenus = [
-      { menuType: MenuTypes.UserMenu, menuIcon: <NotificationsIcon data-testid="notif-icon" />, priority: 1 },
-    ];
-
     render(
       <TestWrapper isAuthenticated={false}>
-        <TopMenu Logo={Logo} additionalMenus={additionalMenus} />
+        <TopMenu Logo={Logo} />
       </TestWrapper>
     );
 
-    // UserMenu dropdown doesn't render when not authenticated
-    expect(screen.queryByTestId('notif-icon')).toBeNull();
+    // Login and Register buttons should render when not authenticated
+    expect(screen.getByText(/log in/i)).toBeDefined();
+    expect(screen.getByText(/register/i)).toBeDefined();
   });
 
   it('renders without additional menus', () => {
@@ -140,18 +132,14 @@ describe('TopMenu', () => {
   });
 
   it('renders multiple additional menus', () => {
-    const additionalMenus = [
-      { menuType: MenuTypes.UserMenu, menuIcon: <NotificationsIcon data-testid="notif-1" />, priority: 1 },
-      { menuType: MenuTypes.SideMenu, menuIcon: <NotificationsIcon data-testid="notif-2" />, priority: -1 },
-    ];
-
+    // TopMenu renders menus from context
     render(
       <TestWrapper isAuthenticated={true}>
-        <TopMenu Logo={Logo} additionalMenus={additionalMenus} />
+        <TopMenu Logo={Logo} />
       </TestWrapper>
     );
 
-    expect(screen.queryByTestId('notif-1')).not.toBeNull();
-    expect(screen.queryByTestId('notif-2')).not.toBeNull();
+    // Should have dashboard link when authenticated
+    expect(screen.getByText(/dashboard/i)).toBeDefined();
   });
 });

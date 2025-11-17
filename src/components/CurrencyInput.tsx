@@ -1,40 +1,29 @@
 import { TextField } from '@mui/material';
 import { NumericFormat } from 'react-number-format';
+import { getCurrencyFormat } from '@digitaldefiance/i18n-lib';
 
 export interface CurrencyInputProps {
   value: number;
   onChange: (value: number) => void;
   currencyCode?: string;
+  locale?: string;
   label: string;
   error?: boolean;
   helperText?: string;
   name: string;
 }
 
-export function getCurrencyFormat(currencyCode: string = 'USD'): {
-  symbol: string;
-  position: 'prefix' | 'postfix' | 'infix';
-  groupSeparator: string;
-  decimalSeparator: string;
-} {
-  return {
-    symbol: '$',
-    position: 'prefix',
-    groupSeparator: ',',
-    decimalSeparator: '.',
-  };
-}
-
 export const CurrencyInput: React.FC<CurrencyInputProps> = ({
   value,
   onChange,
   currencyCode = 'USD',
+  locale = 'en-US',
   label,
   error,
   helperText,
   name,
 }) => {
-  const format = getCurrencyFormat(currencyCode);
+  const format = getCurrencyFormat(locale, currencyCode);
 
   if (format.position === 'infix') {
     const [whole, decimal] = value.toString().split('.');

@@ -630,7 +630,7 @@ describe('AuthProvider', () => {
         changeResult = await result.current.changePassword('oldpass', 'newpass');
       });
 
-      expect(changeResult).toEqual({ error: 'passwordLogin_setup_notAvailable' });
+      expect(changeResult).toEqual({ error: 'error_login_passwordLoginNotSetup', errorType: 'PasswordLoginNotSetup' });
     });
   });
 
@@ -932,7 +932,7 @@ describe('AuthProvider', () => {
         loginResult = await result.current.passwordLogin(new SecureString('password'));
       });
 
-      expect(loginResult).toEqual({ error: 'passwordLogin_setup_notAvailable' });
+      expect(loginResult).toEqual({ error: 'error_login_passwordLoginNotSetup', errorType: 'PasswordLoginNotSetup' });
     });
   });
 

@@ -300,6 +300,7 @@ MIT © Digital Defiance
 ### Version 2.4.3
 
 - Simplify UserSettingsForm/Wrapper
+- Upgrade i18n/CurrencyInput
 
 ### Version 2.4.2
 

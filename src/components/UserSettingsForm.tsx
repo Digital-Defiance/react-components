@@ -16,7 +16,7 @@ import { useFormik } from 'formik';
 import { FC, useState, useMemo } from 'react';
 import * as Yup from 'yup';
 import moment from 'moment-timezone';
-import { data as currencyData } from 'currency-codes';
+import { CurrencyCode } from '@digitaldefiance/i18n-lib';
 import { SuiteCoreComponentId, SuiteCoreStringKey } from '@digitaldefiance/suite-core-lib';
 import { useI18n } from '../contexts';
 
@@ -83,7 +83,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
   const timezones = useMemo(() => moment.tz.names(), []);
-  const currencies = useMemo(() => currencyData.map(c => ({ code: c.code, label: `${c.code} - ${c.currency}` })), []);
+  const currencies = useMemo(() => CurrencyCode.getAllData().map(c => ({ code: c.code, label: `${c.code} - ${c.currency}` })), []);
 
   const validation = {
     email: emailValidation || Yup.string()
@@ -96,7 +96,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
       .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
     currency: currencyValidation || Yup.string()
       .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required))
-      .test('valid-currency', tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required), (value) => !value || currencyData.some(c => c.code === value)),
+      .test('valid-currency', tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required), (value) => !value || CurrencyCode.isValid(value)),
     darkMode: darkModeValidation || Yup.boolean()
       .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
     directChallenge: directChallengeValidation || Yup.boolean()

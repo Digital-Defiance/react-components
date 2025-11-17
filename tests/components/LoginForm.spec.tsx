@@ -59,8 +59,7 @@ describe('LoginForm', () => {
           username: 'testuser',
           password: 'password123',
           mnemonic: ''
-        }),
-        expect.anything()
+        })
       );
     });
   });
@@ -107,8 +106,7 @@ describe('LoginForm', () => {
       expect(mockOnSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
           customField: 'customValue'
-        }),
-        expect.anything()
+        })
       );
     });
   });
