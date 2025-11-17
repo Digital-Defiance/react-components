@@ -34,7 +34,9 @@
     "@mui/system": "^7.0.2",
     "@mui/x-date-pickers": "^8.9.0",
     "axios": "^1.9.0",
+    "currency-codes": "^2.2.0",
     "formik": "^2.4.6",
+    "moment-timezone": "^0.6.0",
     "react-number-format": "^5.4.4",
     "yup": "^1.6.1"
   },

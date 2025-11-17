@@ -178,16 +178,12 @@ export const VerifyEmailPageWrapper: FC<VerifyEmailPageWrapperProps> = ({ baseUr
 
 export interface UserSettingsFormWrapperProps {
   baseUrl: string;
-  timezones: string[];
   languages: Array<{ code: string; label: string }>;
-  currencies: Array<{ code: string; label: string }>;
 }
 
 export const UserSettingsFormWrapper: FC<UserSettingsFormWrapperProps> = ({ 
   baseUrl, 
-  timezones, 
-  languages, 
-  currencies 
+  languages
 }) => {
   const { userData, setCurrencyCode, setLanguage } = useAuth();
   const api = createAuthenticatedApiClient(baseUrl);
@@ -222,9 +218,7 @@ export const UserSettingsFormWrapper: FC<UserSettingsFormWrapperProps> = ({
     <UserSettingsForm
       initialValues={initialValues}
       onSubmit={handleSubmit}
-      timezones={timezones}
       languages={languages}
-      currencies={currencies}
     />
   );
 };

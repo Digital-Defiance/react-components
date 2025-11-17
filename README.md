@@ -297,6 +297,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 2.4.3
+
+- Simplify UserSettingsForm/Wrapper
+
 ### Version 2.4.2
 
 - Add UserSettingsFormWrapper

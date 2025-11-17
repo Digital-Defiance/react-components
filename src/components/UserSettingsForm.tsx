@@ -13,8 +13,10 @@ import {
   Typography,
 } from '@mui/material';
 import { useFormik } from 'formik';
-import { FC, useState } from 'react';
+import { FC, useState, useMemo } from 'react';
 import * as Yup from 'yup';
+import moment from 'moment-timezone';
+import { data as currencyData } from 'currency-codes';
 import { SuiteCoreComponentId, SuiteCoreStringKey } from '@digitaldefiance/suite-core-lib';
 import { useI18n } from '../contexts';
 
@@ -34,9 +36,7 @@ export interface UserSettingsFormProps {
     | { success: boolean; message: string }
     | { error: string; errorType?: string; field?: string; errors?: Array<{ path: string; msg: string }> }
   >;
-  timezones: string[];
   languages: Array<{ code: string; label: string }>;
-  currencies: Array<{ code: string; label: string }>;
   emailValidation?: Yup.StringSchema;
   timezoneValidation?: Yup.StringSchema;
   siteLanguageValidation?: Yup.StringSchema;
@@ -65,9 +65,7 @@ export interface UserSettingsFormProps {
 export const UserSettingsForm: FC<UserSettingsFormProps> = ({
   initialValues,
   onSubmit,
-  timezones,
   languages,
-  currencies,
   emailValidation,
   timezoneValidation,
   siteLanguageValidation,
@@ -79,10 +77,13 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
   additionalValidation = {},
   labels = {},
 }) => {
-  const { t, tComponent } = useI18n();
+  const { tComponent } = useI18n();
   const [apiErrors, setApiErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  
+  const timezones = useMemo(() => moment.tz.names(), []);
+  const currencies = useMemo(() => currencyData.map(c => ({ code: c.code, label: `${c.code} - ${c.currency}` })), []);
 
   const validation = {
     email: emailValidation || Yup.string()
@@ -90,11 +91,12 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
       .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
     timezone: timezoneValidation || Yup.string()
       .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_TimezoneRequired))
-      .oneOf(timezones, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_TimezoneInvalid)),
+      .test('valid-timezone', tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_TimezoneInvalid), (value) => !value || moment.tz.zone(value) !== null),
     siteLanguage: siteLanguageValidation || Yup.string()
       .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
     currency: currencyValidation || Yup.string()
-      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
+      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required))
+      .test('valid-currency', tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required), (value) => !value || currencyData.some(c => c.code === value)),
     darkMode: darkModeValidation || Yup.boolean()
       .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
     directChallenge: directChallengeValidation || Yup.boolean()
