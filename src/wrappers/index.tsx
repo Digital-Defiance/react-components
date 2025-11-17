@@ -8,6 +8,7 @@ import { LoginForm, LoginFormValues } from '../components/LoginForm';
 import { RegisterForm, RegisterFormValues } from '../components/RegisterForm';
 import { LogoutPage } from '../components/LogoutPage';
 import { VerifyEmailPage } from '../components/VerifyEmailPage';
+import { UserSettingsForm, UserSettingsFormValues } from '../components/UserSettingsForm';
 import { useAuth } from '../contexts';
 import { createAuthenticatedApiClient } from '../services';
 import { SuiteCoreStringKey, TranslatableSuiteError } from '@digitaldefiance/suite-core-lib';
@@ -173,4 +174,57 @@ export const VerifyEmailPageWrapper: FC<VerifyEmailPageWrapperProps> = ({ baseUr
   };
 
   return <VerifyEmailPage token={token} onVerify={handleVerify} />;
+};
+
+export interface UserSettingsFormWrapperProps {
+  baseUrl: string;
+  timezones: string[];
+  languages: Array<{ code: string; label: string }>;
+  currencies: Array<{ code: string; label: string }>;
+}
+
+export const UserSettingsFormWrapper: FC<UserSettingsFormWrapperProps> = ({ 
+  baseUrl, 
+  timezones, 
+  languages, 
+  currencies 
+}) => {
+  const { userData, setCurrencyCode, setLanguage } = useAuth();
+  const api = createAuthenticatedApiClient(baseUrl);
+
+  const handleSubmit = async (values: UserSettingsFormValues) => {
+    try {
+      const result = await api.post('/user/settings', values);
+      
+      if (values.currency) {
+        await setCurrencyCode(values.currency as any);
+      }
+      if (values.siteLanguage) {
+        await setLanguage(values.siteLanguage);
+      }
+      
+      return { success: true, message: result.data.message };
+    } catch (error: any) {
+      return { error: error.response?.data?.message || 'Failed to update settings' };
+    }
+  };
+
+  const initialValues: UserSettingsFormValues = {
+    email: userData?.email || '',
+    timezone: userData?.timezone || 'UTC',
+    siteLanguage: userData?.siteLanguage || 'en-US',
+    currency: userData?.currency || 'USD',
+    darkMode: userData?.darkMode || false,
+    directChallenge: userData?.directChallenge || false,
+  };
+
+  return (
+    <UserSettingsForm
+      initialValues={initialValues}
+      onSubmit={handleSubmit}
+      timezones={timezones}
+      languages={languages}
+      currencies={currencies}
+    />
+  );
 };

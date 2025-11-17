@@ -297,6 +297,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 2.4.2
+
+- Add UserSettingsFormWrapper
+
 ### Version 2.4.1
 
 - Add directChallenge configuration option to registration
