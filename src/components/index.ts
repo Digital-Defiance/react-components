@@ -15,6 +15,7 @@ export * from './LoginForm';
 export * from './LogoutPage';
 export * from './RegisterForm';
 export * from './ResetPasswordForm';
+export * from './UserSettingsForm';
 export * from './SideMenu';
 export * from './SideMenuListItem';
 export * from './TopMenu';

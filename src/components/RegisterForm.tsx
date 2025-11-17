@@ -3,8 +3,11 @@ import {
   AlertTitle,
   Box,
   Button,
+  Checkbox,
   Container,
   FormControl,
+  FormControlLabel,
+  FormHelperText,
   InputLabel,
   Link,
   MenuItem,
@@ -109,6 +112,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
       timezone: getInitialTimezone(),
       password: '',
       confirmPassword: '',
+      directChallenge: false,
       ...additionalInitialValues,
     },
     enableReinitialize: true,
@@ -260,6 +264,23 @@ export const RegisterForm: FC<RegisterFormProps> = ({
               />
             </>
           )}
+
+          <FormControl fullWidth margin="normal">
+            <FormControlLabel
+              control={
+                <Checkbox
+                  id="directChallenge"
+                  name="directChallenge"
+                  checked={formik.values.directChallenge || false}
+                  onChange={formik.handleChange}
+                />
+              }
+              label={tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Registration_DirectChallengeLabel)}
+            />
+            <FormHelperText>
+              {tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Registration_DirectChallengeHelper)}
+            </FormHelperText>
+          </FormControl>
 
           {additionalFields && additionalFields(formik, usePassword)}
 

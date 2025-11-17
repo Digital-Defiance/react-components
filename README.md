@@ -297,6 +297,12 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 2.4.1
+
+- Add directChallenge configuration option to registration
+- Add user settings form
+- Update suite core lib
+
 ### Version 2.4.0
 
 #### Changed
