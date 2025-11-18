@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createAuthenticatedApiClient } from '../services';
 import { useSuiteConfig } from '../contexts';
 import { useAuth, useTheme } from '../contexts';
+import { CurrencyCode } from '@digitaldefiance/i18n-lib';
 import { getSuiteCoreTranslation, SuiteCoreStringKey, TranslatableSuiteError } from '@digitaldefiance/suite-core-lib';
 
 export interface UserSettingsValues {
@@ -88,7 +89,7 @@ export const useUserSettings = (): UseUserSettingsResult => {
       
       // Update context values
       if (values.currency) {
-        await setCurrencyCode(values.currency as any);
+        await setCurrencyCode(new CurrencyCode(values.currency));
       }
       if (values.siteLanguage) {
         await setLanguage(values.siteLanguage);

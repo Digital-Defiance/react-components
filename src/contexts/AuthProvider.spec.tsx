@@ -264,7 +264,12 @@ describe('AuthProvider', () => {
     });
 
     it('should handle token verification failure', async () => {
-      localStorageMock.getItem.mockReturnValue('invalid-token');
+      localStorageMock.getItem.mockImplementation((key) => {
+        if (key === 'authToken') return 'invalid-token';
+        if (key === 'timezone') return 'UTC';
+        if (key === 'currencyCode') return 'USD';
+        return null;
+      });
       mockAuthService.verifyToken.mockRejectedValue(new Error('Token invalid'));
 
       const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
@@ -1054,7 +1059,12 @@ describe('AuthProvider', () => {
     });
 
     it('should handle checkAuth with error response from verifyToken', async () => {
-      localStorageMock.getItem.mockReturnValue('token-with-error');
+      localStorageMock.getItem.mockImplementation((key) => {
+        if (key === 'authToken') return 'token-with-error';
+        if (key === 'timezone') return 'UTC';
+        if (key === 'currencyCode') return 'USD';
+        return null;
+      });
       mockAuthService.verifyToken.mockResolvedValue({ error: 'Token expired' });
 
       const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
@@ -1086,7 +1096,12 @@ describe('AuthProvider', () => {
 
   describe('Error Handling', () => {
     it('should handle console errors gracefully', async () => {
-      localStorageMock.getItem.mockReturnValue('invalid-token');
+      localStorageMock.getItem.mockImplementation((key) => {
+        if (key === 'authToken') return 'invalid-token';
+        if (key === 'timezone') return 'UTC';
+        if (key === 'currencyCode') return 'USD';
+        return null;
+      });
       mockAuthService.verifyToken.mockRejectedValue(new Error('Network error'));
 
       const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });

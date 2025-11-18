@@ -362,6 +362,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 2.5.4
+
+- Fix currency/session storage
+
 ### Version 2.5.3
 
 - Update libs
