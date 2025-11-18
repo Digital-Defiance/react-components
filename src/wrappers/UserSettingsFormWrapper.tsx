@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { UserSettingsForm, UserSettingsFormValues, UserSettingsFormProps } from '../components/UserSettingsForm';
 import { useSuiteConfig } from '../contexts';
 import { useUserSettings } from '../hooks';
+import { getSuiteCoreTranslation, SuiteCoreStringKey } from '@digitaldefiance/suite-core-lib';
 
 export interface UserSettingsFormWrapperProps {
   onSuccess?: () => void;
@@ -24,7 +25,7 @@ export const UserSettingsFormWrapper: FC<UserSettingsFormWrapperProps> = ({
   };
 
   if (isLoading || !settings) {
-    return <div>Loading...</div>;
+    return <div>{getSuiteCoreTranslation(SuiteCoreStringKey.Common_Loading)}...</div>;
   }
 
   return (

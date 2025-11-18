@@ -362,6 +362,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 2.5.2
+
+- Use i18n for loading string
+
 ### Version 2.5.1
 
 - Upgrade libs
