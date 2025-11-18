@@ -160,6 +160,7 @@ export interface AuthContextData {
   setUpPasswordLogin: (mnemonic: SecureString, password: SecureString, username?: string, email?: EmailString) => Promise<{ success: boolean; message: string } | { error: string; errorType?: string }>;
   setUser: (user: IRequestUserDTO | null) => Promise<void>;
   setWallet: (wallet: Wallet, durationSeconds?: number) => void;
+  toggleColorMode: () => Promise<void>;
   user: FrontendMember | null;
   userData: IRequestUserDTO | null;
   timezone?: Timezone;
@@ -238,7 +239,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
   });
 
   
-  const setColorModeAndUpdateStorage = async (mode?: PaletteMode) => {
+  const setColorModeAndUpdateStorage = useCallback(async (mode?: PaletteMode) => {
     themeSetPaletteMode(mode ?? 'light');
     setColorMode(mode ?? 'light');
     if (!mode) {
@@ -246,25 +247,30 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       return;
     }
     localStorage.setItem('colorMode', mode);
-  }
+  }, [themeSetPaletteMode]);
 
-  const setCurrencyCodeAndUpdateStorage = async (code?: CurrencyCode) => {
+  const setCurrencyCodeAndUpdateStorage = useCallback(async (code?: CurrencyCode) => {
     setCurrencyCode(code);
     if (!code) {
       localStorage.removeItem('currencyCode');
       return;
     }
     localStorage.setItem('currencyCode', code.value);
-  };
+  }, []);
 
-  const setTimezoneAndUpdateStorage = async (code?: Timezone) => {
+  const setTimezoneAndUpdateStorage = useCallback(async (code?: Timezone) => {
     setTimezone(code);
     if (!code) {
       localStorage.removeItem('timezone');
       return;
     }
     localStorage.setItem('timezone', code.value);
-  };
+  }, []);
+
+  const toggleColorMode = useCallback(async () => {
+    const newMode = colorMode === 'light' ? 'dark' : 'light';
+    await setColorModeAndUpdateStorage(newMode);
+  }, [colorMode, setColorModeAndUpdateStorage]);
 
   // Helper functions to calculate remaining time (now provided by the hooks)
   const getMnemonicRemainingTime = mnemonicManager.getRemainingTime;
@@ -714,6 +720,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       setWallet,
       setWalletExpirationSeconds,
       timezone,
+      toggleColorMode,
       token,
       user: frontendUser,
       userData: user,
@@ -751,14 +758,16 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
     register,
     requestEmailLogin,
     serverPublicKey,
-    setColorMode,,
+    setColorModeAndUpdateStorage,
+    setCurrencyCodeAndUpdateStorage,
     setMnemonic,
     setMnemonicExpirationSeconds,
     setUpPasswordLogin,
-    setTimezone,
+    setTimezoneAndUpdateStorage,
     setWallet,
     setWalletExpirationSeconds,
     timezone,
+    toggleColorMode,
     token,
     user,
     verifyToken,

@@ -362,6 +362,11 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 2.5.5
+
+- Fix /user/verify repeat calls
+- Add toggleColorMode to authService
+
 ### Version 2.5.4
 
 - Fix currency/session storage
