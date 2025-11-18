@@ -90,7 +90,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = []
 
   const menuOptions = useMemo(() => {
     const isUserRestricted = () => {
-      return user?.roles.some((role: IRoleDTO) => role.child);
+      return user?.roles?.some((role: IRoleDTO) => role.child) ?? false;
     };
     let index = 0;
     const baseOptions: IMenuOption[] = [

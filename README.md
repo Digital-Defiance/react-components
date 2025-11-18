@@ -362,6 +362,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 2.5.7
+
+- Relax isRestricted check to default false if no roles available
+
 ### Version 2.5.6
 
 - Use new toggleColorMode on MenuContext
