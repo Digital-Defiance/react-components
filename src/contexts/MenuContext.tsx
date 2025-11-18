@@ -53,13 +53,12 @@ interface MenuContextType {
 const MenuContext = createContext<MenuContextType | undefined>(undefined);
 
 export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = [], enableBackupCodes = true }) => {
-  const { userData: user, isAuthenticated, mnemonic, clearMnemonic, wallet, clearWallet } = useAuth();
+  const { userData: user, isAuthenticated, mnemonic, clearMnemonic, wallet, clearWallet, colorMode, toggleColorMode } = useAuth();
   const registeredMenuOptions = useRef(new Set<() => void>());
   const [registeredOptions, setRegisteredOptions] = useState<
     Map<string, IMenuOption>
   >(new Map<string, IMenuOption>());
   const { tComponent } = useI18n();
-  const { mode, toggleColorMode } = useTheme();
 
   const registerMenuOption = useCallback((option: IMenuOption) => {
     const unregister = () => {
@@ -215,10 +214,10 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = []
       {
         id: 'theme-toggle',
         label:
-          mode === 'dark'
+          colorMode === 'dark'
             ? tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ThemeToggle_Light)
             : tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ThemeToggle_Dark),
-        icon: mode === 'dark' ? <Brightness7 /> : <Brightness4 />,
+        icon: colorMode === 'dark' ? <Brightness7 /> : <Brightness4 />,
         includeOnMenus: [MenuTypes.SideMenu],
         index: index++,
         requiresAuth: undefined,
@@ -237,7 +236,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = []
 
     const allOptions = [...baseOptions, ...registeredOptions.values()];
     return allOptions.sort((a, b) => a.index - b.index);
-  }, [tComponent, registeredOptions, user?.roles, mode, toggleColorMode]);
+  }, [tComponent, registeredOptions, user?.roles, colorMode, toggleColorMode]);
 
   const getMenuOptions = useCallback(
     (menuType: MenuType, includeDividers: boolean) => {

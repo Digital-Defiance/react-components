@@ -362,6 +362,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 2.5.6
+
+- Use new toggleColorMode on MenuContext
+
 ### Version 2.5.5
 
 - Fix /user/verify repeat calls
