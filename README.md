@@ -362,6 +362,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 2.5.1
+
+- Upgrade libs
+
 ### Version 2.5.0
 
 #### Added
