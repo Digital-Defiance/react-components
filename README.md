@@ -31,6 +31,19 @@ yarn add @digitaldefiance/express-suite-react-components
 - **DashboardPage** - Basic dashboard layout
 - **ApiAccess** - API token display and copy component
 
+### Wrapper Components
+
+Pre-configured components that integrate with application contexts. See the [Component Wrappers Guide](WRAPPERS.md) for detailed usage.
+
+- **LoginFormWrapper** - Pre-configured login with auth context integration
+- **RegisterFormWrapper** - Pre-configured registration with auth context integration
+- **ChangePasswordFormWrapper** - Pre-configured password change with auth context
+- **BackupCodeLoginWrapper** - Pre-configured backup code login
+- **BackupCodesWrapper** - Pre-configured backup codes management
+- **UserSettingsFormWrapper** - Pre-configured settings form with auto-fetch
+- **VerifyEmailPageWrapper** - Pre-configured email verification
+- **LogoutPageWrapper** - Pre-configured logout with navigation
+
 ### UI Components
 
 - **ConfirmationDialog** - Reusable confirmation dialog
@@ -49,14 +62,19 @@ yarn add @digitaldefiance/express-suite-react-components
 
 - **useLocalStorage** - React hook for localStorage with state sync
 - **useExpiringValue** - React hook for values that expire after a duration
+- **useBackupCodes** - Manage backup code generation and retrieval
+- **useUserSettings** - Fetch and update user settings with context integration
+- **useEmailVerification** - Handle email verification flow
 
 ### Contexts & Providers
 
 - **I18nProvider** - Internationalization context with i18n engine integration
 - **AppThemeProvider** - MUI theme provider with dark/light mode toggle
 - **ThemeToggleButton** - Button component for theme switching
+- **SuiteConfigProvider** - Centralized configuration context (baseUrl, routes, languages)
 - **useI18n** - Hook for accessing i18n context
 - **useTheme** - Hook for accessing theme context
+- **useSuiteConfig** - Hook for accessing suite configuration
 
 ### Services
 
@@ -69,6 +87,44 @@ yarn add @digitaldefiance/express-suite-react-components
 - **MenuType** - Extensible menu type system (see [Menu Type Extensibility Guide](docs/MENU_TYPE_EXTENSIBILITY.md))
 
 ## Usage
+
+### Getting Started with Wrappers
+
+For the quickest setup, use wrapper components that handle context integration automatically. See the [Component Wrappers Guide](WRAPPERS.md) for comprehensive examples.
+
+```tsx
+import { 
+  SuiteConfigProvider,
+  AuthProvider,
+  LoginFormWrapper 
+} from '@digitaldefiance/express-suite-react-components';
+
+function App() {
+  return (
+    <SuiteConfigProvider
+      baseUrl="https://api.example.com"
+      routes={{
+        dashboard: '/dashboard',
+        login: '/login',
+      }}
+      languages={[
+        { code: 'en-US', label: 'English (US)' },
+      ]}
+    >
+      <AuthProvider baseUrl="https://api.example.com" onAuthError={() => {}}>
+        {/* Use wrappers for instant integration */}
+        <LoginFormWrapper />
+        
+        {/* Or customize via props */}
+        <LoginFormWrapper
+          redirectTo="/custom-dashboard"
+          componentProps={{ loginType: 'username' }}
+        />
+      </AuthProvider>
+    </SuiteConfigProvider>
+  );
+}
+```
 
 ### Menu System
 
@@ -295,7 +351,66 @@ interface RegisterFormProps {
 
 MIT © Digital Defiance
 
+## Documentation
+
+- **[Overview](docs/OVERVIEW.md)** - Package architecture and getting started guide
+- **[Components Documentation](docs/COMPONENTS.md)** - API reference for presentational components
+- **[Hooks Documentation](docs/HOOKS.md)** - API reference for custom React hooks
+- **[Wrappers API Documentation](docs/WRAPPERS_API.md)** - API reference for wrapper components
+- **[Component Wrappers Guide](WRAPPERS.md)** - Comprehensive guide to using wrappers, hooks, and components
+- **[Menu Type Extensibility Guide](docs/MENU_TYPE_EXTENSIBILITY.md)** - Creating custom menu types
+
 ## ChangeLog
+
+### Version 2.5.0
+
+#### Added
+
+- **SuiteConfigProvider** - Centralized configuration context for baseUrl, routes, languages, and timezones
+- **Component Wrappers** - Pre-configured wrapper components for all major forms and pages
+  - LoginFormWrapper, RegisterFormWrapper, ChangePasswordFormWrapper
+  - BackupCodeLoginWrapper, BackupCodesWrapper
+  - UserSettingsFormWrapper, VerifyEmailPageWrapper, LogoutPageWrapper
+- **Business Logic Hooks** - Reusable hooks for common operations
+  - useBackupCodes - Manage backup code generation and retrieval
+  - useUserSettings - Fetch and update user settings with context integration
+  - useEmailVerification - Handle email verification flow
+- **Component Wrappers Guide** - Comprehensive documentation at `WRAPPERS.md`
+
+#### Changed
+
+- **Wrapper Architecture** - All wrappers now use centralized SuiteConfigProvider
+- **Consistent API** - All wrappers support `onSuccess`, `componentProps`, and configurable routing
+- **Improved Testability** - Business logic extracted into hooks for easier testing
+- **Better DX** - Three levels of abstraction: Wrappers (easy), Hooks (flexible), Components (full control)
+
+#### Breaking Changes
+
+- **BackupCodesWrapper** - No longer requires `baseUrl` prop (uses SuiteConfigProvider)
+- **VerifyEmailPageWrapper** - No longer requires `baseUrl` prop (uses SuiteConfigProvider)
+- **UserSettingsFormWrapper** - No longer requires `baseUrl` or `languages` props (uses SuiteConfigProvider)
+
+#### Migration Guide
+
+```tsx
+// Old (v2.4.x)
+<BackupCodesWrapper baseUrl="https://api.example.com" />
+<UserSettingsFormWrapper 
+  baseUrl="https://api.example.com"
+  languages={[...]}
+/>
+
+// New (v2.5.0)
+<SuiteConfigProvider 
+  baseUrl="https://api.example.com"
+  languages={[...]}
+>
+  <BackupCodesWrapper />
+  <UserSettingsFormWrapper />
+</SuiteConfigProvider>
+```
+
+See [Component Wrappers Guide](WRAPPERS.md) for complete migration examples.
 
 ### Version 2.4.5
 
@@ -325,23 +440,27 @@ MIT © Digital Defiance
 ### Version 2.4.0
 
 #### Changed
+
 - **Version Bump**: Updated from 2.3.5 to 2.4.0
 - **Dependency Update**: Upgraded `@digitaldefiance/suite-core-lib` from ^2.2.5 to ^2.2.10
 - **Translation Keys**: Replaced `Login_UseEmail` with `Login_UseEmailAddress` in BackupCodeLoginForm and LoginForm
 - **Error Messages**: Updated password login error to use `Error_Login_PasswordLoginNotSetup` instead of `PasswordLogin_Setup_NotAvailable` in AuthProvider
 
 #### Added
+
 - **Error Handling**: LoginForm now displays error messages via Alert component with Formik status
 - **Error Recovery**: LoginForm onSubmit wrapped with try-catch to capture and display errors
 - **Menu Context Integration**: TopMenu now uses `useMenu()` hook and `getTopMenus()` method
 - **Menu Types**: Added `AccountCircle` icon import and `IMenuConfig` interface import
 
 #### Fixed
+
 - **Import Path**: Corrected `IAppConfig` import path from `../interfaces/AppConfig` to `../interfaces/IAppConfig`
 - **Menu Rendering**: Simplified TopMenu additional menus logic to use centralized menu context
 - **Error Type**: Added `errorType: 'PasswordLoginNotSetup'` to password login error responses
 
 #### Technical
+
 - Enhanced error propagation in authentication flows
 - Improved menu configuration architecture with context-based management
 - Better alignment with suite-core-lib translation key naming conventions
@@ -369,10 +488,12 @@ MIT © Digital Defiance
 ### v2.3.0
 
 #### Breaking Changes
+
 - **Removed `IncludeOnMenu` enum** - Replaced with extensible `MenuType` system using branded string types
 - Menu system now requires `MenuTypes` constant instead of enum values
 
 #### Added
+
 - **Extensible Menu Type System** - New `MenuType` branded string type with `createMenuType()` factory function
 - **`MenuTypes` constant** - Built-in menu types (SideMenu, TopMenu, UserMenu) replacing enum
 - **`createMenuType()` function** - Factory for creating custom menu types with type safety
@@ -381,6 +502,7 @@ MIT © Digital Defiance
 - **Menu Type Extensibility Guide** - Comprehensive documentation at `docs/MENU_TYPE_EXTENSIBILITY.md`
 
 #### Changed
+
 - **IMenuOption.includeOnMenus** - Now uses `MenuType[]` instead of `IncludeOnMenu[]`
 - **DropdownMenu.menuType** - Now accepts `MenuType` instead of `IncludeOnMenu`
 - **MenuContext.getMenuOptions** - Now accepts `MenuType` parameter instead of `IncludeOnMenu`
@@ -388,6 +510,7 @@ MIT © Digital Defiance
 - Updated README with menu system usage examples and extensibility guide link
 
 #### Migration Guide
+
 ```typescript
 // Old (v2.2.x)
 import { IncludeOnMenu } from '@digitaldefiance/express-suite-react-components';

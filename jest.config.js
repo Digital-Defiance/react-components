@@ -6,6 +6,7 @@ module.exports = {
     resources: 'usable',
     runScripts: 'dangerously',
   },
+  maxWorkers: 4,
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   coverageDirectory: '../../coverage/packages/digitaldefiance-express-suite-react-components',
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],

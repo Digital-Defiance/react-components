@@ -103,6 +103,7 @@ import { SecureString, ECIES as ECIESConstants } from '@digitaldefiance/ecies-li
 import { CurrencyCode } from '@digitaldefiance/i18n-lib';
 import { AuthProvider, useAuth } from './AuthProvider';
 import { I18nProvider } from './I18nProvider';
+import { AppThemeProvider } from './ThemeProvider';
 
 // Mock localStorage is imported from test-setup
 
@@ -118,14 +119,16 @@ Object.defineProperty(console, 'error', { value: consoleMock.error });
 // Test wrapper component
 const TestWrapper = ({ children }: { children: ReactNode }) => (
   <I18nProvider i18nEngine={null as any} onLanguageChange={async () => {}}>
-    <AuthProvider 
-      baseUrl="http://localhost:3000" 
-      constants={Constants} 
-      eciesConfig={ECIESConstants}
-      onLogout={mockNavigate}
-    >
-      {children}
-    </AuthProvider>
+    <AppThemeProvider>
+      <AuthProvider 
+        baseUrl="http://localhost:3000" 
+        constants={Constants} 
+        eciesConfig={ECIESConstants}
+        onLogout={mockNavigate}
+      >
+        {children}
+      </AuthProvider>
+    </AppThemeProvider>
   </I18nProvider>
 );
 
