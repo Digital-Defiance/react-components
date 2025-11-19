@@ -18,12 +18,11 @@ import {
 } from '@digitaldefiance/suite-core-lib';
 import { useAuth, useI18n, useTheme } from '../contexts';
 
-const defaultUserSettings: IUserSettings = {
+const defaultUserSettings: Partial<IUserSettings> = {
   darkMode: false,
   currency: new CurrencyCode(DefaultCurrencyCode),
   timezone: new Timezone(DefaultTimezone),
   siteLanguage: DefaultLanguageCode,
-  email: new EmailString('bob@example.com'),
   directChallenge: false,
 } as const;
 
@@ -56,20 +55,28 @@ export const useUserSettings = ({
   const setUserSettingAndUpdateSettings = useCallback(
     async (setting?: Partial<IUserSettings>) => {
       if (setting) {
-        const newUserSettings: IUserSettings = {
+        // Merge settings with defaults and existing settings
+        const merged = {
           ...defaultUserSettings,
           ...(userSettings ? userSettings : {}),
           ...setting,
         };
-        setUserSettings(newUserSettings);
+        
+        // TypeScript requires all IUserSettings fields, but during initialization
+        // some fields like email may not be set yet. We'll use Partial until
+        // all required fields are available.
+        setUserSettings(merged as IUserSettings);
+        
         if (setting.darkMode !== undefined) {
           themeSetPaletteMode(setting.darkMode ? 'dark' : 'light');
         }
         if (setting.siteLanguage !== undefined && setting.siteLanguage !== currentLanguage) {
           changeLanguage(setting.siteLanguage);
         }
-        const dehydratedSettings = dehydrateUserSettings(newUserSettings);
-        if (isAuthenticated) {
+        
+        // Only send to server if we have complete settings (including email)
+        if (merged.email && isAuthenticated) {
+          const dehydratedSettings = dehydrateUserSettings(merged as IUserSettings);
           await authenticatedApi.post('/user/settings', dehydratedSettings);
         }
       } else {

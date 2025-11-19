@@ -362,6 +362,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 2.5.10
+
+- Fix /user/settings email value
+
 ### Version 2.5.9
 
 - Fix /user/verify loop
