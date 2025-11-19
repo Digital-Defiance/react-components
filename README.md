@@ -362,6 +362,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 2.5.12
+
+- Try to fix settings/darkMode
+
 ### Version 2.5.11
 
 - Try to fix settings/darkMode

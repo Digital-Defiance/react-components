@@ -48,7 +48,7 @@ export const useUserSettings = ({
   authenticatedApi,
 }: UseUserSettingsOptions): UseUserSettingsResult => {
   const { isAuthenticated } = useAuth();
-  const { setColorMode: themeSetPaletteMode } = useTheme();
+  const { setColorMode: themeSetPaletteMode, mode: currentThemeMode } = useTheme();
   const { currentLanguage, changeLanguage } = useI18n();
   const [userSettings, setUserSettings] = useState<IUserSettings | undefined>(undefined);
 
@@ -94,10 +94,14 @@ export const useUserSettings = ({
     [setUserSettingAndUpdateSettings]
   );
 
-  const toggleColorMode = async () => {
-    const currentDarkMode = userSettings?.darkMode ?? false;
+  const toggleColorMode = useCallback(async () => {
+    // When not authenticated, read from the current theme mode
+    // When authenticated, read from userSettings (synced with server)
+    const currentDarkMode = isAuthenticated 
+      ? (userSettings?.darkMode ?? false)
+      : (currentThemeMode === 'dark');
     await setUserSettingAndUpdateSettings({ darkMode: !currentDarkMode });
-  };
+  }, [isAuthenticated, userSettings?.darkMode, currentThemeMode, setUserSettingAndUpdateSettings]);
 
   return {
     changeLanguage: changeLanguageSetting,
