@@ -334,7 +334,8 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       setLoading(false);
       setIsCheckingAuth(false);
     }
-  }, [checkAuth, authState]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authState]); // Only run when authState changes (login/logout), not when checkAuth is recreated
 
   const directLogin: AuthContextData['directLogin'] = useCallback(
     async (mnemonic, username, email, expireMnemonicSeconds, expireWalletSeconds) => {
