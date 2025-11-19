@@ -183,7 +183,7 @@ export const AuthContext = createContext<AuthContextData>(
 
 const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout }: AuthProviderProps) => {
   const { t, tComponent } = useI18n();
-  const { setColorMode: themeSetPaletteMode } = useTheme();
+  const { setColorMode: themeSetPaletteMode, mode: colorMode } = useTheme();
   
   const authService = useMemo(() => createAuthService(constants, baseUrl, eciesConfig), [constants, baseUrl, eciesConfig]);
   const authenticatedApi = useMemo(() => createAuthenticatedApiClient(baseUrl), [baseUrl]);
@@ -648,6 +648,8 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       checkAuth,
       clearMnemonic,
       clearWallet,
+      colorMode,
+      currencyCode: userSettings?.currency,
       directLogin,
       emailChallengeLogin,
       getMnemonicRemainingTime,
@@ -687,6 +689,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
     checkAuth,
     clearMnemonic,
     clearWallet,
+    colorMode,
     directLogin,
     emailChallengeLogin,
     frontendUser,

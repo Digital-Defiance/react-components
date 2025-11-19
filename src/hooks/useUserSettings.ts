@@ -74,8 +74,8 @@ export const useUserSettings = ({
           changeLanguage(setting.siteLanguage);
         }
         
-        // Only send to server if we have complete settings (including email)
-        if (merged.email && isAuthenticated) {
+        // Send to server if authenticated and we have complete settings (including email)
+        if (isAuthenticated && merged.email) {
           const dehydratedSettings = dehydrateUserSettings(merged as IUserSettings);
           await authenticatedApi.post('/user/settings', dehydratedSettings);
         }
@@ -95,8 +95,8 @@ export const useUserSettings = ({
   );
 
   const toggleColorMode = async () => {
-    const currentSetting = { ...({darkMode: userSettings?.darkMode ? userSettings.darkMode : true }) };
-      await setUserSettingAndUpdateSettings({ ...currentSetting, darkMode: !currentSetting.darkMode });
+    const currentDarkMode = userSettings?.darkMode ?? false;
+    await setUserSettingAndUpdateSettings({ darkMode: !currentDarkMode });
   };
 
   return {

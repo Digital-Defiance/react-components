@@ -27,6 +27,7 @@ import {
   useState,
 } from 'react';
 import { useAuth } from './AuthProvider';
+import { useTheme } from './ThemeProvider';
 import { MenuType, MenuTypes } from '../types/MenuType';
 import { useI18n } from './I18nProvider';
 import { IMenuOption } from '../interfaces/IMenuOption';
@@ -55,7 +56,8 @@ interface MenuContextType {
 const MenuContext = createContext<MenuContextType | undefined>(undefined);
 
 export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = [], enableBackupCodes = true }) => {
-  const { userData: user, isAuthenticated, mnemonic, clearMnemonic, wallet, clearWallet, colorMode } = useAuth();
+  const { userData: user, isAuthenticated, mnemonic, clearMnemonic, wallet, clearWallet } = useAuth();
+  const { mode: colorMode } = useTheme();
   const registeredMenuOptions = useRef(new Set<() => void>());
   const [registeredOptions, setRegisteredOptions] = useState<
     Map<string, IMenuOption>
@@ -241,7 +243,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = []
 
     const allOptions = [...baseOptions, ...registeredOptions.values()];
     return allOptions.sort((a, b) => a.index - b.index);
-  }, [tComponent, registeredOptions, user?.roles, colorMode, toggleColorMode]);
+  }, [tComponent, registeredOptions, user?.roles, colorMode, toggleColorMode, clearMnemonic, clearWallet, mnemonic, wallet]);
 
   const getMenuOptions = useCallback(
     (menuType: MenuType, includeDividers: boolean) => {

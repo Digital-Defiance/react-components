@@ -105,4 +105,19 @@ describe('SideMenu', () => {
     const themeToggleItem = screen.getByText(/dark mode/i);
     expect(themeToggleItem).toBeDefined();
   });
+
+  it('calls onClose when theme toggle is clicked', async () => {
+    render(
+      <TestWrapper isAuthenticated={true}>
+        <SideMenu isOpen={true} onClose={mockOnClose} />
+      </TestWrapper>
+    );
+
+    const themeToggleItem = screen.getByText(/dark mode/i);
+    fireEvent.click(themeToggleItem);
+
+    await waitFor(() => {
+      expect(mockOnClose).toHaveBeenCalled();
+    });
+  });
 });
