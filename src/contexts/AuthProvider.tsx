@@ -222,6 +222,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
   // Use the user settings hook for settings management
   const { userSettings, setUserSettingAndUpdateSettings } = useUserSettings({
     authenticatedApi,
+    isAuthenticated,
   });
 
   // Helper functions to calculate remaining time (now provided by the hooks)

@@ -65,7 +65,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = []
   const { tComponent } = useI18n();
   const { baseUrl } = useSuiteConfig();
   const authenticatedApi = useMemo(() => createAuthenticatedApiClient(baseUrl), [baseUrl]);
-  const { toggleColorMode } = useUserSettings({ authenticatedApi });
+  const { toggleColorMode } = useUserSettings({ authenticatedApi, isAuthenticated });
 
   const registerMenuOption = useCallback((option: IMenuOption) => {
     const unregister = () => {

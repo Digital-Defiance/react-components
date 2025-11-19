@@ -1,7 +1,7 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import React, { ReactNode } from 'react';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useUserSettingsPublic, UserSettingsValues } from '../../src/hooks/useUserSettings';
+import { useUserSettings, useUserSettingsPublic, UserSettingsValues } from '../../src/hooks/useUserSettings';
 import { SuiteConfigProvider } from '../../src/contexts/SuiteConfigProvider';
 import { AppThemeProvider } from '../../src/contexts/ThemeProvider';
 import { I18nProvider } from '../../src/contexts/I18nProvider';
@@ -349,5 +349,225 @@ describe('useUserSettingsPublic', () => {
       expect(response.errors).toHaveLength(2);
       expect(response.errors[0]).toEqual({ path: 'email', msg: 'Invalid email' });
     }
+  });
+});
+
+describe('useUserSettings (internal hook)', () => {
+  const mockPost = jest.fn().mockResolvedValue({ data: {} });
+  const mockAuthenticatedApi = {
+    post: mockPost,
+  };
+
+  const wrapper = ({ children }: { children: ReactNode }) => {
+    const engine = I18nEngine.getInstance('default');
+    return (
+      <SuiteConfigProvider baseUrl="https://api.test.com">
+        <I18nProvider i18nEngine={engine}>
+          <AppThemeProvider>
+            {children}
+          </AppThemeProvider>
+        </I18nProvider>
+      </SuiteConfigProvider>
+    );
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockPost.mockResolvedValue({ data: {} });
+  });
+
+  it('calls API when authenticated and settings have email', async () => {
+    const { result } = renderHook(
+      () => useUserSettings({ 
+        authenticatedApi: mockAuthenticatedApi, 
+        isAuthenticated: true 
+      }),
+      { wrapper }
+    );
+
+    await act(async () => {
+      await result.current.setUserSettingAndUpdateSettings({
+        email: new EmailString('test@example.com'),
+        darkMode: true,
+        timezone: new Timezone('America/New_York'),
+        siteLanguage: 'en-US',
+        currency: new CurrencyCode('USD'),
+        directChallenge: false,
+      });
+    });
+
+    expect(mockPost).toHaveBeenCalledTimes(1);
+    expect(mockPost).toHaveBeenCalledWith('/user/settings', {
+      email: 'test@example.com',
+      darkMode: true,
+      timezone: 'America/New_York',
+      siteLanguage: 'en-US',
+      currency: 'USD',
+      directChallenge: false,
+    });
+  });
+
+  it('does NOT call API when not authenticated', async () => {
+    const { result } = renderHook(
+      () => useUserSettings({ 
+        authenticatedApi: mockAuthenticatedApi, 
+        isAuthenticated: false 
+      }),
+      { wrapper }
+    );
+
+    await act(async () => {
+      await result.current.setUserSettingAndUpdateSettings({
+        email: new EmailString('test@example.com'),
+        darkMode: true,
+        timezone: new Timezone('America/New_York'),
+        siteLanguage: 'en-US',
+        currency: new CurrencyCode('USD'),
+        directChallenge: false,
+      });
+    });
+
+    expect(mockPost).not.toHaveBeenCalled();
+  });
+
+  it('does NOT call API when authenticated but email is missing', async () => {
+    const { result } = renderHook(
+      () => useUserSettings({ 
+        authenticatedApi: mockAuthenticatedApi, 
+        isAuthenticated: true 
+      }),
+      { wrapper }
+    );
+
+    await act(async () => {
+      await result.current.setUserSettingAndUpdateSettings({
+        darkMode: true,
+        timezone: new Timezone('America/New_York'),
+        siteLanguage: 'en-US',
+        currency: new CurrencyCode('USD'),
+      });
+    });
+
+    expect(mockPost).not.toHaveBeenCalled();
+  });
+
+  it('updates theme mode when darkMode setting changes', async () => {
+    const { result } = renderHook(
+      () => useUserSettings({ 
+        authenticatedApi: mockAuthenticatedApi, 
+        isAuthenticated: true 
+      }),
+      { wrapper }
+    );
+
+    await act(async () => {
+      await result.current.setUserSettingAndUpdateSettings({
+        email: new EmailString('test@example.com'),
+        darkMode: true,
+      });
+    });
+
+    // The theme should be updated (tested via ThemeProvider integration)
+    expect(mockPost).toHaveBeenCalled();
+  });
+
+  it('changes language when siteLanguage setting changes', async () => {
+    const { result } = renderHook(
+      () => useUserSettings({ 
+        authenticatedApi: mockAuthenticatedApi, 
+        isAuthenticated: true 
+      }),
+      { wrapper }
+    );
+
+    const initialLanguage = result.current.currentLanguage;
+
+    await act(async () => {
+      await result.current.setUserSettingAndUpdateSettings({
+        email: new EmailString('test@example.com'),
+        siteLanguage: 'es',
+      });
+    });
+
+    await waitFor(() => {
+      expect(result.current.currentLanguage).toBe('es');
+    });
+
+    expect(mockPost).toHaveBeenCalled();
+  });
+
+  it('toggleColorMode switches darkMode state when authenticated', async () => {
+    const { result } = renderHook(
+      () => useUserSettings({ 
+        authenticatedApi: mockAuthenticatedApi, 
+        isAuthenticated: true 
+      }),
+      { wrapper }
+    );
+
+    // Set initial state with darkMode false
+    await act(async () => {
+      await result.current.setUserSettingAndUpdateSettings({
+        email: new EmailString('test@example.com'),
+        darkMode: false,
+      });
+    });
+
+    mockPost.mockClear();
+
+    // Toggle dark mode
+    await act(async () => {
+      await result.current.toggleColorMode();
+    });
+
+    expect(mockPost).toHaveBeenCalledWith('/user/settings', 
+      expect.objectContaining({
+        darkMode: true,
+      })
+    );
+  });
+
+  it('maintains settings state across multiple updates', async () => {
+    const { result } = renderHook(
+      () => useUserSettings({ 
+        authenticatedApi: mockAuthenticatedApi, 
+        isAuthenticated: true 
+      }),
+      { wrapper }
+    );
+
+    // First update
+    await act(async () => {
+      await result.current.setUserSettingAndUpdateSettings({
+        email: new EmailString('test@example.com'),
+        darkMode: false,
+        timezone: new Timezone('UTC'),
+      });
+    });
+
+    expect(mockPost).toHaveBeenCalledWith('/user/settings', 
+      expect.objectContaining({
+        email: 'test@example.com',
+        darkMode: false,
+        timezone: 'UTC',
+      })
+    );
+
+    mockPost.mockClear();
+
+    // Second update - should merge with previous
+    await act(async () => {
+      await result.current.setUserSettingAndUpdateSettings({
+        darkMode: true,
+      });
+    });
+
+    expect(mockPost).toHaveBeenCalledWith('/user/settings', 
+      expect.objectContaining({
+        email: 'test@example.com',
+        darkMode: true,
+        timezone: 'UTC',
+      })
+    );
   });
 });

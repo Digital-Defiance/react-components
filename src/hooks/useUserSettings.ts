@@ -30,6 +30,7 @@ export interface UseUserSettingsOptions {
   authenticatedApi: {
     post: (url: string, data: any) => Promise<any>;
   };
+  isAuthenticated: boolean;
 }
 
 export interface UseUserSettingsResult {
@@ -46,8 +47,8 @@ export interface UseUserSettingsResult {
  */
 export const useUserSettings = ({
   authenticatedApi,
+  isAuthenticated,
 }: UseUserSettingsOptions): UseUserSettingsResult => {
-  const { isAuthenticated } = useAuth();
   const { setColorMode: themeSetPaletteMode, mode: currentThemeMode } = useTheme();
   const { currentLanguage, changeLanguage } = useI18n();
   const [userSettings, setUserSettings] = useState<IUserSettings | undefined>(undefined);

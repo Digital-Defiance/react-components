@@ -4,12 +4,13 @@ import { FC, MouseEvent, useState, useMemo } from 'react';
 import { Flag } from './Flag';
 import { useUserSettings } from '../hooks';
 import { createAuthenticatedApiClient } from '../services';
-import { useSuiteConfig } from '../contexts';
+import { useAuth, useSuiteConfig } from '../contexts';
 
 export const UserLanguageSelector: FC = () => {
   const { baseUrl } = useSuiteConfig();
   const authenticatedApi = useMemo(() => createAuthenticatedApiClient(baseUrl), [baseUrl]);
-  const { currentLanguage, changeLanguage } = useUserSettings({ authenticatedApi });
+  const { isAuthenticated } = useAuth();
+  const { currentLanguage, changeLanguage } = useUserSettings({ authenticatedApi, isAuthenticated });
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {

@@ -362,6 +362,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 2.5.13
+
+- Try to fix saving of settings
+
 ### Version 2.5.12
 
 - Try to fix settings/darkMode
