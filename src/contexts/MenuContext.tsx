@@ -31,7 +31,9 @@ import { MenuType, MenuTypes } from '../types/MenuType';
 import { useI18n } from './I18nProvider';
 import { IMenuOption } from '../interfaces/IMenuOption';
 import { IMenuConfig } from '../interfaces/IMenuConfig';
-import { useTheme } from './ThemeProvider';
+import { useUserSettings } from '../hooks';
+import { useSuiteConfig } from './SuiteConfigProvider';
+import { createAuthenticatedApiClient } from '../services';
 
 interface MenuProviderProps {
   children: ReactNode;
@@ -53,12 +55,15 @@ interface MenuContextType {
 const MenuContext = createContext<MenuContextType | undefined>(undefined);
 
 export const MenuProvider: FC<MenuProviderProps> = ({ children, menuConfigs = [], enableBackupCodes = true }) => {
-  const { userData: user, isAuthenticated, mnemonic, clearMnemonic, wallet, clearWallet, colorMode, toggleColorMode } = useAuth();
+  const { userData: user, isAuthenticated, mnemonic, clearMnemonic, wallet, clearWallet, colorMode } = useAuth();
   const registeredMenuOptions = useRef(new Set<() => void>());
   const [registeredOptions, setRegisteredOptions] = useState<
     Map<string, IMenuOption>
   >(new Map<string, IMenuOption>());
   const { tComponent } = useI18n();
+  const { baseUrl } = useSuiteConfig();
+  const authenticatedApi = useMemo(() => createAuthenticatedApiClient(baseUrl), [baseUrl]);
+  const { toggleColorMode } = useUserSettings({ authenticatedApi });
 
   const registerMenuOption = useCallback((option: IMenuOption) => {
     const unregister = () => {

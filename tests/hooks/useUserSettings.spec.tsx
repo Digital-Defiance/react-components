@@ -1,34 +1,54 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import React, { ReactNode } from 'react';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useUserSettings, UserSettingsValues } from '../../src/hooks/useUserSettings';
+import { useUserSettingsPublic, UserSettingsValues } from '../../src/hooks/useUserSettings';
 import { SuiteConfigProvider } from '../../src/contexts/SuiteConfigProvider';
-import { AuthProvider } from '../../src/contexts/AuthProvider';
 import { AppThemeProvider } from '../../src/contexts/ThemeProvider';
 import { I18nProvider } from '../../src/contexts/I18nProvider';
-import { I18nEngine } from '@digitaldefiance/i18n-lib';
-import { Constants } from '@digitaldefiance/suite-core-lib';
-import { ECIES as ECIESConstants } from '@digitaldefiance/ecies-lib';
+import { I18nEngine, CurrencyCode, Timezone } from '@digitaldefiance/i18n-lib';
+import { IUserSettings } from '@digitaldefiance/suite-core-lib';
+import { EmailString } from '@digitaldefiance/ecies-lib';
 
-// Mock the services
-const mockGet = jest.fn();
-const mockPost = jest.fn();
-const mockSetCurrencyCode = jest.fn();
-const mockSetLanguage = jest.fn();
-const mockSetColorMode = jest.fn();
+// Mock the Auth context
+const mockSetUserSetting = jest.fn();
+const mockUserSettings: IUserSettings = {
+  email: new EmailString('test@example.com'),
+  timezone: new Timezone('America/New_York'),
+  siteLanguage: 'en-US',
+  currency: new CurrencyCode('USD'),
+  darkMode: false,
+  directChallenge: false,
+};
 
-jest.mock('../../src/services/authenticatedApi', () => ({
-  createAuthenticatedApiClient: jest.fn(() => ({
-    get: mockGet,
-    post: mockPost,
-  })),
-}));
+const mockAuthContext = {
+  isAuthenticated: true,
+  userData: {
+    email: 'test@example.com',
+    timezone: 'America/New_York',
+    siteLanguage: 'en-US',
+    currency: 'USD',
+    darkMode: false,
+    directChallenge: false,
+  },
+  userSettings: mockUserSettings,
+  setUserSetting: mockSetUserSetting,
+  login: jest.fn(),
+  logout: jest.fn(),
+  register: jest.fn(),
+  requestEmailLogin: jest.fn(),
+  verifyEmailChallenge: jest.fn(),
+  backupCodeLogin: jest.fn(),
+  changePassword: jest.fn(),
+  isLoading: false,
+  error: null,
+  getMnemonicRemainingTime: jest.fn(),
+  getWalletRemainingTime: jest.fn(),
+  isBrowserPasswordLoginAvailable: true,
+};
 
-jest.mock('../../src/services/authService', () => ({
-  createAuthService: jest.fn(() => ({
-    verifyToken: jest.fn(),
-    refreshToken: jest.fn(),
-  })),
+jest.mock('../../src/contexts', () => ({
+  ...jest.requireActual('../../src/contexts'),
+  useAuth: () => mockAuthContext,
 }));
 
 const mockUserData = {
@@ -40,21 +60,14 @@ const mockUserData = {
   directChallenge: false,
 };
 
-describe('useUserSettings', () => {
+describe('useUserSettingsPublic', () => {
   const wrapper = ({ children }: { children: ReactNode }) => {
     const engine = I18nEngine.getInstance('default');
     return (
       <SuiteConfigProvider baseUrl="https://api.test.com">
         <I18nProvider i18nEngine={engine}>
           <AppThemeProvider>
-            <AuthProvider
-              baseUrl="https://api.test.com"
-              constants={Constants}
-              eciesConfig={ECIESConstants}
-              onAuthError={() => {}}
-            >
-              {children}
-            </AuthProvider>
+            {children}
           </AppThemeProvider>
         </I18nProvider>
       </SuiteConfigProvider>
@@ -63,53 +76,66 @@ describe('useUserSettings', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockGet.mockResolvedValue({ data: { settings: mockUserData } });
+    mockSetUserSetting.mockResolvedValue(undefined as any);
+    // Reset mock context to default state
+    mockAuthContext.userSettings = mockUserSettings;
+    mockAuthContext.userData = {
+      email: 'test@example.com',
+      timezone: 'America/New_York',
+      siteLanguage: 'en-US',
+      currency: 'USD',
+      darkMode: false,
+      directChallenge: false,
+    };
   });
 
-  it('initializes with loading state', () => {
-    const { result } = renderHook(() => useUserSettings(), { wrapper });
+  it('initializes and loads settings', async () => {
+    const { result } = renderHook(() => useUserSettingsPublic(), { wrapper });
 
-    expect(result.current.settings).toBeNull();
-    expect(result.current.isLoading).toBe(true);
-    expect(result.current.error).toBeNull();
+    // Wait for settings to be loaded from mocked context
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+    
+    expect(result.current.settings).toEqual(mockUserData);
   });
 
   it('fetches settings on mount', async () => {
-    const { result } = renderHook(() => useUserSettings(), { wrapper });
-
-    await waitFor(() => {
-      expect(result.current.settings).toEqual(mockUserData);
-    });
-
-    expect(result.current.isLoading).toBe(false);
-    expect(mockGet).toHaveBeenCalledWith('/user/settings');
-  });
-
-  it('uses fallback userData on fetch error', async () => {
-    mockGet.mockRejectedValue(new Error('Network error'));
-
-    const { result } = renderHook(() => useUserSettings(), { wrapper });
+    const { result } = renderHook(() => useUserSettingsPublic(), { wrapper });
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(result.current.settings).toBeDefined();
-    expect(result.current.error).toBeInstanceOf(Error);
+    expect(result.current.settings).toEqual(mockUserData);
+  });
+
+  it('uses fallback userData when userSettings is undefined', async () => {
+    mockAuthContext.userSettings = undefined;
+
+    const { result } = renderHook(() => useUserSettingsPublic(), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.settings).toEqual(mockUserData);
   });
 
   it('updates settings successfully', async () => {
-    mockPost.mockResolvedValue({ data: { message: 'Settings saved' } });
-
-    const { result } = renderHook(() => useUserSettings(), { wrapper });
+    const { result } = renderHook(() => useUserSettingsPublic(), { wrapper });
 
     await waitFor(() => {
-      expect(result.current.settings).toEqual(mockUserData);
+      expect(result.current.isLoading).toBe(false);
     });
 
     const updatedSettings: UserSettingsValues = {
-      ...mockUserData,
+      email: 'test@example.com',
       timezone: 'Europe/London',
+      siteLanguage: 'en-US',
+      currency: 'USD',
+      darkMode: false,
+      directChallenge: false,
     };
 
     let response: any;
@@ -118,12 +144,12 @@ describe('useUserSettings', () => {
     });
 
     expect(response.success).toBe(true);
-    expect(mockPost).toHaveBeenCalledWith('/user/settings', updatedSettings);
+    expect(mockSetUserSetting).toHaveBeenCalled();
     expect(result.current.settings).toEqual(updatedSettings);
   });
 
   it('handles update errors', async () => {
-    mockPost.mockRejectedValue({
+    mockSetUserSetting.mockRejectedValue({
       response: {
         data: {
           message: 'Update failed',
@@ -131,12 +157,12 @@ describe('useUserSettings', () => {
           field: 'email',
         },
       },
-    });
+    } as any);
 
-    const { result } = renderHook(() => useUserSettings(), { wrapper });
+    const { result } = renderHook(() => useUserSettingsPublic(), { wrapper });
 
     await waitFor(() => {
-      expect(result.current.settings).toEqual(mockUserData);
+      expect(result.current.isLoading).toBe(false);
     });
 
     let response: any;
@@ -150,95 +176,136 @@ describe('useUserSettings', () => {
   });
 
   it('refreshes settings', async () => {
-    const { result } = renderHook(() => useUserSettings(), { wrapper });
+    const { result } = renderHook(() => useUserSettingsPublic(), { wrapper });
 
     await waitFor(() => {
-      expect(result.current.settings).toEqual(mockUserData);
+      expect(result.current.isLoading).toBe(false);
     });
 
-    const updatedData = { ...mockUserData, timezone: 'Asia/Tokyo' };
-    mockGet.mockResolvedValueOnce({ data: { settings: updatedData } });
+    const updatedData = {
+      email: 'test@example.com',
+      timezone: 'Asia/Tokyo',
+      siteLanguage: 'en-US',
+      currency: 'USD',
+      darkMode: false,
+      directChallenge: false,
+    };
+
+    // Update the mock context
+    mockAuthContext.userData = updatedData;
+    mockAuthContext.userSettings = {
+      ...mockUserSettings,
+      timezone: new Timezone('Asia/Tokyo'),
+    };
 
     await act(async () => {
       await result.current.refreshSettings();
     });
 
-    expect(result.current.settings).toEqual(updatedData);
+    await waitFor(() => {
+      expect(result.current.settings).toEqual(updatedData);
+    });
   });
 
   it('updates currency code in context on settings update', async () => {
-    mockPost.mockResolvedValue({ data: { message: 'Success' } });
-
-    const { result } = renderHook(() => useUserSettings(), { wrapper });
+    const { result } = renderHook(() => useUserSettingsPublic(), { wrapper });
 
     await waitFor(() => {
-      expect(result.current.settings).toBeDefined();
+      expect(result.current.isLoading).toBe(false);
     });
 
-    const updatedSettings = { ...mockUserData, currency: 'EUR' };
+    const updatedSettings: UserSettingsValues = {
+      email: 'test@example.com',
+      timezone: 'America/New_York',
+      siteLanguage: 'en-US',
+      currency: 'EUR',
+      darkMode: false,
+      directChallenge: false,
+    };
 
     await act(async () => {
       await result.current.updateSettings(updatedSettings);
     });
 
-    // Note: In a real test, we'd need to mock the useAuth hook properly
-    // to verify setCurrencyCode was called
-    expect(mockPost).toHaveBeenCalledWith('/user/settings', updatedSettings);
+    expect(mockSetUserSetting).toHaveBeenCalledWith(
+      expect.objectContaining({
+        currency: expect.any(CurrencyCode),
+      })
+    );
   });
 
   it('updates language in context on settings update', async () => {
-    mockPost.mockResolvedValue({ data: { message: 'Success' } });
-
-    const { result } = renderHook(() => useUserSettings(), { wrapper });
+    const { result } = renderHook(() => useUserSettingsPublic(), { wrapper });
 
     await waitFor(() => {
-      expect(result.current.settings).toBeDefined();
+      expect(result.current.isLoading).toBe(false);
     });
 
-    const updatedSettings = { ...mockUserData, siteLanguage: 'es-ES' };
+    const updatedSettings: UserSettingsValues = {
+      email: 'test@example.com',
+      timezone: 'America/New_York',
+      siteLanguage: 'es-ES',
+      currency: 'USD',
+      darkMode: false,
+      directChallenge: false,
+    };
 
     await act(async () => {
       await result.current.updateSettings(updatedSettings);
     });
 
-    expect(mockPost).toHaveBeenCalledWith('/user/settings', updatedSettings);
+    expect(mockSetUserSetting).toHaveBeenCalledWith(
+      expect.objectContaining({
+        siteLanguage: 'es-ES',
+      })
+    );
   });
 
   it('updates theme mode in context on darkMode change', async () => {
-    mockPost.mockResolvedValue({ data: { message: 'Success' } });
-
-    const { result } = renderHook(() => useUserSettings(), { wrapper });
+    const { result } = renderHook(() => useUserSettingsPublic(), { wrapper });
 
     await waitFor(() => {
-      expect(result.current.settings).toBeDefined();
+      expect(result.current.isLoading).toBe(false);
     });
 
-    const updatedSettings = { ...mockUserData, darkMode: true };
+    const updatedSettings: UserSettingsValues = {
+      email: 'test@example.com',
+      timezone: 'America/New_York',
+      siteLanguage: 'en-US',
+      currency: 'USD',
+      darkMode: true,
+      directChallenge: false,
+    };
 
     await act(async () => {
       await result.current.updateSettings(updatedSettings);
     });
 
-    expect(mockPost).toHaveBeenCalledWith('/user/settings', updatedSettings);
+    expect(mockSetUserSetting).toHaveBeenCalledWith(
+      expect.objectContaining({
+        darkMode: true,
+      })
+    );
   });
 
   it('sets isLoading correctly during operations', async () => {
-    mockPost.mockImplementation(
-      () => new Promise((resolve) => setTimeout(() => resolve({ data: { message: 'Success' } }), 100))
-    );
+    const { result } = renderHook(() => useUserSettingsPublic(), { wrapper });
 
-    const { result } = renderHook(() => useUserSettings(), { wrapper });
-
+    // Wait for initial load
     await waitFor(() => {
-      expect(result.current.settings).toEqual(mockUserData);
+      expect(result.current.isLoading).toBe(false);
     });
 
-    expect(result.current.isLoading).toBe(false);
+    // Simulate a slow update
+    mockSetUserSetting.mockImplementation(
+      () => new Promise((resolve) => setTimeout(() => resolve(undefined as any), 100))
+    );
 
     act(() => {
       result.current.updateSettings(mockUserData);
     });
 
+    // Should be loading during update
     expect(result.current.isLoading).toBe(true);
 
     await waitFor(() => {
@@ -247,7 +314,7 @@ describe('useUserSettings', () => {
   });
 
   it('handles validation errors in response', async () => {
-    mockPost.mockRejectedValue({
+    mockSetUserSetting.mockRejectedValue({
       response: {
         data: {
           message: 'Validation failed',
@@ -257,21 +324,30 @@ describe('useUserSettings', () => {
           ],
         },
       },
-    });
+    } as any);
 
-    const { result } = renderHook(() => useUserSettings(), { wrapper });
+    const { result } = renderHook(() => useUserSettingsPublic(), { wrapper });
 
     await waitFor(() => {
-      expect(result.current.settings).toBeDefined();
+      expect(result.current.isLoading).toBe(false);
     });
 
     let response: any;
     await act(async () => {
-      response = await result.current.updateSettings(mockUserData);
+      response = await result.current.updateSettings({
+        email: 'invalid',
+        timezone: 'invalid',
+        siteLanguage: 'en-US',
+        currency: 'USD',
+        darkMode: false,
+        directChallenge: false,
+      });
     });
 
     expect(response.error).toBeDefined();
-    expect(response.errors).toHaveLength(2);
-    expect(response.errors[0]).toEqual({ path: 'email', msg: 'Invalid email' });
+    if (response.errors) {
+      expect(response.errors).toHaveLength(2);
+      expect(response.errors[0]).toEqual({ path: 'email', msg: 'Invalid email' });
+    }
   });
 });

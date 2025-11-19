@@ -3,22 +3,22 @@ import React, { ReactNode } from 'react';
 
 // Mock PasswordLoginService
 const mockPasswordLoginService = {
-  getWalletAndMnemonicFromLocalStorageBundle: jest.fn(),
-  setupPasswordLoginLocalStorageBundle: jest.fn(),
+  getWalletAndMnemonicFromLocalStorageBundle: jest.fn() as jest.Mock,
+  setupPasswordLoginLocalStorageBundle: jest.fn() as jest.Mock,
 };
 
 const mockNavigate = jest.fn();
 
 // Create shared mock instance
 const mockAuthService = {
-  verifyToken: jest.fn(),
-  directLogin: jest.fn(),
-  emailChallengeLogin: jest.fn(),
-  refreshToken: jest.fn(),
-  register: jest.fn(),
-  requestEmailLogin: jest.fn(),
-  backupCodeLogin: jest.fn(),
-  changePassword: jest.fn(),
+  verifyToken: jest.fn() as jest.Mock,
+  directLogin: jest.fn() as jest.Mock,
+  emailChallengeLogin: jest.fn() as jest.Mock,
+  refreshToken: jest.fn() as jest.Mock,
+  register: jest.fn() as jest.Mock,
+  requestEmailLogin: jest.fn() as jest.Mock,
+  backupCodeLogin: jest.fn() as jest.Mock,
+  changePassword: jest.fn() as jest.Mock,
 };
 
 // Mock dependencies - must be before imports
@@ -153,6 +153,9 @@ const createMockUser = (admin = false) => ({
   }],
   siteLanguage: 'en-US',
   timezone: 'UTC',
+  currency: 'USD',
+  darkMode: false,
+  directChallenge: false,
   emailVerified: true,
 });
 
@@ -191,35 +194,12 @@ describe('AuthProvider', () => {
       });
     });
 
-    it('should initialize currency code from localStorage', async () => {
-      localStorageMock.getItem.mockImplementation((key) => 
-        key === 'currencyCode' ? 'EUR' : null
-      );
-
-      const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
-
-      await waitFor(() => {
-        expect(result.current.currencyCode.value).toBe('EUR');
-      });
-    });
-
     it('should initialize expiration seconds from localStorage', async () => {
       localStorageMock.getItem.mockImplementation((key) => {
         if (key === 'mnemonicExpirationSeconds') return '300';
         if (key === 'walletExpirationSeconds') return '600';
         return null;
       });
-
-      const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
-
-      await waitFor(() => {
-        expect(localStorageMock.getItem).toHaveBeenCalledWith('mnemonicExpirationSeconds');
-        expect(localStorageMock.getItem).toHaveBeenCalledWith('walletExpirationSeconds');
-      });
-    });
-
-    it('should use default expiration seconds when not in localStorage', async () => {
-      localStorageMock.getItem.mockReturnValue(null);
 
       const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
 
@@ -266,8 +246,6 @@ describe('AuthProvider', () => {
     it('should handle token verification failure', async () => {
       localStorageMock.getItem.mockImplementation((key) => {
         if (key === 'authToken') return 'invalid-token';
-        if (key === 'timezone') return 'UTC';
-        if (key === 'currencyCode') return 'USD';
         return null;
       });
       mockAuthService.verifyToken.mockRejectedValue(new Error('Token invalid'));
@@ -827,35 +805,6 @@ describe('AuthProvider', () => {
     });
   });
 
-  describe('Currency and Language Management', () => {
-    it('should set currency code and update localStorage', async () => {
-      const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
-      
-      await waitFor(() => {
-        expect(result.current.setCurrencyCode).toBeDefined();
-      });
-
-      const newCurrencyCode = new CurrencyCode('EUR');
-
-      await act(async () => {
-        await result.current.setCurrencyCode(newCurrencyCode);
-      });
-
-      expect(result.current.currencyCode).toEqual(newCurrencyCode);
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('currencyCode', 'EUR');
-    });
-
-    it('should set language', async () => {
-      const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
-
-      await act(async () => {
-        await result.current.setLanguage('es');
-      });
-
-      expect(result.current.setLanguage).toBeDefined();
-    });
-  });
-
   describe('Timeout Management', () => {
     it('should set expiration times and use them for timeouts', async () => {
       const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
@@ -944,7 +893,7 @@ describe('AuthProvider', () => {
     });
   });
 
-  describe('setUpPasswordLogin', () => {
+  describe('setUpBrowserPasswordLogin', () => {
     it('should set up password login successfully', async () => {
       const mockMnemonic = new SecureString('test mnemonic');
       const mockWallet = Wallet.generate();
@@ -955,7 +904,7 @@ describe('AuthProvider', () => {
 
       let setupResult;
       await act(async () => {
-        setupResult = await result.current.setUpPasswordLogin(
+        setupResult = await result.current.setUpBrowserPasswordLogin(
           mockMnemonic,
           new SecureString('password')
         );
@@ -973,7 +922,7 @@ describe('AuthProvider', () => {
 
       let setupResult;
       await act(async () => {
-        setupResult = await result.current.setUpPasswordLogin(
+        setupResult = await result.current.setUpBrowserPasswordLogin(
           mockMnemonic,
           new SecureString('password')
         );
@@ -986,7 +935,7 @@ describe('AuthProvider', () => {
     });
   });
 
-  describe('isPasswordLoginAvailable', () => {
+  describe('isBrowserPasswordLoginAvailable', () => {
     it('should return true when encrypted password exists', async () => {
       localStorageMock.getItem.mockImplementation((key) => 
         key === 'encryptedPassword' ? 'mock-encrypted-password' : null
@@ -995,7 +944,7 @@ describe('AuthProvider', () => {
       const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
 
       await waitFor(() => {
-        expect(result.current.isPasswordLoginAvailable?.()).toBe(true);
+        expect(result.current.isBrowserPasswordLoginAvailable?.()).toBe(true);
       });
     });
 
@@ -1005,7 +954,7 @@ describe('AuthProvider', () => {
       const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
 
       await waitFor(() => {
-        expect(result.current.isPasswordLoginAvailable?.()).toBe(false);
+        expect(result.current.isBrowserPasswordLoginAvailable?.()).toBe(false);
       });
     });
   });
@@ -1061,8 +1010,6 @@ describe('AuthProvider', () => {
     it('should handle checkAuth with error response from verifyToken', async () => {
       localStorageMock.getItem.mockImplementation((key) => {
         if (key === 'authToken') return 'token-with-error';
-        if (key === 'timezone') return 'UTC';
-        if (key === 'currencyCode') return 'USD';
         return null;
       });
       mockAuthService.verifyToken.mockResolvedValue({ error: 'Token expired' });
@@ -1098,8 +1045,6 @@ describe('AuthProvider', () => {
     it('should handle console errors gracefully', async () => {
       localStorageMock.getItem.mockImplementation((key) => {
         if (key === 'authToken') return 'invalid-token';
-        if (key === 'timezone') return 'UTC';
-        if (key === 'currencyCode') return 'USD';
         return null;
       });
       mockAuthService.verifyToken.mockRejectedValue(new Error('Network error'));

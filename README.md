@@ -362,6 +362,16 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 2.5.8
+
+#### Changed
+
+- **User Settings Storage** - Removed localStorage for userSettings (never read, server is source of truth)
+  - User settings are now only stored in-memory and persisted to the server via API
+  - Settings are loaded from the server on login/token verification
+  - Eliminates risk of stale data from localStorage
+  - Reduces unnecessary localStorage operations
+
 ### Version 2.5.7
 
 - Relax isRestricted check to default false if no roles available

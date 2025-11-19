@@ -1,21 +1,112 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { createAuthenticatedApiClient } from '../services';
-import { useSuiteConfig } from '../contexts';
-import { useAuth, useTheme } from '../contexts';
-import { CurrencyCode } from '@digitaldefiance/i18n-lib';
-import { getSuiteCoreTranslation, SuiteCoreStringKey, TranslatableSuiteError } from '@digitaldefiance/suite-core-lib';
+import { useCallback, useState, useEffect } from 'react';
+import {
+  CurrencyCode,
+  DefaultCurrencyCode,
+  DefaultTimezone,
+  DefaultLanguageCode,
+  Timezone,
+} from '@digitaldefiance/i18n-lib';
+import { EmailString } from '@digitaldefiance/ecies-lib';
+import {
+  IUserSettings,
+  dehydrateUserSettings,
+  IRequestUserDTO,
+  IUserSettingsDTO,
+  getSuiteCoreTranslation,
+  SuiteCoreStringKey,
+  TranslatableSuiteError,
+} from '@digitaldefiance/suite-core-lib';
+import { useAuth, useI18n, useTheme } from '../contexts';
 
-export interface UserSettingsValues {
-  email: string;
-  timezone: string;
-  siteLanguage: string;
-  currency: string;
-  darkMode: boolean;
-  directChallenge: boolean;
-  [key: string]: any;
+const defaultUserSettings: IUserSettings = {
+  darkMode: false,
+  currency: new CurrencyCode(DefaultCurrencyCode),
+  timezone: new Timezone(DefaultTimezone),
+  siteLanguage: DefaultLanguageCode,
+  email: new EmailString('bob@example.com'),
+  directChallenge: false,
+} as const;
+
+export interface UseUserSettingsOptions {
+  authenticatedApi: {
+    post: (url: string, data: any) => Promise<any>;
+  };
 }
 
 export interface UseUserSettingsResult {
+  currentLanguage: string;
+  changeLanguage: (languageCode: string) => Promise<void>;
+  userSettings: IUserSettings | undefined;
+  setUserSettingAndUpdateSettings: (setting?: Partial<IUserSettings>) => Promise<void>;
+  toggleColorMode: () => Promise<void>;
+}
+
+/**
+ * Hook for managing user settings state and synchronization.
+ * Used by AuthProvider to handle user settings logic.
+ */
+export const useUserSettings = ({
+  authenticatedApi,
+}: UseUserSettingsOptions): UseUserSettingsResult => {
+  const { isAuthenticated } = useAuth();
+  const { setColorMode: themeSetPaletteMode } = useTheme();
+  const { currentLanguage, changeLanguage } = useI18n();
+  const [userSettings, setUserSettings] = useState<IUserSettings | undefined>(undefined);
+
+  const setUserSettingAndUpdateSettings = useCallback(
+    async (setting?: Partial<IUserSettings>) => {
+      if (setting) {
+        const newUserSettings: IUserSettings = {
+          ...defaultUserSettings,
+          ...(userSettings ? userSettings : {}),
+          ...setting,
+        };
+        setUserSettings(newUserSettings);
+        if (setting.darkMode !== undefined) {
+          themeSetPaletteMode(setting.darkMode ? 'dark' : 'light');
+        }
+        if (setting.siteLanguage !== undefined && setting.siteLanguage !== currentLanguage) {
+          changeLanguage(setting.siteLanguage);
+        }
+        const dehydratedSettings = dehydrateUserSettings(newUserSettings);
+        if (isAuthenticated) {
+          await authenticatedApi.post('/user/settings', dehydratedSettings);
+        }
+      } else {
+        setUserSettings(undefined);
+        themeSetPaletteMode('light');
+      }
+    },
+    [isAuthenticated, userSettings, currentLanguage, changeLanguage, themeSetPaletteMode, authenticatedApi]
+  );
+
+  const changeLanguageSetting = useCallback(
+    async (languageCode: string) => {
+      await setUserSettingAndUpdateSettings({ siteLanguage: languageCode });
+    },
+    [setUserSettingAndUpdateSettings]
+  );
+
+  const toggleColorMode = async () => {
+    const currentSetting = { ...({darkMode: userSettings?.darkMode ? userSettings.darkMode : true }) };
+      await setUserSettingAndUpdateSettings({ ...currentSetting, darkMode: !currentSetting.darkMode });
+  };
+
+  return {
+    changeLanguage: changeLanguageSetting,
+    currentLanguage,
+    userSettings,
+    setUserSettingAndUpdateSettings,
+    toggleColorMode,
+  };
+};
+
+// Public-facing hook for components
+export interface UserSettingsValues extends IUserSettingsDTO {
+  [key: string]: any;
+}
+
+export interface UseUserSettingsPublicResult {
   settings: UserSettingsValues | null;
   isLoading: boolean;
   error: Error | null;
@@ -31,11 +122,12 @@ export interface UseUserSettingsResult {
   refreshSettings: () => Promise<void>;
 }
 
-export const useUserSettings = (): UseUserSettingsResult => {
-  const { baseUrl } = useSuiteConfig();
-  const { userData, setCurrencyCode, setLanguage } = useAuth();
-  const { setColorMode } = useTheme();
-  const api = useMemo(() => createAuthenticatedApiClient(baseUrl), [baseUrl]);
+/**
+ * Public hook for components to manage user settings.
+ * Provides a simpler API for fetching and updating settings.
+ */
+export const useUserSettingsPublic = (): UseUserSettingsPublicResult => {
+  const { userData, setUserSetting, userSettings } = useAuth();
   const [settings, setSettings] = useState<UserSettingsValues | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -44,66 +136,49 @@ export const useUserSettings = (): UseUserSettingsResult => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await api.get<{ settings: UserSettingsValues }>('/user/settings');
-      if (result?.data?.settings) {
-        setSettings(result.data.settings);
-      } else {
-        // Fallback to userData - use current value without dependency
+      if (userSettings) {
+        const dehydratedSettings = dehydrateUserSettings(userSettings);
+        setSettings(dehydratedSettings);
+      } else if (userData) {
         const fallback = {
-          email: userData?.email || '',
-          timezone: userData?.timezone || 'UTC',
-          siteLanguage: userData?.siteLanguage || 'en-US',
-          currency: userData?.currency || 'USD',
-          darkMode: userData?.darkMode || false,
-          directChallenge: userData?.directChallenge || false,
+          email: userData.email || '',
+          timezone: userData.timezone || 'UTC',
+          siteLanguage: userData.siteLanguage || 'en-US',
+          currency: userData.currency || 'USD',
+          darkMode: userData.darkMode || false,
+          directChallenge: userData.directChallenge || false,
         };
         setSettings(fallback);
       }
     } catch (err) {
       setError(err instanceof Error ? err : new TranslatableSuiteError(SuiteCoreStringKey.Settings_RetrieveFailure));
-      // Use fallback from userData
-      const fallback = {
-        email: userData?.email || '',
-        timezone: userData?.timezone || 'UTC',
-        siteLanguage: userData?.siteLanguage || 'en-US',
-        currency: userData?.currency || 'USD',
-        darkMode: userData?.darkMode || false,
-        directChallenge: userData?.directChallenge || false,
-      };
-      setSettings(fallback);
     } finally {
       setIsLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [api]); // userData intentionally omitted to prevent infinite loops
+  }, [userSettings, userData]);
 
   useEffect(() => {
     refreshSettings();
   }, [refreshSettings]);
 
-  const updateSettings = async (values: UserSettingsValues) => {
+  const updateSettings = useCallback(async (values: UserSettingsValues) => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await api.post('/user/settings', values);
+      await setUserSetting({
+        darkMode: values.darkMode,
+        currency: new CurrencyCode(values.currency),
+        timezone: new Timezone(values.timezone),
+        siteLanguage: values.siteLanguage,
+        email: new EmailString(values.email),
+        directChallenge: values.directChallenge,
+      });
       
-      // Update context values
-      if (values.currency) {
-        await setCurrencyCode(new CurrencyCode(values.currency));
-      }
-      if (values.siteLanguage) {
-        await setLanguage(values.siteLanguage);
-      }
-      if (values.darkMode !== userData?.darkMode) {
-        setColorMode(values.darkMode ? 'dark' : 'light');
-      }
-      
-      // Update local state
       setSettings(values);
       
       return { 
         success: true, 
-        message: result.data.message || getSuiteCoreTranslation(SuiteCoreStringKey.Settings_SaveSuccess)
+        message: getSuiteCoreTranslation(SuiteCoreStringKey.Settings_SaveSuccess)
       };
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || getSuiteCoreTranslation(SuiteCoreStringKey.Settings_UpdateFailed);
@@ -117,7 +192,7 @@ export const useUserSettings = (): UseUserSettingsResult => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [setUserSetting]);
 
   return {
     settings,

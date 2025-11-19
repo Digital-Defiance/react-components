@@ -4,14 +4,14 @@ This package provides several custom React hooks that encapsulate business logic
 
 ## useUserSettings
 
-Manages fetching, updating, and refreshing user settings.
+Manages fetching, updating, and refreshing user settings. Settings are stored in-memory and persisted to the server. The server is the source of truth - settings are loaded from the server on login/token verification and never cached in localStorage.
 
 **API:**
 
 - `settings`: Current user settings or null while loading.
 - `isLoading`: Boolean indicating loading state.
 - `error`: Error object if an error occurred.
-- `updateSettings(values)`: Async function to update settings. Returns success or error info.
+- `updateSettings(values)`: Async function to update settings. Persists to server and updates in-memory state. Returns success or error info.
 - `refreshSettings()`: Async function to refresh settings from the server.
 
 ## useBackupCodes

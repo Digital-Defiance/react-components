@@ -10,7 +10,6 @@ import { Member as FrontendMember,
 import {
   CoreLanguageCode,
   CurrencyCode,
-  DefaultCurrencyCode,
   Timezone,
 } from '@digitaldefiance/i18n-lib';
 import { Wallet } from '@ethereumjs/wallet';
@@ -29,7 +28,8 @@ import { createAuthService } from '../services/authService';
 import { createAuthenticatedApiClient } from '../services/authenticatedApi';
 import { useExpiringValue } from '../hooks/useExpiringValue';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { ISuccessMessage, IRequestUserDTO, SuiteCoreComponentId, SuiteCoreStringKey, IConstants } from '@digitaldefiance/suite-core-lib';
+import { useUserSettings } from '../hooks/useUserSettings';
+import { ISuccessMessage, IRequestUserDTO, SuiteCoreComponentId, SuiteCoreStringKey, IConstants, IUserSettings } from '@digitaldefiance/suite-core-lib';
 import { PaletteMode } from '@mui/material';
 
 export interface AuthContextData {
@@ -109,8 +109,7 @@ export interface AuthContextData {
   isAuthenticated: boolean;
   // True only while the app is determining initial auth state (e.g., on first load or refresh)
   isCheckingAuth: boolean;
-  isPasswordLoginAvailable?: () => boolean;
-  language: string;
+  isBrowserPasswordLoginAvailable?: () => boolean;
   loading: boolean;
   logout: () => void;
   mnemonic?: SecureString;
@@ -140,8 +139,6 @@ export interface AuthContextData {
       }
   >;
   serverPublicKey: string | null;
-  setColorMode: (mode?: PaletteMode) => Promise<void>;
-  setCurrencyCode: (code?: CurrencyCode) => Promise<void>;
   /**
    * Gets the remaining time in seconds for the mnemonic expiration
    * @returns Number of seconds remaining, or 0 if no mnemonic is set
@@ -152,18 +149,16 @@ export interface AuthContextData {
    * @returns Number of seconds remaining, or 0 if no wallet is set
    */
   getWalletRemainingTime: () => number;
-  setLanguage: (lang: string) => Promise<void>;
   setMnemonic: (mnemonic: SecureString, durationSeconds?: number) => void;
   setMnemonicExpirationSeconds: (seconds: number) => void;
-  setTimezone: (timezone?: Timezone) => Promise<void>;
   setWalletExpirationSeconds: (seconds: number) => void;
-  setUpPasswordLogin: (mnemonic: SecureString, password: SecureString, username?: string, email?: EmailString) => Promise<{ success: boolean; message: string } | { error: string; errorType?: string }>;
+  setUpBrowserPasswordLogin: (mnemonic: SecureString, password: SecureString, username?: string, email?: EmailString) => Promise<{ success: boolean; message: string } | { error: string; errorType?: string }>;
   setUser: (user: IRequestUserDTO | null) => Promise<void>;
+  setUserSetting: (setting?: Partial<IUserSettings>) => Promise<void>;
   setWallet: (wallet: Wallet, durationSeconds?: number) => void;
-  toggleColorMode: () => Promise<void>;
   user: FrontendMember | null;
   userData: IRequestUserDTO | null;
-  timezone?: Timezone;
+  userSettings: IUserSettings | undefined;
   token: string | null;
   wallet?: Wallet;
   walletExpirationSeconds: number;
@@ -187,7 +182,7 @@ export const AuthContext = createContext<AuthContextData>(
 );
 
 const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout }: AuthProviderProps) => {
-  const { changeLanguage, currentLanguage, t, tComponent } = useI18n();
+  const { t, tComponent } = useI18n();
   const { setColorMode: themeSetPaletteMode } = useTheme();
   
   const authService = useMemo(() => createAuthService(constants, baseUrl, eciesConfig), [constants, baseUrl, eciesConfig]);
@@ -224,53 +219,10 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
   const [token, setToken] = useState<string | null>(null);
   const [authState, setAuthState] = useState(0);
 
-  const [colorMode, setColorMode] = useState<PaletteMode>(() => {
-    return (localStorage.getItem('colorMode') as PaletteMode) ?? 'light';
+  // Use the user settings hook for settings management
+  const { userSettings, setUserSettingAndUpdateSettings } = useUserSettings({
+    authenticatedApi,
   });
-
-  const [currencyCode, setCurrencyCode] = useState<CurrencyCode | undefined>(() => {
-    return new CurrencyCode(
-      localStorage.getItem('currencyCode') ?? DefaultCurrencyCode,
-    );
-  });
-
-  const [timezone, setTimezone] = useState<Timezone | undefined>(() => {
-    return new Timezone(localStorage.getItem('timezone') ?? 'UTC');
-  });
-
-  
-  const setColorModeAndUpdateStorage = useCallback(async (mode?: PaletteMode) => {
-    themeSetPaletteMode(mode ?? 'light');
-    setColorMode(mode ?? 'light');
-    if (!mode) {
-      localStorage.removeItem('colorMode');
-      return;
-    }
-    localStorage.setItem('colorMode', mode);
-  }, [themeSetPaletteMode]);
-
-  const setCurrencyCodeAndUpdateStorage = useCallback(async (code?: CurrencyCode) => {
-    setCurrencyCode(code);
-    if (!code) {
-      localStorage.removeItem('currencyCode');
-      return;
-    }
-    localStorage.setItem('currencyCode', code.value);
-  }, []);
-
-  const setTimezoneAndUpdateStorage = useCallback(async (code?: Timezone) => {
-    setTimezone(code);
-    if (!code) {
-      localStorage.removeItem('timezone');
-      return;
-    }
-    localStorage.setItem('timezone', code.value);
-  }, []);
-
-  const toggleColorMode = useCallback(async () => {
-    const newMode = colorMode === 'light' ? 'dark' : 'light';
-    await setColorModeAndUpdateStorage(newMode);
-  }, [colorMode, setColorModeAndUpdateStorage]);
 
   // Helper functions to calculate remaining time (now provided by the hooks)
   const getMnemonicRemainingTime = mnemonicManager.getRemainingTime;
@@ -285,8 +237,10 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
   // language changes and inadvertently revert to the older user.siteLanguage,
   // causing a second update request with English US.
   useEffect(() => {
-    if (user?.siteLanguage && user.siteLanguage !== currentLanguage) {
-      void changeLanguage(user.siteLanguage as CoreLanguageCode);
+    if (user?.siteLanguage) {
+      (async () => {
+        await setUserSettingAndUpdateSettings({ siteLanguage: user.siteLanguage });
+      })();
     }
     // We intentionally only react to changes in the user's saved language.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -329,8 +283,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       setToken(null);
       setFrontendUser(null);
       setServerPublicKey(null);
-      setTimezone(undefined);
-      setCurrencyCode(undefined);
+      await setUserSettingAndUpdateSettings(undefined);
       themeSetPaletteMode('light');
       clearMnemonic();
       clearWallet();
@@ -342,28 +295,34 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       if ('error' in userData && typeof userData.error === 'string') {
         setIsAuthenticated(false);
         setToken(null);
-      } else {
-        setUser(userData as IRequestUserDTO);
+      } else if ('id' in userData && 'email' in userData) {
+        const userDataDTO: IRequestUserDTO = userData as IRequestUserDTO;
+        setUser(userDataDTO);
         setIsGlobalAdmin(
-          (userData as IRequestUserDTO).roles.some((r) => r.admin),
+          (userDataDTO).roles.some((r) => r.admin),
         );
         setIsAuthenticated(true);
         setToken(token);
-        // Set theme based on user's darkMode preference
-        setColorModeAndUpdateStorage((userData as IRequestUserDTO).darkMode ? 'dark' : 'light');
-        setCurrencyCodeAndUpdateStorage(new CurrencyCode((userData as IRequestUserDTO).currency));
-        setTimezoneAndUpdateStorage(new Timezone((userData as IRequestUserDTO).timezone));
+        await setUserSettingAndUpdateSettings({
+          darkMode: userDataDTO.darkMode,
+          currency: new CurrencyCode(userDataDTO.currency),
+          timezone: new Timezone(userDataDTO.timezone),
+          siteLanguage: userDataDTO.siteLanguage as CoreLanguageCode,
+          email: new EmailString(userDataDTO.email),
+          directChallenge: userDataDTO.directChallenge,
+        })
       }
     } catch (error) {
       console.error('Token verification failed:', error);
       setUser(null);
       setIsAuthenticated(false);
+      await setUserSettingAndUpdateSettings(undefined);
       localStorage.removeItem('authToken');
     } finally {
       setLoading(false);
       setIsCheckingAuth(false);
     }
-  }, [authService, clearMnemonic, clearWallet, setColorModeAndUpdateStorage, setCurrencyCodeAndUpdateStorage, setTimezoneAndUpdateStorage]);
+  }, [authService, clearMnemonic, clearWallet, setUserSettingAndUpdateSettings, themeSetPaletteMode]);
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -399,15 +358,19 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
         setAuthState((prev) => prev + 1);
         localStorage.setItem('authToken', loginResult.token);
         localStorage.setItem('user', JSON.stringify(loginResult.user));
-        // Set theme based on user's darkMode preference
-        setColorModeAndUpdateStorage(loginResult.user.darkMode ? 'dark' : 'light');
-        setCurrencyCodeAndUpdateStorage(new CurrencyCode(loginResult.user.currency));
-        setTimezoneAndUpdateStorage(new Timezone(loginResult.user.timezone));
+        await setUserSettingAndUpdateSettings({
+          darkMode: loginResult.user.darkMode,
+          currency: new CurrencyCode(loginResult.user.currency),
+          timezone: new Timezone(loginResult.user.timezone),
+          siteLanguage: loginResult.user.siteLanguage as CoreLanguageCode,
+          email: new EmailString(loginResult.user.email),
+          directChallenge: loginResult.user.directChallenge,
+        });
         return loginResult;
       }
       return loginResult;
     },
-    [authService, setMnemonic, setWallet, setColorModeAndUpdateStorage, setCurrencyCodeAndUpdateStorage, setTimezoneAndUpdateStorage],
+    [authService, setMnemonic, setWallet, setUserSettingAndUpdateSettings],
   );
 
   const emailChallengeLogin: AuthContextData['emailChallengeLogin'] =
@@ -433,27 +396,31 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
         setAuthState((prev) => prev + 1);
         localStorage.setItem('authToken', loginResult.token);
         localStorage.setItem('user', JSON.stringify(loginResult.user));
-        // Set theme based on user's darkMode preference
-        setColorModeAndUpdateStorage(loginResult.user.darkMode ? 'dark' : 'light');
-        setCurrencyCodeAndUpdateStorage(new CurrencyCode(loginResult.user.currency));
-        setTimezoneAndUpdateStorage(new Timezone(loginResult.user.timezone));
+        await setUserSettingAndUpdateSettings({
+          darkMode: loginResult.user.darkMode,
+          currency: new CurrencyCode(loginResult.user.currency),
+          timezone: new Timezone(loginResult.user.timezone),
+          siteLanguage: loginResult.user.siteLanguage as CoreLanguageCode,
+          email: new EmailString(loginResult.user.email),
+          directChallenge: loginResult.user.directChallenge,
+        });
         return loginResult;
       }
       return loginResult;
-    }, [authService, setMnemonic, setWallet, setColorModeAndUpdateStorage, setCurrencyCodeAndUpdateStorage, setTimezoneAndUpdateStorage]);
+    }, [authService, setMnemonic, setWallet, setUserSettingAndUpdateSettings]);
   const getPasswordLoginService = useCallback(() => {
     const eciesService: ECIESService = new ECIESService(eciesConfig);
     return new PasswordLoginService(eciesService, new Pbkdf2Service(AppConstants.PBKDF2_PROFILES, AppConstants.ECIES, AppConstants.PBKDF2));
   }, [eciesConfig]);
 
-  const isPasswordLoginAvailable: AuthContextData['isPasswordLoginAvailable'] = useCallback(() => {
+  const isBrowserPasswordLoginAvailable = useCallback(() => {
     const storedEncryptedPassword = localStorage.getItem('encryptedPassword');
     return !!storedEncryptedPassword;
   }, []);
 
   const passwordLogin: AuthContextData['passwordLogin'] = useCallback(
     async (password: SecureString, username?: string, email?: EmailString) => {
-      if (!isPasswordLoginAvailable()) {
+      if (!isBrowserPasswordLoginAvailable()) {
         return { error: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Error_Login_PasswordLoginNotSetup), errorType: 'PasswordLoginNotSetup' };
       }
       setLoading(true);
@@ -469,12 +436,19 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       setMnemonic(mnemonic);
       // Set theme based on user's darkMode preference if login succeeded
       if ('user' in loginResult) {
-        setColorModeAndUpdateStorage(loginResult.user.darkMode ? 'dark' : 'light');
-        setCurrencyCodeAndUpdateStorage(new CurrencyCode(loginResult.user.currency));
-        setTimezoneAndUpdateStorage(new Timezone(loginResult.user.timezone));
+        await setUserSettingAndUpdateSettings({
+          darkMode: loginResult.user.darkMode,
+          currency: new CurrencyCode(loginResult.user.currency),
+          timezone: new Timezone(loginResult.user.timezone),
+          siteLanguage: loginResult.user.siteLanguage as CoreLanguageCode,
+          email: new EmailString(loginResult.user.email),
+          directChallenge: loginResult.user.directChallenge,
+        });
       }
       return loginResult;
-    }, [authService, getPasswordLoginService, setMnemonic, setWallet, t, tComponent, isPasswordLoginAvailable, setColorModeAndUpdateStorage, setCurrencyCodeAndUpdateStorage, setTimezoneAndUpdateStorage]);
+    },
+    [authService, getPasswordLoginService, setMnemonic, setWallet, t, tComponent, isBrowserPasswordLoginAvailable, setUserSettingAndUpdateSettings]
+  );
 
   const refreshToken: AuthContextData['refreshToken'] =
     useCallback(async () => {
@@ -525,9 +499,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
     [baseUrl],
   );
 
-
-
-  const setUpPasswordLogin = useCallback(
+  const setUpBrowserPasswordLogin = useCallback(
     async (mnemonic: SecureString, password: SecureString, username?: string, email?: EmailString): Promise<{ success: boolean; message: string } | { error: string; errorType?: string }> => {
       setLoading(true);
       const passwordLoginService: PasswordLoginService = getPasswordLoginService();
@@ -575,10 +547,14 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
         if (loginResult.user) {
           setUser(loginResult.user);
           setIsAuthenticated(true);
-          // Set theme based on user's darkMode preference
-          setColorModeAndUpdateStorage(loginResult.user.darkMode ? 'dark' : 'light');
-          setCurrencyCodeAndUpdateStorage(new CurrencyCode(loginResult.user.currency));
-          setTimezoneAndUpdateStorage(new Timezone(loginResult.user.timezone));
+          await setUserSettingAndUpdateSettings({
+            darkMode: loginResult.user.darkMode,
+            currency: new CurrencyCode(loginResult.user.currency),
+            timezone: new Timezone(loginResult.user.timezone),
+            siteLanguage: loginResult.user.siteLanguage as CoreLanguageCode,
+            email: new EmailString(loginResult.user.email),
+            directChallenge: loginResult.user.directChallenge,
+          });
         }
         setAuthState((prev) => prev + 1);
         return {
@@ -590,7 +566,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       }
       return loginResult;
     },
-    [baseUrl, setColorModeAndUpdateStorage, setCurrencyCodeAndUpdateStorage, setTimezoneAndUpdateStorage],
+    [authService, setUserSettingAndUpdateSettings],
   );
 
   const logout = useCallback(async () => {
@@ -600,31 +576,27 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
     setUser(null);
     clearWallet();
     setIsAuthenticated(false);
-    setColorMode('light');
-    setTimezone(undefined);
-    setCurrencyCode(undefined);
+    await setUserSettingAndUpdateSettings(undefined);
     setAuthState((prev) => prev + 1);
     
     // Call the optional navigation callback if provided
     if (onLogout) {
       onLogout();
     }
-  }, [onLogout, clearMnemonic, clearWallet]);
+  }, [onLogout, clearMnemonic, clearWallet, setUserSettingAndUpdateSettings]);
 
   const verifyToken = useCallback(async (token: string) => {
     const requestUser = await authService.verifyToken(token);
     if (typeof requestUser === 'object' && 'error' in requestUser) {
       setIsAuthenticated(false);
-      setColorMode('light');
-      setTimezone(undefined);
-      setCurrencyCode(undefined);
+      await setUserSettingAndUpdateSettings(undefined);
       return false;
     } else {
       setUser(requestUser);
       setIsAuthenticated(true);
       return true;
     }
-  }, [baseUrl]);
+  }, [authService, setUserSettingAndUpdateSettings]);
 
   const changePassword = useCallback(
     async (
@@ -637,7 +609,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
           errorType?: string | undefined;
         }
     > => {
-      if (!isPasswordLoginAvailable()) {
+      if (!isBrowserPasswordLoginAvailable()) {
         return { error: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Error_Login_PasswordLoginNotSetup), errorType: 'PasswordLoginNotSetup' };
       }
       setLoading(true);
@@ -658,28 +630,13 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
         return { error: 'Password change failed' };
       }
     },
-    [setMnemonic, setWallet, t, tComponent, isPasswordLoginAvailable],
+    [setMnemonic, setWallet, t, tComponent, isBrowserPasswordLoginAvailable],
   );
 
   const contextValue = useMemo(() => {
-    const setUserAndLanguage = async (newUser: IRequestUserDTO | null) => {
+    const setUserAndIsAuthenticated = async (newUser: IRequestUserDTO | null) => {
       setUser(newUser);
       setIsAuthenticated(!!newUser);
-    };
-
-    const setLanguageAndUpdateUser = async (newLanguage: string) => {
-      // Change the language in the i18n context
-      changeLanguage(newLanguage);
-      
-      // Update the user's language preference on the server if authenticated
-      const token = localStorage.getItem('authToken');
-      if (token) {
-        try {
-          await authenticatedApi.post('/user/language', { language: newLanguage });
-        } catch (error) {
-          console.error('Failed to update user language:', error);
-        }
-      }
     };
 
     return {
@@ -690,16 +647,13 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       checkAuth,
       clearMnemonic,
       clearWallet,
-      colorMode,
-      currencyCode,
       directLogin,
       emailChallengeLogin,
       getMnemonicRemainingTime,
       getWalletRemainingTime,
       isAuthenticated,
       isCheckingAuth,
-      isPasswordLoginAvailable,
-      language: currentLanguage,
+      isBrowserPasswordLoginAvailable,
       loading,
       logout,
       mnemonic: mnemonicManager.value,
@@ -709,21 +663,17 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       register,
       requestEmailLogin,
       serverPublicKey,
-      setColorMode: setColorModeAndUpdateStorage,
-      setCurrencyCode: setCurrencyCodeAndUpdateStorage,
-      setLanguage: setLanguageAndUpdateUser,
       setMnemonic,
       setMnemonicExpirationSeconds,
-      setUpPasswordLogin,
-      setUser: setUserAndLanguage,
-      setTimezone: setTimezoneAndUpdateStorage,
+      setUpBrowserPasswordLogin,
+      setUser: setUserAndIsAuthenticated,
+      setUserSetting: setUserSettingAndUpdateSettings,
       setWallet,
       setWalletExpirationSeconds,
-      timezone,
-      toggleColorMode,
       token,
       user: frontendUser,
       userData: user,
+      userSettings,
       verifyToken,
       wallet: walletManager.value,
       walletExpirationSeconds,
@@ -732,14 +682,10 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
     authenticatedApi,
     authState,
     backupCodeLogin,
-    changeLanguage,
     changePassword,
     checkAuth,
     clearMnemonic,
     clearWallet,
-    colorMode,
-    currencyCode,
-    currentLanguage,
     directLogin,
     emailChallengeLogin,
     frontendUser,
@@ -748,7 +694,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
     isAuthenticated,
     isCheckingAuth,
     isGlobalAdmin,
-    isPasswordLoginAvailable,
+    isBrowserPasswordLoginAvailable,
     loading,
     logout,
     mnemonicManager.value,
@@ -758,18 +704,15 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
     register,
     requestEmailLogin,
     serverPublicKey,
-    setColorModeAndUpdateStorage,
-    setCurrencyCodeAndUpdateStorage,
     setMnemonic,
     setMnemonicExpirationSeconds,
-    setUpPasswordLogin,
-    setTimezoneAndUpdateStorage,
+    setUpBrowserPasswordLogin,
+    setUserSettingAndUpdateSettings,
     setWallet,
     setWalletExpirationSeconds,
-    timezone,
-    toggleColorMode,
     token,
     user,
+    userSettings,
     verifyToken,
     walletManager.value,
     walletExpirationSeconds,

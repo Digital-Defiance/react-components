@@ -3,7 +3,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { DropdownMenu } from '../../src/components/DropdownMenu';
-import { MenuProvider, AuthContext, I18nProvider, AppThemeProvider } from '../../src/contexts';
+import { MenuProvider, AuthContext, I18nProvider, AppThemeProvider, SuiteConfigProvider } from '../../src/contexts';
 import { I18nEngine } from '@digitaldefiance/i18n-lib';
 import { MenuTypes } from '../../src/types/MenuType';
 import NotificationsIcon from '@mui/icons-material/Notifications';
@@ -26,17 +26,19 @@ const TestWrapper: React.FC<{ isAuthenticated: boolean; children: React.ReactNod
 }) => {
   const engine = I18nEngine.getInstance('default');
   return (
-    <I18nProvider i18nEngine={engine}>
-      <AppThemeProvider>
-        <AuthContext.Provider value={mockAuthContext(isAuthenticated)}>
-          <MenuProvider>
-            <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-              {children}
-            </MemoryRouter>
-          </MenuProvider>
-        </AuthContext.Provider>
-      </AppThemeProvider>
-    </I18nProvider>
+    <SuiteConfigProvider baseUrl="http://localhost:3000">
+      <I18nProvider i18nEngine={engine}>
+        <AppThemeProvider>
+          <AuthContext.Provider value={mockAuthContext(isAuthenticated)}>
+            <MenuProvider>
+              <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                {children}
+              </MemoryRouter>
+            </MenuProvider>
+          </AuthContext.Provider>
+        </AppThemeProvider>
+      </I18nProvider>
+    </SuiteConfigProvider>
   );
 };
 

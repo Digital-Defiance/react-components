@@ -19,6 +19,7 @@ import { ECIES } from '@digitaldefiance/ecies-lib';
 
 const mockUseBackupCodes = jest.fn();
 const mockUseUserSettings = jest.fn();
+const mockUseUserSettingsPublic = jest.fn();
 const mockUseEmailVerification = jest.fn();
 
 jest.mock('../../src/hooks/useBackupCodes', () => ({
@@ -27,6 +28,7 @@ jest.mock('../../src/hooks/useBackupCodes', () => ({
 
 jest.mock('../../src/hooks/useUserSettings', () => ({
   useUserSettings: () => mockUseUserSettings(),
+  useUserSettingsPublic: () => mockUseUserSettingsPublic(),
 }));
 
 jest.mock('../../src/hooks/useEmailVerification', () => ({
@@ -82,7 +84,17 @@ describe('User Management Wrapper Components', () => {
       refreshCodeCount: jest.fn(),
     });
 
+    // Mock for AuthProvider's internal useUserSettings hook
     mockUseUserSettings.mockReturnValue({
+      currentLanguage: 'en-US',
+      changeLanguage: jest.fn(),
+      userSettings: undefined,
+      setUserSettingAndUpdateSettings: jest.fn(),
+      toggleColorMode: jest.fn(),
+    });
+
+    // Mock for component's useUserSettingsPublic hook
+    mockUseUserSettingsPublic.mockReturnValue({
       settings: {
         email: 'test@example.com',
         timezone: 'UTC',
@@ -160,7 +172,7 @@ describe('User Management Wrapper Components', () => {
 
   describe('UserSettingsFormWrapper', () => {
     it('shows loading state initially', () => {
-      mockUseUserSettings.mockReturnValue({
+      mockUseUserSettingsPublic.mockReturnValue({
         settings: null,
         isLoading: true,
         error: null,
@@ -173,7 +185,7 @@ describe('User Management Wrapper Components', () => {
     });
 
     it('renders UserSettingsForm after loading', () => {
-      mockUseUserSettings.mockReturnValue({
+      mockUseUserSettingsPublic.mockReturnValue({
         settings: {
           email: 'test@example.com',
           timezone: 'UTC',

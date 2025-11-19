@@ -1,11 +1,15 @@
 import { LanguageRegistry, LanguageDefinition } from '@digitaldefiance/i18n-lib';
 import { Button, Menu, MenuItem } from '@mui/material';
-import { FC, MouseEvent, useState } from 'react';
-import { useAuth } from '../contexts/AuthProvider';
+import { FC, MouseEvent, useState, useMemo } from 'react';
 import { Flag } from './Flag';
+import { useUserSettings } from '../hooks';
+import { createAuthenticatedApiClient } from '../services';
+import { useSuiteConfig } from '../contexts';
 
 export const UserLanguageSelector: FC = () => {
-  const { language, setLanguage } = useAuth();
+  const { baseUrl } = useSuiteConfig();
+  const authenticatedApi = useMemo(() => createAuthenticatedApiClient(baseUrl), [baseUrl]);
+  const { currentLanguage, changeLanguage } = useUserSettings({ authenticatedApi });
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
@@ -17,14 +21,14 @@ export const UserLanguageSelector: FC = () => {
   };
 
   const handleLanguageChange = (newLanguage: string) => {
-    setLanguage(newLanguage);
+    changeLanguage(newLanguage);
     handleClose();
   };
 
   return (
     <>
       <Button onClick={handleClick}>
-        <Flag language={language} />
+        <Flag language={currentLanguage} />
       </Button>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
         {Object.values(LanguageRegistry.getAllLanguages()).map((lang: LanguageDefinition) => (
