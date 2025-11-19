@@ -362,6 +362,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 2.5.14
+
+- Update suite-core-lib
+
 ### Version 2.5.13
 
 - Try to fix saving of settings
