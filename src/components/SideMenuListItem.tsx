@@ -1,11 +1,18 @@
-import { Divider, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+import {
+  Divider,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+} from '@mui/material';
 import { FC, useCallback } from 'react';
 import { IMenuOption } from '../interfaces';
 
 export interface SideMenuListItemProps {
   menuItem: IMenuOption;
   onClose: () => void;
-  onNavigate?: (link: string | { pathname: string; state?: any }) => void;
+  onNavigate?: (
+    link: string | Partial<{ pathname: string; state?: unknown }>
+  ) => void;
 }
 
 export const SideMenuListItem: FC<SideMenuListItemProps> = ({
@@ -21,8 +28,15 @@ export const SideMenuListItem: FC<SideMenuListItemProps> = ({
       } else if (option.link !== undefined && onNavigate) {
         if (typeof option.link === 'string') {
           onNavigate(option.link);
-        } else if (typeof option.link === 'object' && 'pathname' in option.link && option.link.pathname) {
-          onNavigate({ pathname: option.link.pathname, state: (option.link as any).state });
+        } else if (
+          typeof option.link === 'object' &&
+          'pathname' in option.link &&
+          option.link.pathname
+        ) {
+          onNavigate({
+            pathname: option.link.pathname,
+            state: 'state' in option.link ? option.link.state : undefined,
+          });
         }
       }
       onClose();

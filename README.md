@@ -362,6 +362,25 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 2.7.5
+
+**Type Safety Improvements**
+
+- **ELIMINATED**: All unsafe `as any` type casts from production code
+- **IMPROVED**: Window interface extension for `APP_CONFIG` property
+- **ENHANCED**: Navigation state type handling with proper type guards
+- **IMPROVED**: Menu option link type to support both react-router `To` and state passing
+- **VERIFIED**: All 227 tests passing with full type safety
+- **VERIFIED**: TypeScript compilation successful with strict checking
+
+**Technical Details**
+
+- Added local Window interface extension in TopMenu component for APP_CONFIG
+- Replaced `(option.link as any).state` with type-safe property access using `'state' in option.link` guard
+- Enhanced `IMenuOption.link` to support `To | { pathname: string; state?: unknown }` for flexible navigation
+- Updated `tsconfig.lib.json` to include global type definitions
+- Fixed `typeRoots` path in `tsconfig.base.json`
+
 ### Version 2.5.14
 
 - Update suite-core-lib

@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
-import { MenuType } from '../types/MenuType';
 import { To } from 'react-router-dom';
+import { MenuType } from '../types/MenuType';
 
 export interface IMenuOption {
   /**
@@ -30,8 +30,9 @@ export interface IMenuOption {
   /**
    * Link to navigate to when the menu option is clicked
    * Mutually exclusive with `action`
+   * Can be a string, a react-router To object, or an object with pathname and optional state
    */
-  link?: To | { pathname: string; state: any };
+  link?: To | { pathname: string; state?: unknown };
   /**
    * Function to execute when the menu option is clicked
    * Mutually exclusive with `link`

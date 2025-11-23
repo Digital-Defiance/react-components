@@ -1,9 +1,9 @@
 import { Drawer, List } from '@mui/material';
 import { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MenuTypes } from '../types/MenuType';
-import { IMenuOption } from '../interfaces/IMenuOption';
 import { useMenu } from '../contexts/MenuContext';
+import { IMenuOption } from '../interfaces/IMenuOption';
+import { MenuTypes } from '../types/MenuType';
 import { SideMenuListItem } from './SideMenuListItem';
 
 interface SideMenuProps {
@@ -17,10 +17,12 @@ export const SideMenu: FC<SideMenuProps> = ({ isOpen, onClose }) => {
 
   const menuOptions = getMenuOptions(MenuTypes.SideMenu, true);
 
-  const handleNavigate = (link: string | { pathname: string; state?: any }) => {
+  const handleNavigate = (
+    link: string | Partial<{ pathname: string; state?: unknown }>
+  ) => {
     if (typeof link === 'string') {
       navigate(link);
-    } else {
+    } else if (link.pathname) {
       navigate(link.pathname, { state: link.state });
     }
   };
@@ -29,9 +31,9 @@ export const SideMenu: FC<SideMenuProps> = ({ isOpen, onClose }) => {
     <Drawer anchor="left" open={isOpen} onClose={onClose}>
       <List>
         {menuOptions.map((item: IMenuOption) => (
-          <SideMenuListItem 
-            key={item.id} 
-            menuItem={item} 
+          <SideMenuListItem
+            key={item.id}
+            menuItem={item}
             onClose={onClose}
             onNavigate={handleNavigate}
           />

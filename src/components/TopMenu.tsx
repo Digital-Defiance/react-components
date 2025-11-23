@@ -1,5 +1,8 @@
+import {
+  SuiteCoreComponentId,
+  SuiteCoreStringKey,
+} from '@digitaldefiance/suite-core-lib';
 import MenuIcon from '@mui/icons-material/Menu';
-import { DropdownMenu } from './DropdownMenu';
 import {
   AppBar,
   Box,
@@ -9,16 +12,27 @@ import {
   Typography,
 } from '@mui/material';
 import React, { FC, ReactElement, useContext, useState } from 'react';
-import { useMenu } from '../contexts/MenuContext';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthProvider';
 import { useI18n } from '../contexts/I18nProvider';
-import { IAppConfig } from '../interfaces/IAppConfig';
+import { useMenu } from '../contexts/MenuContext';
+import { MenuType } from '../types/MenuType';
+import { DropdownMenu } from './DropdownMenu';
 import { SideMenu } from './SideMenu';
 import { UserLanguageSelector } from './UserLanguageSelector';
 import { UserMenu } from './UserMenu';
-import { SuiteCoreComponentId, SuiteCoreStringKey } from '@digitaldefiance/suite-core-lib';
-import { MenuType, MenuTypes } from '../types/MenuType';
+
+// Extend Window interface for APP_CONFIG
+declare global {
+  interface Window {
+    APP_CONFIG?: {
+      hostname: string;
+      siteTitle: string;
+      server: string;
+      [key: string]: unknown;
+    };
+  }
+}
 
 export interface AdditionalDropdownMenu {
   menuType: MenuType;
@@ -39,11 +53,11 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus }) => {
   const handleOpenSideMenu = () => setIsSideMenuOpen(true);
   const handleCloseSideMenu = () => setIsSideMenuOpen(false);
   const { t, tComponent } = useI18n();
-  const appConfig: IAppConfig | undefined =
-    'APP_CONFIG' in window
-      ? ((window as any).APP_CONFIG as IAppConfig)
-      : undefined;
-  const siteTitle = tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_SiteTemplate);
+  const appConfig = window.APP_CONFIG;
+  const siteTitle = tComponent<SuiteCoreStringKey>(
+    SuiteCoreComponentId,
+    SuiteCoreStringKey.Common_SiteTemplate
+  );
 
   return (
     <AppBar position="fixed" sx={{ top: 10 }}>
@@ -76,19 +90,36 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus }) => {
           {isAuthenticated ? (
             <>
               <Button color="inherit" component={Link} to="/dashboard">
-                {tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Dashboard)}
+                {tComponent<SuiteCoreStringKey>(
+                  SuiteCoreComponentId,
+                  SuiteCoreStringKey.Common_Dashboard
+                )}
               </Button>
-              {getTopMenus().map((menu, index) => 
-                menu.isUserMenu ? <UserMenu key={`user-menu`} /> : <DropdownMenu key={`menu-${index}`} menuType={menu.menuType} menuIcon={menu.menuIcon as ReactElement} />
+              {getTopMenus().map((menu, index) =>
+                menu.isUserMenu ? (
+                  <UserMenu key={`user-menu`} />
+                ) : (
+                  <DropdownMenu
+                    key={`menu-${index}`}
+                    menuType={menu.menuType}
+                    menuIcon={menu.menuIcon as ReactElement}
+                  />
+                )
               )}
             </>
           ) : (
             <>
               <Button color="inherit" component={Link} to="/login">
-                {tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_LoginButton)}
+                {tComponent<SuiteCoreStringKey>(
+                  SuiteCoreComponentId,
+                  SuiteCoreStringKey.Login_LoginButton
+                )}
               </Button>
               <Button color="inherit" component={Link} to="/register">
-                {tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.RegisterButton)}
+                {tComponent<SuiteCoreStringKey>(
+                  SuiteCoreComponentId,
+                  SuiteCoreStringKey.RegisterButton
+                )}
               </Button>
             </>
           )}
