@@ -46,7 +46,7 @@
     "yup": "^1.6.1"
   },
   "devDependencies": {
-    "@digitaldefiance/express-suite-test-utils": "1.0.11",
+    "@digitaldefiance/express-suite-test-utils": "1.0.12",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.0.1",
