@@ -89,7 +89,12 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus }) => {
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {isAuthenticated ? (
             <>
-              <Button color="inherit" component={Link} to="/dashboard">
+              <Button
+                color="inherit"
+                // @ts-expect-error - MUI Button with react-router Link has type incompatibility
+                component={Link}
+                to="/dashboard"
+              >
                 {tComponent<SuiteCoreStringKey>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Common_Dashboard
@@ -109,13 +114,23 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus }) => {
             </>
           ) : (
             <>
-              <Button color="inherit" component={Link} to="/login">
+              <Button
+                color="inherit"
+                // @ts-expect-error - MUI Button with react-router Link has type incompatibility
+                component={Link}
+                to="/login"
+              >
                 {tComponent<SuiteCoreStringKey>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Login_LoginButton
                 )}
               </Button>
-              <Button color="inherit" component={Link} to="/register">
+              <Button
+                color="inherit"
+                // @ts-expect-error - MUI Button with react-router Link has type incompatibility
+                component={Link}
+                to="/register"
+              >
                 {tComponent<SuiteCoreStringKey>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.RegisterButton
