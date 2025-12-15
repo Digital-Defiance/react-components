@@ -8,11 +8,17 @@ import {
   SecureString,
   uint8ArrayToHex,
 } from '@digitaldefiance/ecies-lib';
-import { getSuiteCoreTranslation, IConstants, IRequestUserDTO, SuiteCoreStringKey, TranslatableSuiteError } from '@digitaldefiance/suite-core-lib';
 import { CoreLanguageCode } from '@digitaldefiance/i18n-lib';
+import {
+  getSuiteCoreTranslation,
+  IConstants,
+  IRequestUserDTO,
+  SuiteCoreStringKey,
+  TranslatableSuiteError,
+} from '@digitaldefiance/suite-core-lib';
 import { Wallet } from '@ethereumjs/wallet';
 import axios, { isAxiosError } from 'axios';
-import { createApiClient }  from './api';
+import { createApiClient } from './api';
 import { createAuthenticatedApiClient } from './authenticatedApi';
 
 interface AuthContextFunctions {
@@ -45,7 +51,7 @@ export class AuthService {
     username: string,
     email: string,
     timezone: string,
-    password?: string,
+    password?: string
   ): Promise<
     | { success: boolean; message: string; mnemonic: string }
     | {
@@ -102,7 +108,9 @@ export class AuthService {
         };
       } else {
         return {
-          error: getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
+          error: getSuiteCoreTranslation(
+            SuiteCoreStringKey.Common_UnexpectedError
+          ),
         };
       }
     }
@@ -111,35 +119,43 @@ export class AuthService {
   async directLogin(
     mnemonic: SecureString,
     username?: string,
-    email?: EmailString,
+    email?: EmailString
   ): Promise<
     | { token: string; user: IRequestUserDTO; wallet: Wallet; message: string }
     | { error: string; errorType?: string }
   > {
     if (!username && !email) {
       return {
-        error: getSuiteCoreTranslation(SuiteCoreStringKey.Validation_UsernameOrEmailRequired),
+        error: getSuiteCoreTranslation(
+          SuiteCoreStringKey.Validation_UsernameOrEmailRequired
+        ),
       };
     }
     try {
-      const loginRequest = await this.apiClient.post('/user/request-direct-login');
+      const loginRequest = await this.apiClient.post(
+        '/user/request-direct-login'
+      );
       if (loginRequest.data.challenge) {
         const { wallet } = this.cryptoCore.walletAndSeedFromMnemonic(mnemonic);
-        const publicKey = wallet.getPublicKey();
-        // Add 0x04 prefix for uncompressed public key
-        const publicKeyWithPrefix = new Uint8Array(publicKey.length + 1);
-        publicKeyWithPrefix[0] = 0x04;
-        publicKeyWithPrefix.set(publicKey, 1);
+        const privateKey = wallet.getPrivateKey();
+        // Get compressed public key (already includes prefix)
+        const publicKeyWithPrefix = this.cryptoCore.getPublicKey(privateKey);
         const challengeBuffer = hexToUint8Array(loginRequest.data.challenge);
         const privateKeyBuffer = wallet.getPrivateKey();
-        const signature = this.eciesService.signMessage(privateKeyBuffer, challengeBuffer);
+        const signature = this.eciesService.signMessage(
+          privateKeyBuffer,
+          challengeBuffer
+        );
         const signatureHex = uint8ArrayToHex(signature);
-        const loginResponse = await this.apiClient.post('/user/direct-challenge', {
-          username: username,
-          email: email ? email.email : undefined,
-          challenge: loginRequest.data.challenge,
-          signature: signatureHex,
-        });
+        const loginResponse = await this.apiClient.post(
+          '/user/direct-challenge',
+          {
+            username: username,
+            email: email ? email.email : undefined,
+            challenge: loginRequest.data.challenge,
+            signature: signatureHex,
+          }
+        );
         if (loginResponse.data.token && loginResponse.data.user) {
           return {
             message: loginResponse.data.message,
@@ -152,20 +168,30 @@ export class AuthService {
     } catch (error) {
       if (isAxiosError(error) && error.response) {
         // Check for DirectChallengeNotEnabled error
-        if (error.response.status === 403 && error.response.data.errorType === 'DirectChallengeNotEnabledError') {
+        if (
+          error.response.status === 403 &&
+          error.response.data.errorType === 'DirectChallengeNotEnabledError'
+        ) {
           return {
-            error: getSuiteCoreTranslation(SuiteCoreStringKey.Error_Login_DirectChallengeNotEnabled),
+            error: getSuiteCoreTranslation(
+              SuiteCoreStringKey.Error_Login_DirectChallengeNotEnabled
+            ),
             errorType: 'DirectChallengeNotEnabled',
           };
         }
         // Check for PasswordLoginNotEnabled error
-        if (error.response.status === 403 && error.response.data.errorType === 'PasswordLoginNotEnabledError') {
+        if (
+          error.response.status === 403 &&
+          error.response.data.errorType === 'PasswordLoginNotEnabledError'
+        ) {
           return {
-            error: getSuiteCoreTranslation(SuiteCoreStringKey.Error_Login_PasswordLoginNotEnabled),
+            error: getSuiteCoreTranslation(
+              SuiteCoreStringKey.Error_Login_PasswordLoginNotEnabled
+            ),
             errorType: 'PasswordLoginNotEnabled',
           };
         }
-        
+
         return {
           error:
             error.response.data.error?.message ??
@@ -186,11 +212,13 @@ export class AuthService {
 
   async requestEmailLogin(
     username?: string,
-    email?: EmailString,
+    email?: EmailString
   ): Promise<string | { error: string; errorType?: string }> {
     if (!username && !email) {
       return {
-        error: getSuiteCoreTranslation(SuiteCoreStringKey.Validation_UsernameOrEmailRequired),
+        error: getSuiteCoreTranslation(
+          SuiteCoreStringKey.Validation_UsernameOrEmailRequired
+        ),
       };
     }
     try {
@@ -224,21 +252,26 @@ export class AuthService {
     mnemonic: SecureString,
     token: string,
     username?: string,
-    email?: EmailString,
+    email?: EmailString
   ): Promise<
     | { token: string; user: IRequestUserDTO; wallet: Wallet; message: string }
     | { error: string; errorType?: string }
   > {
     if (!username && !email) {
       return {
-        error: getSuiteCoreTranslation(SuiteCoreStringKey.Validation_UsernameOrEmailRequired),
+        error: getSuiteCoreTranslation(
+          SuiteCoreStringKey.Validation_UsernameOrEmailRequired
+        ),
       };
     }
     try {
       const { wallet } = this.cryptoCore.walletAndSeedFromMnemonic(mnemonic);
       const challengeBuffer = hexToUint8Array(token);
       const privateKeyBuffer = wallet.getPrivateKey();
-      const signature = this.eciesService.signMessage(privateKeyBuffer, challengeBuffer);
+      const signature = this.eciesService.signMessage(
+        privateKeyBuffer,
+        challengeBuffer
+      );
       const signatureHex = uint8ArrayToHex(signature);
       const response = await this.apiClient.post('/user/email-login', {
         token,
@@ -274,7 +307,7 @@ export class AuthService {
   }
 
   async verifyToken(
-    token: string,
+    token: string
   ): Promise<IRequestUserDTO | { error: string; errorType?: string }> {
     try {
       const response = await this.apiClient.get('/user/verify', {
@@ -288,14 +321,18 @@ export class AuthService {
             ? error.response.data.message
             : error.message
             ? error.message
-            : getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
+            : getSuiteCoreTranslation(
+                SuiteCoreStringKey.Common_UnexpectedError
+              ),
           ...(error.response.data.errorType
             ? { errorType: error.response.data.errorType }
             : {}),
         };
       } else {
         return {
-          error: getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
+          error: getSuiteCoreTranslation(
+            SuiteCoreStringKey.Common_UnexpectedError
+          ),
         };
       }
     }
@@ -306,7 +343,9 @@ export class AuthService {
     user: IRequestUserDTO;
   }> {
     try {
-      const refreshResponse = await this.authenticatedApiClient.get('/user/refresh-token');
+      const refreshResponse = await this.authenticatedApiClient.get(
+        '/user/refresh-token'
+      );
       if (refreshResponse.status === 200) {
         const newToken = refreshResponse.headers['authorization'];
         let token: string | undefined = undefined;
@@ -333,7 +372,7 @@ export class AuthService {
 
   async changePassword(
     currentPassword: string,
-    newPassword: string,
+    newPassword: string
   ): Promise<{ success: boolean } | { error: string; errorType?: string }> {
     try {
       await this.authenticatedApiClient.post('/user/change-password', {
@@ -354,7 +393,11 @@ export class AuthService {
             : {}),
         };
       }
-      return { error: getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError) };
+      return {
+        error: getSuiteCoreTranslation(
+          SuiteCoreStringKey.Common_UnexpectedError
+        ),
+      };
     }
   }
 
@@ -363,7 +406,7 @@ export class AuthService {
     code: string,
     isEmail: boolean,
     recoverMnemonic: boolean,
-    newPassword?: string,
+    newPassword?: string
   ): Promise<
     | {
         token: string;
@@ -386,7 +429,9 @@ export class AuthService {
           token: response.data.token,
           user: response.data.user,
           codeCount: response.data.codeCount ?? 0,
-          ...(response.data.mnemonic ? { mnemonic: response.data.mnemonic } : {}),
+          ...(response.data.mnemonic
+            ? { mnemonic: response.data.mnemonic }
+            : {}),
           ...(response.data.message ? { message: response.data.message } : {}),
         };
       }
@@ -413,10 +458,17 @@ export class AuthService {
           status: error.response.status,
         };
       }
-      return { error: getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError) };
+      return {
+        error: getSuiteCoreTranslation(
+          SuiteCoreStringKey.Common_UnexpectedError
+        ),
+      };
     }
   }
 }
 
-export const createAuthService = (constants: IConstants, baseUrl: string, eciesConfig: IECIESConfig) => 
-  new AuthService(constants, baseUrl, eciesConfig);
+export const createAuthService = (
+  constants: IConstants,
+  baseUrl: string,
+  eciesConfig: IECIESConfig
+) => new AuthService(constants, baseUrl, eciesConfig);
