@@ -1,9 +1,16 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import { MenuProvider, AuthContext, I18nProvider, AppThemeProvider, SuiteConfigProvider, useMenu } from '../../src/contexts';
 import { I18nEngine } from '@digitaldefiance/i18n-lib';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { render, screen } from '@testing-library/react';
+import React from 'react';
+import { MemoryRouter } from 'react-router-dom';
+import {
+  AppThemeProvider,
+  AuthContext,
+  I18nProvider,
+  MenuProvider,
+  SuiteConfigProvider,
+  useMenu,
+} from '../../src/contexts';
 import { MenuTypes } from '../../src/types/MenuType';
 
 // Mock the auth and API services
@@ -22,31 +29,36 @@ jest.mock('../../src/services/authService', () => ({
   })),
 }));
 
-const mockAuthContext = (isAuthenticated: boolean, userSettings?: any) => ({
-  isAuthenticated,
-  isCheckingAuth: false,
-  userData: isAuthenticated ? {
-    email: 'test@example.com',
-    darkMode: userSettings?.darkMode ?? false,
-    timezone: 'UTC',
-    siteLanguage: 'en-US',
-    currency: 'USD',
-    directChallenge: false,
-  } : null,
-  userSettings: isAuthenticated ? {
-    email: 'test@example.com',
-    darkMode: userSettings?.darkMode ?? false,
-    timezone: 'UTC',
-    siteLanguage: 'en-US',
-    currency: 'USD',
-    directChallenge: false,
-  } : undefined,
-  mnemonic: userSettings?.mnemonic ?? null,
-  wallet: userSettings?.wallet ?? null,
-  clearMnemonic: jest.fn(),
-  clearWallet: jest.fn(),
-  setUserSetting: jest.fn().mockResolvedValue(undefined),
-} as any);
+const mockAuthContext = (isAuthenticated: boolean, userSettings?: any) =>
+  ({
+    isAuthenticated,
+    isCheckingAuth: false,
+    userData: isAuthenticated
+      ? {
+          email: 'test@example.com',
+          darkMode: userSettings?.darkMode ?? false,
+          timezone: 'UTC',
+          siteLanguage: 'en-US',
+          currency: 'USD',
+          directChallenge: false,
+        }
+      : null,
+    userSettings: isAuthenticated
+      ? {
+          email: 'test@example.com',
+          darkMode: userSettings?.darkMode ?? false,
+          timezone: 'UTC',
+          siteLanguage: 'en-US',
+          currency: 'USD',
+          directChallenge: false,
+        }
+      : undefined,
+    mnemonic: userSettings?.mnemonic ?? null,
+    wallet: userSettings?.wallet ?? null,
+    clearMnemonic: jest.fn(),
+    clearWallet: jest.fn(),
+    setUserSetting: jest.fn().mockResolvedValue(undefined),
+  } as any);
 
 interface TestWrapperProps {
   isAuthenticated: boolean;
@@ -54,18 +66,22 @@ interface TestWrapperProps {
   children: React.ReactNode;
 }
 
-const TestWrapper: React.FC<TestWrapperProps> = ({ 
+const TestWrapper: React.FC<TestWrapperProps> = ({
   isAuthenticated,
   userSettings,
-  children 
+  children,
 }) => {
   const engine = I18nEngine.getInstance('default');
   return (
     <SuiteConfigProvider baseUrl="http://localhost:3000">
       <I18nProvider i18nEngine={engine}>
         <AppThemeProvider>
-          <AuthContext.Provider value={mockAuthContext(isAuthenticated, userSettings)}>
-            <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <AuthContext.Provider
+            value={mockAuthContext(isAuthenticated, userSettings)}
+          >
+            <MemoryRouter
+              future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+            >
               {children}
             </MemoryRouter>
           </AuthContext.Provider>
@@ -78,7 +94,7 @@ const TestWrapper: React.FC<TestWrapperProps> = ({
 const TestMenuComponent = () => {
   const { menuOptions, getMenuOptions } = useMenu();
   const sideMenuOptions = getMenuOptions(MenuTypes.SideMenu, true);
-  
+
   return (
     <div>
       <div data-testid="menu-count">{menuOptions.length}</div>
@@ -87,10 +103,7 @@ const TestMenuComponent = () => {
         <div key={option.id} data-testid={`menu-${option.id}`}>
           {option.label}
           {option.action && (
-            <button 
-              data-testid={`action-${option.id}`}
-              onClick={option.action}
-            >
+            <button data-testid={`action-${option.id}`} onClick={option.action}>
               {option.label}
             </button>
           )}
@@ -163,7 +176,10 @@ describe('MenuContext', () => {
 
   it('should show clear mnemonic option when mnemonic exists', () => {
     render(
-      <TestWrapper isAuthenticated={true} userSettings={{ mnemonic: 'test-mnemonic' }}>
+      <TestWrapper
+        isAuthenticated={true}
+        userSettings={{ mnemonic: 'test-mnemonic' }}
+      >
         <MenuProvider>
           <TestMenuComponent />
         </MenuProvider>
@@ -175,7 +191,10 @@ describe('MenuContext', () => {
 
   it('should show clear wallet option when wallet exists', () => {
     render(
-      <TestWrapper isAuthenticated={true} userSettings={{ wallet: { address: '0x123' } }}>
+      <TestWrapper
+        isAuthenticated={true}
+        userSettings={{ wallet: { address: '0x123' } }}
+      >
         <MenuProvider>
           <TestMenuComponent />
         </MenuProvider>
@@ -220,7 +239,9 @@ describe('MenuContext', () => {
       </TestWrapper>
     );
 
-    const sideMenuCount = parseInt(screen.getByTestId('side-menu-count').textContent || '0');
+    const sideMenuCount = parseInt(
+      screen.getByTestId('side-menu-count').textContent || '0'
+    );
     expect(sideMenuCount).toBeGreaterThan(0);
   });
 });

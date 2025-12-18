@@ -1,18 +1,28 @@
-import { Member as FrontendMember,
-    ECIESService,
-  EmailString,
-  IECIESConfig,
-  SecureString,
-  PasswordLoginService,
+import {
   Constants as AppConstants,
+  ECIESService,
+  EmailString,
+  Member as FrontendMember,
+  IECIESConfig,
+  PasswordLoginService,
   Pbkdf2Service,
+  SecureString,
 } from '@digitaldefiance/ecies-lib';
 import {
   CoreLanguageCode,
   CurrencyCode,
   Timezone,
 } from '@digitaldefiance/i18n-lib';
+import {
+  IConstants,
+  IRequestUserDTO,
+  ISuccessMessage,
+  IUserSettings,
+  SuiteCoreComponentId,
+  SuiteCoreStringKey,
+} from '@digitaldefiance/suite-core-lib';
 import { Wallet } from '@ethereumjs/wallet';
+import { PaletteMode } from '@mui/material';
 import {
   createContext,
   ReactNode,
@@ -22,15 +32,13 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { useI18n } from './I18nProvider';
-import { useTheme } from './ThemeProvider';
-import { createAuthService } from '../services/authService';
-import { createAuthenticatedApiClient } from '../services/authenticatedApi';
 import { useExpiringValue } from '../hooks/useExpiringValue';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { useUserSettings } from '../hooks/useUserSettings';
-import { ISuccessMessage, IRequestUserDTO, SuiteCoreComponentId, SuiteCoreStringKey, IConstants, IUserSettings } from '@digitaldefiance/suite-core-lib';
-import { PaletteMode } from '@mui/material';
+import { createAuthService } from '../services/authService';
+import { createAuthenticatedApiClient } from '../services/authenticatedApi';
+import { useI18n } from './I18nProvider';
+import { useTheme } from './ThemeProvider';
 
 export interface AuthContextData {
   /**
@@ -43,19 +51,19 @@ export interface AuthContextData {
   authState: number;
   /**
    * Performs a server side backup-code login
-   * @param identifier 
-   * @param code 
-   * @param isEmail 
-   * @param recoverMnemonic 
-   * @param newPassword 
-   * @returns 
+   * @param identifier
+   * @param code
+   * @param isEmail
+   * @param recoverMnemonic
+   * @param newPassword
+   * @returns
    */
   backupCodeLogin: (
     identifier: string,
     code: string,
     isEmail: boolean,
     recoverMnemonic: boolean,
-    newPassword?: string,
+    newPassword?: string
   ) => Promise<
     | { token: string; codeCount: number; mnemonic?: string; message?: string }
     | { error: string; status?: number }
@@ -67,13 +75,13 @@ export interface AuthContextData {
   checkAuth: () => void;
   /**
    * Changes the stored browser password login mnemonic
-   * @param currentPassword 
-   * @param newPassword 
-   * @returns 
+   * @param currentPassword
+   * @param newPassword
+   * @returns
    */
   changePassword: (
     currentPassword: string,
-    newPassword: string,
+    newPassword: string
   ) => Promise<
     | ISuccessMessage
     | {
@@ -90,7 +98,7 @@ export interface AuthContextData {
     username?: string,
     email?: EmailString,
     expireMnemonicSeconds?: number,
-    expireWalletSeconds?: number,
+    expireWalletSeconds?: number
   ) => Promise<
     | { token: string; user: IRequestUserDTO; wallet: Wallet }
     | { error: string; errorType?: string }
@@ -101,7 +109,7 @@ export interface AuthContextData {
     username?: string,
     email?: EmailString,
     expireMnemonicSeconds?: number,
-    expireWalletSeconds?: number,
+    expireWalletSeconds?: number
   ) => Promise<
     | { token: string; user: IRequestUserDTO; wallet: Wallet; message: string }
     | { error: string; errorType?: string }
@@ -114,17 +122,24 @@ export interface AuthContextData {
   logout: () => void;
   mnemonic?: SecureString;
   mnemonicExpirationSeconds: number;
-  passwordLogin: (password: SecureString, username?: string, email?: EmailString) => Promise<{ token: string; user: IRequestUserDTO; wallet: Wallet } | { error: string; errorType?: string }>;
+  passwordLogin: (
+    password: SecureString,
+    username?: string,
+    email?: EmailString
+  ) => Promise<
+    | { token: string; user: IRequestUserDTO; wallet: Wallet }
+    | { error: string; errorType?: string }
+  >;
   requestEmailLogin: (
     username?: string,
-    email?: EmailString,
+    email?: EmailString
   ) => Promise<string | { error: string; errorType?: string }>;
   refreshToken: () => Promise<{ token: string; user: IRequestUserDTO }>;
   register: (
     username: string,
     email: string,
     timezone: string,
-    password?: string,
+    password?: string
   ) => Promise<
     | {
         success: boolean;
@@ -152,7 +167,15 @@ export interface AuthContextData {
   setMnemonic: (mnemonic: SecureString, durationSeconds?: number) => void;
   setMnemonicExpirationSeconds: (seconds: number) => void;
   setWalletExpirationSeconds: (seconds: number) => void;
-  setUpBrowserPasswordLogin: (mnemonic: SecureString, password: SecureString, username?: string, email?: EmailString) => Promise<{ success: boolean; message: string } | { error: string; errorType?: string }>;
+  setUpBrowserPasswordLogin: (
+    mnemonic: SecureString,
+    password: SecureString,
+    username?: string,
+    email?: EmailString
+  ) => Promise<
+    | { success: boolean; message: string }
+    | { error: string; errorType?: string }
+  >;
   setUser: (user: IRequestUserDTO | null) => Promise<void>;
   setUserSetting: (setting?: Partial<IUserSettings>) => Promise<void>;
   setWallet: (wallet: Wallet, durationSeconds?: number) => void;
@@ -178,39 +201,52 @@ export type AuthProviderProps = {
 };
 
 export const AuthContext = createContext<AuthContextData>(
-  {} as AuthContextData,
+  {} as AuthContextData
 );
 
-const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout }: AuthProviderProps) => {
-  const { t, tComponent } = useI18n();
+const AuthProviderInner = ({
+  children,
+  baseUrl,
+  constants,
+  eciesConfig,
+  onLogout,
+}: AuthProviderProps) => {
+  const { tComponent } = useI18n();
   const { setColorMode: themeSetPaletteMode, mode: colorMode } = useTheme();
-  
-  const authService = useMemo(() => createAuthService(constants, baseUrl, eciesConfig), [constants, baseUrl, eciesConfig]);
-  const authenticatedApi = useMemo(() => createAuthenticatedApiClient(baseUrl), [baseUrl]);
-  
+
+  const authService = useMemo(
+    () => createAuthService(constants, baseUrl, eciesConfig),
+    [constants, baseUrl, eciesConfig]
+  );
+  const authenticatedApi = useMemo(
+    () => createAuthenticatedApiClient(baseUrl),
+    [baseUrl]
+  );
+
   // Use the custom hooks for expiring values
   const mnemonicManager = useExpiringValue<SecureString>(
-    constants.DefaultExpireMemoryMnemonicSeconds, 
+    constants.DefaultExpireMemoryMnemonicSeconds,
     'mnemonicExpirationSeconds'
   );
   const walletManager = useExpiringValue<Wallet>(
-    constants.DefaultExpireMemoryWalletSeconds, 
+    constants.DefaultExpireMemoryWalletSeconds,
     'walletExpirationSeconds'
   );
-  
+
   // Use localStorage hook for expiration settings
-  const [mnemonicExpirationSeconds, _setMnemonicExpirationSeconds] = useLocalStorage(
-    'mnemonicExpirationSeconds', 
-    constants.DefaultExpireMemoryMnemonicSeconds
-  );
-  const [walletExpirationSeconds, _setWalletExpirationSeconds] = useLocalStorage(
-    'walletExpirationSeconds', 
-    constants.DefaultExpireMemoryWalletSeconds
-  );
+  const [mnemonicExpirationSeconds, _setMnemonicExpirationSeconds] =
+    useLocalStorage(
+      'mnemonicExpirationSeconds',
+      constants.DefaultExpireMemoryMnemonicSeconds
+    );
+  const [walletExpirationSeconds, _setWalletExpirationSeconds] =
+    useLocalStorage(
+      'walletExpirationSeconds',
+      constants.DefaultExpireMemoryWalletSeconds
+    );
   const [serverPublicKey, setServerPublicKey] = useState<string | null>(null);
   const [user, setUser] = useState<IRequestUserDTO | null>(null);
-  const [frontendUser, setFrontendUser] =
-    useState<FrontendMember | null>(null);
+  const [frontendUser, setFrontendUser] = useState<FrontendMember | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isGlobalAdmin, setIsGlobalAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -240,36 +276,64 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
   useEffect(() => {
     if (user?.siteLanguage) {
       (async () => {
-        await setUserSettingAndUpdateSettings({ siteLanguage: user.siteLanguage });
+        await setUserSettingAndUpdateSettings({
+          siteLanguage: user.siteLanguage,
+        });
       })();
     }
     // We intentionally only react to changes in the user's saved language.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.siteLanguage]);
 
-  const setMnemonic = useCallback((mnemonic: SecureString, durationSeconds?: number) => {
-    const finalDurationSeconds = durationSeconds ?? mnemonicExpirationSeconds;
-    
-    // Store the duration to localStorage if provided
-    if (durationSeconds !== undefined) {
-      _setMnemonicExpirationSeconds(durationSeconds);
-    }
-    
-    // Only save to storage if a custom duration was provided
-    return mnemonicManager.setValue(mnemonic, finalDurationSeconds, durationSeconds !== undefined);
-  }, [mnemonicExpirationSeconds, mnemonicManager.setValue, _setMnemonicExpirationSeconds]);
+  const setMnemonic = useCallback(
+    (mnemonic: SecureString, durationSeconds?: number) => {
+      const finalDurationSeconds = durationSeconds ?? mnemonicExpirationSeconds;
 
-  const setWallet = useCallback((wallet: Wallet, durationSeconds?: number) => {
-    const finalDurationSeconds = durationSeconds ?? walletExpirationSeconds;
-    
-    // Store the duration to localStorage if provided
-    if (durationSeconds !== undefined) {
-      _setWalletExpirationSeconds(durationSeconds);
-    }
-    
-    // Only save to storage if a custom duration was provided
-    return walletManager.setValue(wallet, finalDurationSeconds, durationSeconds !== undefined);
-  }, [walletExpirationSeconds, walletManager.setValue, _setWalletExpirationSeconds]);
+      // Store the duration to localStorage if provided
+      if (durationSeconds !== undefined) {
+        _setMnemonicExpirationSeconds(durationSeconds);
+      }
+
+      // Only save to storage if a custom duration was provided
+      return mnemonicManager.setValue(
+        mnemonic,
+        finalDurationSeconds,
+        durationSeconds !== undefined
+      );
+    },
+    // mnemonicManager is intentionally excluded as it's a stable reference from useExpiringValue
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      mnemonicExpirationSeconds,
+      mnemonicManager.setValue,
+      _setMnemonicExpirationSeconds,
+    ]
+  );
+
+  const setWallet = useCallback(
+    (wallet: Wallet, durationSeconds?: number) => {
+      const finalDurationSeconds = durationSeconds ?? walletExpirationSeconds;
+
+      // Store the duration to localStorage if provided
+      if (durationSeconds !== undefined) {
+        _setWalletExpirationSeconds(durationSeconds);
+      }
+
+      // Only save to storage if a custom duration was provided
+      return walletManager.setValue(
+        wallet,
+        finalDurationSeconds,
+        durationSeconds !== undefined
+      );
+    },
+    // walletManager is intentionally excluded as it's a stable reference from useExpiringValue
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      walletExpirationSeconds,
+      walletManager.setValue,
+      _setWalletExpirationSeconds,
+    ]
+  );
 
   const clearMnemonic = mnemonicManager.clearValue;
   const clearWallet = walletManager.clearValue;
@@ -299,9 +363,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       } else if ('id' in userData && 'email' in userData) {
         const userDataDTO: IRequestUserDTO = userData as IRequestUserDTO;
         setUser(userDataDTO);
-        setIsGlobalAdmin(
-          (userDataDTO).roles.some((r) => r.admin),
-        );
+        setIsGlobalAdmin(userDataDTO.roles.some((r) => r.admin));
         setIsAuthenticated(true);
         setToken(token);
         await setUserSettingAndUpdateSettings({
@@ -311,7 +373,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
           siteLanguage: userDataDTO.siteLanguage as CoreLanguageCode,
           email: new EmailString(userDataDTO.email),
           directChallenge: userDataDTO.directChallenge,
-        })
+        });
       }
     } catch (error) {
       console.error('Token verification failed:', error);
@@ -323,7 +385,13 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       setLoading(false);
       setIsCheckingAuth(false);
     }
-  }, [authService, clearMnemonic, clearWallet, setUserSettingAndUpdateSettings, themeSetPaletteMode]);
+  }, [
+    authService,
+    clearMnemonic,
+    clearWallet,
+    setUserSettingAndUpdateSettings,
+    themeSetPaletteMode,
+  ]);
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -339,12 +407,18 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
   }, [authState]); // Only run when authState changes (login/logout), not when checkAuth is recreated
 
   const directLogin: AuthContextData['directLogin'] = useCallback(
-    async (mnemonic, username, email, expireMnemonicSeconds, expireWalletSeconds) => {
+    async (
+      mnemonic,
+      username,
+      email,
+      expireMnemonicSeconds,
+      expireWalletSeconds
+    ) => {
       setLoading(true);
       const loginResult = await authService.directLogin(
         mnemonic,
         username,
-        email,
+        email
       );
       setLoading(false);
       if (
@@ -372,47 +446,64 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       }
       return loginResult;
     },
-    [authService, setMnemonic, setWallet, setUserSettingAndUpdateSettings],
+    [authService, setMnemonic, setWallet, setUserSettingAndUpdateSettings]
   );
 
   const emailChallengeLogin: AuthContextData['emailChallengeLogin'] =
-    useCallback(async (mnemonic, token, username, email, expireMnemonicSeconds, expireWalletSeconds) => {
-      setLoading(true);
-      const loginResult = await authService.emailChallengeLogin(
+    useCallback(
+      async (
         mnemonic,
         token,
         username,
         email,
-      );
-      setLoading(false);
-      if (
-        typeof loginResult === 'object' &&
-        'token' in loginResult &&
-        'user' in loginResult &&
-        'wallet' in loginResult
-      ) {
-        setMnemonic(mnemonic, expireMnemonicSeconds);
-        setUser(loginResult.user);
-        setWallet(loginResult.wallet, expireWalletSeconds);
-        setIsAuthenticated(true);
-        setAuthState((prev) => prev + 1);
-        localStorage.setItem('authToken', loginResult.token);
-        localStorage.setItem('user', JSON.stringify(loginResult.user));
-        await setUserSettingAndUpdateSettings({
-          darkMode: loginResult.user.darkMode,
-          currency: new CurrencyCode(loginResult.user.currency),
-          timezone: new Timezone(loginResult.user.timezone),
-          siteLanguage: loginResult.user.siteLanguage as CoreLanguageCode,
-          email: new EmailString(loginResult.user.email),
-          directChallenge: loginResult.user.directChallenge,
-        });
+        expireMnemonicSeconds,
+        expireWalletSeconds
+      ) => {
+        setLoading(true);
+        const loginResult = await authService.emailChallengeLogin(
+          mnemonic,
+          token,
+          username,
+          email
+        );
+        setLoading(false);
+        if (
+          typeof loginResult === 'object' &&
+          'token' in loginResult &&
+          'user' in loginResult &&
+          'wallet' in loginResult
+        ) {
+          setMnemonic(mnemonic, expireMnemonicSeconds);
+          setUser(loginResult.user);
+          setWallet(loginResult.wallet, expireWalletSeconds);
+          setIsAuthenticated(true);
+          setAuthState((prev) => prev + 1);
+          localStorage.setItem('authToken', loginResult.token);
+          localStorage.setItem('user', JSON.stringify(loginResult.user));
+          await setUserSettingAndUpdateSettings({
+            darkMode: loginResult.user.darkMode,
+            currency: new CurrencyCode(loginResult.user.currency),
+            timezone: new Timezone(loginResult.user.timezone),
+            siteLanguage: loginResult.user.siteLanguage as CoreLanguageCode,
+            email: new EmailString(loginResult.user.email),
+            directChallenge: loginResult.user.directChallenge,
+          });
+          return loginResult;
+        }
         return loginResult;
-      }
-      return loginResult;
-    }, [authService, setMnemonic, setWallet, setUserSettingAndUpdateSettings]);
+      },
+      [authService, setMnemonic, setWallet, setUserSettingAndUpdateSettings]
+    );
   const getPasswordLoginService = useCallback(() => {
     const eciesService: ECIESService = new ECIESService(eciesConfig);
-    return new PasswordLoginService(eciesService, new Pbkdf2Service(AppConstants.PBKDF2_PROFILES, AppConstants.ECIES, AppConstants.PBKDF2));
+    return new PasswordLoginService(
+      eciesService,
+      new Pbkdf2Service(
+        AppConstants.PBKDF2_PROFILES,
+        AppConstants.ECIES,
+        AppConstants.PBKDF2
+      )
+    );
   }, [eciesConfig]);
 
   const isBrowserPasswordLoginAvailable = useCallback(() => {
@@ -423,15 +514,25 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
   const passwordLogin: AuthContextData['passwordLogin'] = useCallback(
     async (password: SecureString, username?: string, email?: EmailString) => {
       if (!isBrowserPasswordLoginAvailable()) {
-        return { error: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Error_Login_PasswordLoginNotSetup), errorType: 'PasswordLoginNotSetup' };
+        return {
+          error: tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Error_Login_PasswordLoginNotSetup
+          ),
+          errorType: 'PasswordLoginNotSetup',
+        };
       }
       setLoading(true);
-      const passwordLoginService: PasswordLoginService = getPasswordLoginService();
-      const { wallet, mnemonic } = await passwordLoginService.getWalletAndMnemonicFromLocalStorageBundle(password);
+      const passwordLoginService: PasswordLoginService =
+        getPasswordLoginService();
+      const { wallet, mnemonic } =
+        await passwordLoginService.getWalletAndMnemonicFromLocalStorageBundle(
+          password
+        );
       const loginResult = await authService.directLogin(
         mnemonic,
         username,
-        email,
+        email
       );
       setLoading(false);
       setWallet(wallet);
@@ -449,7 +550,15 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       }
       return loginResult;
     },
-    [authService, getPasswordLoginService, setMnemonic, setWallet, t, tComponent, isBrowserPasswordLoginAvailable, setUserSettingAndUpdateSettings]
+    [
+      authService,
+      getPasswordLoginService,
+      setMnemonic,
+      setWallet,
+      tComponent,
+      isBrowserPasswordLoginAvailable,
+      setUserSettingAndUpdateSettings,
+    ]
   );
 
   const refreshToken: AuthContextData['refreshToken'] =
@@ -475,48 +584,71 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       username: string,
       email: string,
       timezone: string,
-      password?: string,
+      password?: string
     ) => {
       const registerResult = await authService.register(
         username,
         email,
         timezone,
-        password,
+        password
       );
       return registerResult as Awaited<ReturnType<AuthContextData['register']>>;
     },
-    [baseUrl],
+    [authService]
   );
 
   const requestEmailLogin = useCallback(
     async (
       username?: string,
-      email?: EmailString,
+      email?: EmailString
     ): Promise<string | { error: string; errorType?: string }> => {
       setLoading(true);
       const result = await authService.requestEmailLogin(username, email);
       setLoading(false);
       return result;
     },
-    [baseUrl],
+    [authService]
   );
 
   const setUpBrowserPasswordLogin = useCallback(
-    async (mnemonic: SecureString, password: SecureString, username?: string, email?: EmailString): Promise<{ success: boolean; message: string } | { error: string; errorType?: string }> => {
+    async (
+      mnemonic: SecureString,
+      password: SecureString
+    ): Promise<
+      | { success: boolean; message: string }
+      | { error: string; errorType?: string }
+    > => {
       setLoading(true);
-      const passwordLoginService: PasswordLoginService = getPasswordLoginService();
+      const passwordLoginService: PasswordLoginService =
+        getPasswordLoginService();
       try {
-        const wallet = await passwordLoginService.setupPasswordLoginLocalStorageBundle(mnemonic, password);
+        const wallet =
+          await passwordLoginService.setupPasswordLoginLocalStorageBundle(
+            mnemonic,
+            password
+          );
         setLoading(false);
         setWallet(wallet);
         setMnemonic(mnemonic);
-        return { success: true, message: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId,SuiteCoreStringKey.PasswordLogin_Setup_Success) };
+        return {
+          success: true,
+          message: tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.PasswordLogin_Setup_Success
+          ),
+        };
       } catch {
         setLoading(false);
-        return { success: false, message: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordLogin_Setup_Failure) };
+        return {
+          success: false,
+          message: tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.PasswordLogin_Setup_Failure
+          ),
+        };
       }
     },
-    [setMnemonic, setWallet, t, tComponent],
+    [getPasswordLoginService, setMnemonic, setWallet, tComponent]
   );
 
   const backupCodeLogin = useCallback(
@@ -525,7 +657,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       code: string,
       isEmail: boolean,
       recoverMnemonic: boolean,
-      newPassword?: string,
+      newPassword?: string
     ): Promise<
       | {
           token: string;
@@ -541,7 +673,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
         code,
         isEmail,
         recoverMnemonic,
-        newPassword,
+        newPassword
       );
       setLoading(false);
       if (typeof loginResult === 'object' && 'token' in loginResult) {
@@ -568,7 +700,7 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       }
       return loginResult;
     },
-    [authService, setUserSettingAndUpdateSettings],
+    [authService, setUserSettingAndUpdateSettings]
   );
 
   const logout = useCallback(async () => {
@@ -580,30 +712,33 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
     setIsAuthenticated(false);
     await setUserSettingAndUpdateSettings(undefined);
     setAuthState((prev) => prev + 1);
-    
+
     // Call the optional navigation callback if provided
     if (onLogout) {
       onLogout();
     }
   }, [onLogout, clearMnemonic, clearWallet, setUserSettingAndUpdateSettings]);
 
-  const verifyToken = useCallback(async (token: string) => {
-    const requestUser = await authService.verifyToken(token);
-    if (typeof requestUser === 'object' && 'error' in requestUser) {
-      setIsAuthenticated(false);
-      await setUserSettingAndUpdateSettings(undefined);
-      return false;
-    } else {
-      setUser(requestUser);
-      setIsAuthenticated(true);
-      return true;
-    }
-  }, [authService, setUserSettingAndUpdateSettings]);
+  const verifyToken = useCallback(
+    async (token: string) => {
+      const requestUser = await authService.verifyToken(token);
+      if (typeof requestUser === 'object' && 'error' in requestUser) {
+        setIsAuthenticated(false);
+        await setUserSettingAndUpdateSettings(undefined);
+        return false;
+      } else {
+        setUser(requestUser);
+        setIsAuthenticated(true);
+        return true;
+      }
+    },
+    [authService, setUserSettingAndUpdateSettings]
+  );
 
   const changePassword = useCallback(
     async (
       currentPassword: string,
-      newPassword: string,
+      newPassword: string
     ): Promise<
       | ISuccessMessage
       | {
@@ -612,31 +747,64 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
         }
     > => {
       if (!isBrowserPasswordLoginAvailable()) {
-        return { error: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Error_Login_PasswordLoginNotSetup), errorType: 'PasswordLoginNotSetup' };
+        return {
+          error: tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Error_Login_PasswordLoginNotSetup
+          ),
+          errorType: 'PasswordLoginNotSetup',
+        };
       }
       setLoading(true);
       try {
-        const passwordLoginService: PasswordLoginService = getPasswordLoginService();
-        const { mnemonic, wallet } = await passwordLoginService.getWalletAndMnemonicFromLocalStorageBundle(new SecureString(currentPassword));
+        const passwordLoginService: PasswordLoginService =
+          getPasswordLoginService();
+        const { mnemonic, wallet } =
+          await passwordLoginService.getWalletAndMnemonicFromLocalStorageBundle(
+            new SecureString(currentPassword)
+          );
         if (!mnemonic) {
           setLoading(false);
-          return { error: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordLogin_InvalidCurrentPassword), errorType: 'InvalidCurrentPassword' };
+          return {
+            error: tComponent<SuiteCoreStringKey>(
+              SuiteCoreComponentId,
+              SuiteCoreStringKey.PasswordLogin_InvalidCurrentPassword
+            ),
+            errorType: 'InvalidCurrentPassword',
+          };
         }
-        await passwordLoginService.setupPasswordLoginLocalStorageBundle(mnemonic, new SecureString(newPassword));
+        await passwordLoginService.setupPasswordLoginLocalStorageBundle(
+          mnemonic,
+          new SecureString(newPassword)
+        );
         setLoading(false);
         setWallet(wallet);
         setMnemonic(mnemonic);
-        return { success: true, message: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordChange_Success) };
-      } catch (error) {
+        return {
+          success: true,
+          message: tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.PasswordChange_Success
+          ),
+        };
+      } catch {
         setLoading(false);
         return { error: 'Password change failed' };
       }
     },
-    [setMnemonic, setWallet, t, tComponent, isBrowserPasswordLoginAvailable],
+    [
+      getPasswordLoginService,
+      setMnemonic,
+      setWallet,
+      tComponent,
+      isBrowserPasswordLoginAvailable,
+    ]
   );
 
   const contextValue = useMemo(() => {
-    const setUserAndIsAuthenticated = async (newUser: IRequestUserDTO | null) => {
+    const setUserAndIsAuthenticated = async (
+      newUser: IRequestUserDTO | null
+    ) => {
       setUser(newUser);
       setIsAuthenticated(!!newUser);
     };
@@ -682,8 +850,9 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
       wallet: walletManager.value,
       walletExpirationSeconds,
     };
+    // authenticatedApi is intentionally excluded as it's a stable reference from useMemo
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    authenticatedApi,
     authState,
     backupCodeLogin,
     changePassword,
@@ -728,9 +897,20 @@ const AuthProviderInner = ({ children, baseUrl, constants, eciesConfig, onLogout
   );
 };
 
-export const AuthProvider = ({ children, baseUrl, constants, eciesConfig, onLogout }: AuthProviderProps) => {
+export const AuthProvider = ({
+  children,
+  baseUrl,
+  constants,
+  eciesConfig,
+  onLogout,
+}: AuthProviderProps) => {
   return (
-    <AuthProviderInner baseUrl={baseUrl} constants={constants} eciesConfig={eciesConfig} onLogout={onLogout}>
+    <AuthProviderInner
+      baseUrl={baseUrl}
+      constants={constants}
+      eciesConfig={eciesConfig}
+      onLogout={onLogout}
+    >
       {children}
     </AuthProviderInner>
   );

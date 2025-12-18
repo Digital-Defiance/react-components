@@ -1,11 +1,17 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { UserLanguageSelector } from '../../src/components/UserLanguageSelector';
-import { I18nProvider, SuiteConfigProvider, AppThemeProvider, AuthProvider, useI18n } from '../../src/contexts';
-import { I18nEngine, GlobalActiveContext, LanguageRegistry } from '@digitaldefiance/i18n-lib';
-import { Constants } from '@digitaldefiance/suite-core-lib';
 import { ECIES } from '@digitaldefiance/ecies-lib';
+import { GlobalActiveContext, I18nEngine } from '@digitaldefiance/i18n-lib';
+import { Constants } from '@digitaldefiance/suite-core-lib';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import React from 'react';
+import { UserLanguageSelector } from '../../src/components/UserLanguageSelector';
+import {
+  AppThemeProvider,
+  AuthProvider,
+  I18nProvider,
+  SuiteConfigProvider,
+  useI18n,
+} from '../../src/contexts';
 
 // Mock the auth and API services
 jest.mock('../../src/services/authenticatedApi', () => ({
@@ -25,7 +31,7 @@ jest.mock('../../src/services/authService', () => ({
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const engine = I18nEngine.getInstance('default');
   return (
-    <SuiteConfigProvider 
+    <SuiteConfigProvider
       baseUrl="http://localhost:3000"
       languages={[
         { code: 'en-US', label: 'English' },
@@ -124,8 +130,10 @@ describe('UserLanguageSelector', () => {
 
     const menuItems = screen.getAllByRole('menuitem');
     // Find the Spanish menu item
-    const spanishItem = menuItems.find(item => 
-      item.textContent?.includes('Español') || item.textContent?.includes('es')
+    const spanishItem = menuItems.find(
+      (item) =>
+        item.textContent?.includes('Español') ||
+        item.textContent?.includes('es')
     );
 
     expect(spanishItem).toBeDefined();
@@ -170,8 +178,10 @@ describe('UserLanguageSelector', () => {
     });
 
     const menuItems = screen.getAllByRole('menuitem');
-    const frenchItem = menuItems.find(item => 
-      item.textContent?.includes('Français') || item.textContent?.includes('fr')
+    const frenchItem = menuItems.find(
+      (item) =>
+        item.textContent?.includes('Français') ||
+        item.textContent?.includes('fr')
     );
 
     if (frenchItem) {
@@ -181,7 +191,7 @@ describe('UserLanguageSelector', () => {
       await waitFor(() => {
         // React context updated
         expect(languageDisplay.textContent).toBe('fr');
-        // i18n library updated  
+        // i18n library updated
         expect(i18nEngine.getCurrentLanguage()).toBe('fr');
         // Global context updated
         expect(globalContext.userLanguage).toBe('fr');

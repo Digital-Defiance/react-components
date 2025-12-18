@@ -1,4 +1,3 @@
-import { CoreLanguageCode } from '@digitaldefiance/i18n-lib';
 import { getFlagCode } from '@digitaldefiance/suite-core-lib';
 import { Box, SxProps, Theme } from '@mui/material';
 import { FC } from 'react';

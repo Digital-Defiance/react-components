@@ -1,3 +1,7 @@
+import {
+  SuiteCoreComponentId,
+  SuiteCoreStringKey,
+} from '@digitaldefiance/suite-core-lib';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import {
   Box,
@@ -11,7 +15,6 @@ import {
   Typography,
 } from '@mui/material';
 import { FC, useState } from 'react';
-import { SuiteCoreComponentId, SuiteCoreStringKey } from '@digitaldefiance/suite-core-lib';
 import { useAuth, useI18n } from '../contexts';
 
 const ApiAccessContainer = styled(Box)(({ theme }) => ({
@@ -62,13 +65,48 @@ export const ApiAccess: FC<ApiAccessProps> = ({
   const [isError, setIsError] = useState(false);
 
   const translatedLabels = {
-    title: labels.title || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.ApiAccess_Title),
-    tokenNotAvailable: labels.tokenNotAvailable || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.ApiAccess_TokenNotAvailable),
-    copyButton: labels.copyButton || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_CopyToClipboard),
-    notificationTitle: labels.notificationTitle || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Notification),
-    copied: labels.copied || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_CopiedToClipboard),
-    copyFailed: labels.copyFailed || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Error_FailedToCopy),
-    ok: labels.ok || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_OK),
+    title:
+      labels.title ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.ApiAccess_Title
+      ),
+    tokenNotAvailable:
+      labels.tokenNotAvailable ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.ApiAccess_TokenNotAvailable
+      ),
+    copyButton:
+      labels.copyButton ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_CopyToClipboard
+      ),
+    notificationTitle:
+      labels.notificationTitle ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_Notification
+      ),
+    copied:
+      labels.copied ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_CopiedToClipboard
+      ),
+    copyFailed:
+      labels.copyFailed ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Error_FailedToCopy
+      ),
+    ok:
+      labels.ok ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_OK
+      ),
   };
 
   const copyToClipboard = async () => {
@@ -77,7 +115,7 @@ export const ApiAccess: FC<ApiAccessProps> = ({
         await navigator.clipboard.writeText(token);
         setIsError(false);
         setDialogOpen(true);
-      } catch (err) {
+      } catch {
         setIsError(true);
       }
     }
@@ -120,7 +158,9 @@ export const ApiAccess: FC<ApiAccessProps> = ({
       </ApiAccessContent>
       <Dialog open={dialogOpen} onClose={handleClose}>
         <DialogTitle>{translatedLabels.notificationTitle}</DialogTitle>
-        <DialogContent>{isError ? translatedLabels.copyFailed : translatedLabels.copied}</DialogContent>
+        <DialogContent>
+          {isError ? translatedLabels.copyFailed : translatedLabels.copied}
+        </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} color="primary">
             {translatedLabels.ok}

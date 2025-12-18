@@ -1,13 +1,17 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import React, { ReactNode } from 'react';
-import { renderHook, act, waitFor } from '@testing-library/react';
-import { useUserSettings, useUserSettingsPublic, UserSettingsValues } from '../../src/hooks/useUserSettings';
+import { EmailString } from '@digitaldefiance/ecies-lib';
+import { CurrencyCode, I18nEngine, Timezone } from '@digitaldefiance/i18n-lib';
+import { IUserSettings } from '@digitaldefiance/suite-core-lib';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { ReactNode } from 'react';
+import { I18nProvider } from '../../src/contexts/I18nProvider';
 import { SuiteConfigProvider } from '../../src/contexts/SuiteConfigProvider';
 import { AppThemeProvider } from '../../src/contexts/ThemeProvider';
-import { I18nProvider } from '../../src/contexts/I18nProvider';
-import { I18nEngine, CurrencyCode, Timezone } from '@digitaldefiance/i18n-lib';
-import { IUserSettings } from '@digitaldefiance/suite-core-lib';
-import { EmailString } from '@digitaldefiance/ecies-lib';
+import {
+  UserSettingsValues,
+  useUserSettings,
+  useUserSettingsPublic,
+} from '../../src/hooks/useUserSettings';
 
 // Mock the Auth context
 const mockSetUserSetting = jest.fn();
@@ -66,9 +70,7 @@ describe('useUserSettingsPublic', () => {
     return (
       <SuiteConfigProvider baseUrl="https://api.test.com">
         <I18nProvider i18nEngine={engine}>
-          <AppThemeProvider>
-            {children}
-          </AppThemeProvider>
+          <AppThemeProvider>{children}</AppThemeProvider>
         </I18nProvider>
       </SuiteConfigProvider>
     );
@@ -96,7 +98,7 @@ describe('useUserSettingsPublic', () => {
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
     });
-    
+
     expect(result.current.settings).toEqual(mockUserData);
   });
 
@@ -298,7 +300,10 @@ describe('useUserSettingsPublic', () => {
 
     // Simulate a slow update
     mockSetUserSetting.mockImplementation(
-      () => new Promise((resolve) => setTimeout(() => resolve(undefined as any), 100))
+      () =>
+        new Promise((resolve) =>
+          setTimeout(() => resolve(undefined as any), 100)
+        )
     );
 
     act(() => {
@@ -347,7 +352,10 @@ describe('useUserSettingsPublic', () => {
     expect(response.error).toBeDefined();
     if (response.errors) {
       expect(response.errors).toHaveLength(2);
-      expect(response.errors[0]).toEqual({ path: 'email', msg: 'Invalid email' });
+      expect(response.errors[0]).toEqual({
+        path: 'email',
+        msg: 'Invalid email',
+      });
     }
   });
 });
@@ -363,9 +371,7 @@ describe('useUserSettings (internal hook)', () => {
     return (
       <SuiteConfigProvider baseUrl="https://api.test.com">
         <I18nProvider i18nEngine={engine}>
-          <AppThemeProvider>
-            {children}
-          </AppThemeProvider>
+          <AppThemeProvider>{children}</AppThemeProvider>
         </I18nProvider>
       </SuiteConfigProvider>
     );
@@ -378,10 +384,11 @@ describe('useUserSettings (internal hook)', () => {
 
   it('calls API when authenticated and settings have email', async () => {
     const { result } = renderHook(
-      () => useUserSettings({ 
-        authenticatedApi: mockAuthenticatedApi, 
-        isAuthenticated: true 
-      }),
+      () =>
+        useUserSettings({
+          authenticatedApi: mockAuthenticatedApi,
+          isAuthenticated: true,
+        }),
       { wrapper }
     );
 
@@ -409,10 +416,11 @@ describe('useUserSettings (internal hook)', () => {
 
   it('does NOT call API when not authenticated', async () => {
     const { result } = renderHook(
-      () => useUserSettings({ 
-        authenticatedApi: mockAuthenticatedApi, 
-        isAuthenticated: false 
-      }),
+      () =>
+        useUserSettings({
+          authenticatedApi: mockAuthenticatedApi,
+          isAuthenticated: false,
+        }),
       { wrapper }
     );
 
@@ -432,10 +440,11 @@ describe('useUserSettings (internal hook)', () => {
 
   it('does NOT call API when authenticated but email is missing', async () => {
     const { result } = renderHook(
-      () => useUserSettings({ 
-        authenticatedApi: mockAuthenticatedApi, 
-        isAuthenticated: true 
-      }),
+      () =>
+        useUserSettings({
+          authenticatedApi: mockAuthenticatedApi,
+          isAuthenticated: true,
+        }),
       { wrapper }
     );
 
@@ -453,10 +462,11 @@ describe('useUserSettings (internal hook)', () => {
 
   it('updates theme mode when darkMode setting changes', async () => {
     const { result } = renderHook(
-      () => useUserSettings({ 
-        authenticatedApi: mockAuthenticatedApi, 
-        isAuthenticated: true 
-      }),
+      () =>
+        useUserSettings({
+          authenticatedApi: mockAuthenticatedApi,
+          isAuthenticated: true,
+        }),
       { wrapper }
     );
 
@@ -473,14 +483,13 @@ describe('useUserSettings (internal hook)', () => {
 
   it('changes language when siteLanguage setting changes', async () => {
     const { result } = renderHook(
-      () => useUserSettings({ 
-        authenticatedApi: mockAuthenticatedApi, 
-        isAuthenticated: true 
-      }),
+      () =>
+        useUserSettings({
+          authenticatedApi: mockAuthenticatedApi,
+          isAuthenticated: true,
+        }),
       { wrapper }
     );
-
-    const initialLanguage = result.current.currentLanguage;
 
     await act(async () => {
       await result.current.setUserSettingAndUpdateSettings({
@@ -498,10 +507,11 @@ describe('useUserSettings (internal hook)', () => {
 
   it('toggleColorMode switches darkMode state when authenticated', async () => {
     const { result } = renderHook(
-      () => useUserSettings({ 
-        authenticatedApi: mockAuthenticatedApi, 
-        isAuthenticated: true 
-      }),
+      () =>
+        useUserSettings({
+          authenticatedApi: mockAuthenticatedApi,
+          isAuthenticated: true,
+        }),
       { wrapper }
     );
 
@@ -520,7 +530,8 @@ describe('useUserSettings (internal hook)', () => {
       await result.current.toggleColorMode();
     });
 
-    expect(mockPost).toHaveBeenCalledWith('/user/settings', 
+    expect(mockPost).toHaveBeenCalledWith(
+      '/user/settings',
       expect.objectContaining({
         darkMode: true,
       })
@@ -529,10 +540,11 @@ describe('useUserSettings (internal hook)', () => {
 
   it('maintains settings state across multiple updates', async () => {
     const { result } = renderHook(
-      () => useUserSettings({ 
-        authenticatedApi: mockAuthenticatedApi, 
-        isAuthenticated: true 
-      }),
+      () =>
+        useUserSettings({
+          authenticatedApi: mockAuthenticatedApi,
+          isAuthenticated: true,
+        }),
       { wrapper }
     );
 
@@ -545,7 +557,8 @@ describe('useUserSettings (internal hook)', () => {
       });
     });
 
-    expect(mockPost).toHaveBeenCalledWith('/user/settings', 
+    expect(mockPost).toHaveBeenCalledWith(
+      '/user/settings',
       expect.objectContaining({
         email: 'test@example.com',
         darkMode: false,
@@ -562,7 +575,8 @@ describe('useUserSettings (internal hook)', () => {
       });
     });
 
-    expect(mockPost).toHaveBeenCalledWith('/user/settings', 
+    expect(mockPost).toHaveBeenCalledWith(
+      '/user/settings',
       expect.objectContaining({
         email: 'test@example.com',
         darkMode: true,

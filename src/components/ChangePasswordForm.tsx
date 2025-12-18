@@ -1,4 +1,9 @@
 import {
+  Constants,
+  SuiteCoreComponentId,
+  SuiteCoreStringKey,
+} from '@digitaldefiance/suite-core-lib';
+import {
   Alert,
   Box,
   Button,
@@ -9,7 +14,6 @@ import {
 import { useFormik } from 'formik';
 import { FC, useState } from 'react';
 import * as Yup from 'yup';
-import { Constants, SuiteCoreComponentId, SuiteCoreStringKey } from '@digitaldefiance/suite-core-lib';
 import { useI18n } from '../contexts';
 
 export interface ChangePasswordFormValues {
@@ -19,7 +23,9 @@ export interface ChangePasswordFormValues {
 }
 
 export interface ChangePasswordFormProps {
-  onSubmit: (values: ChangePasswordFormValues) => Promise<{ success?: boolean; error?: string }>;
+  onSubmit: (
+    values: ChangePasswordFormValues
+  ) => Promise<{ success?: boolean; error?: string }>;
   titleText?: string;
   currentPasswordLabel?: string;
   newPasswordLabel?: string;
@@ -45,28 +51,96 @@ export const ChangePasswordForm: FC<ChangePasswordFormProps> = ({
   newPasswordValidation,
   confirmPasswordValidation,
 }) => {
-  const { t, tComponent } = useI18n();
+  const { tComponent } = useI18n();
   const [success, setSuccess] = useState(false);
   const [apiError, setApiError] = useState<string>('');
 
   const validation = {
-    currentPassword: currentPasswordValidation || Yup.string().required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
-    newPassword: newPasswordValidation || Yup.string()
-      .min(Constants.PasswordMinLength, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordMinLengthTemplate))
-      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
-    confirmPassword: confirmPasswordValidation || Yup.string()
-      .oneOf([Yup.ref('newPassword')], tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordMatch))
-      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
+    currentPassword:
+      currentPasswordValidation ||
+      Yup.string().required(
+        tComponent<SuiteCoreStringKey>(
+          SuiteCoreComponentId,
+          SuiteCoreStringKey.Validation_Required
+        )
+      ),
+    newPassword:
+      newPasswordValidation ||
+      Yup.string()
+        .min(
+          Constants.PasswordMinLength,
+          tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_PasswordMinLengthTemplate
+          )
+        )
+        .required(
+          tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_Required
+          )
+        ),
+    confirmPassword:
+      confirmPasswordValidation ||
+      Yup.string()
+        .oneOf(
+          [Yup.ref('newPassword')],
+          tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_PasswordMatch
+          )
+        )
+        .required(
+          tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_Required
+          )
+        ),
   };
 
   const labels = {
-    title: titleText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ChangePassword),
-    currentPassword: currentPasswordLabel || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_CurrentPassword),
-    newPassword: newPasswordLabel || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_NewPassword),
-    confirmPassword: confirmPasswordLabel || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ConfirmNewPassword),
-    submitButton: submitButtonText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ChangePassword),
-    submittingButton: submittingButtonText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ChangingPassword),
-    success: successMessage || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordChange_Success),
+    title:
+      titleText ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_ChangePassword
+      ),
+    currentPassword:
+      currentPasswordLabel ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_CurrentPassword
+      ),
+    newPassword:
+      newPasswordLabel ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_NewPassword
+      ),
+    confirmPassword:
+      confirmPasswordLabel ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_ConfirmNewPassword
+      ),
+    submitButton:
+      submitButtonText ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_ChangePassword
+      ),
+    submittingButton:
+      submittingButtonText ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_ChangingPassword
+      ),
+    success:
+      successMessage ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.PasswordChange_Success
+      ),
   };
 
   const formik = useFormik<ChangePasswordFormValues>({
@@ -108,7 +182,11 @@ export const ChangePasswordForm: FC<ChangePasswordFormProps> = ({
           {labels.title}
         </Typography>
 
-        <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 1, width: '100%' }}>
+        <Box
+          component="form"
+          onSubmit={formik.handleSubmit}
+          sx={{ mt: 1, width: '100%' }}
+        >
           <TextField
             fullWidth
             id="currentPassword"
@@ -118,8 +196,12 @@ export const ChangePasswordForm: FC<ChangePasswordFormProps> = ({
             value={formik.values.currentPassword}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            error={Boolean(formik.touched.currentPassword && formik.errors.currentPassword)}
-            helperText={formik.touched.currentPassword && formik.errors.currentPassword}
+            error={Boolean(
+              formik.touched.currentPassword && formik.errors.currentPassword
+            )}
+            helperText={
+              formik.touched.currentPassword && formik.errors.currentPassword
+            }
             margin="normal"
           />
 
@@ -132,7 +214,9 @@ export const ChangePasswordForm: FC<ChangePasswordFormProps> = ({
             value={formik.values.newPassword}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            error={Boolean(formik.touched.newPassword && formik.errors.newPassword)}
+            error={Boolean(
+              formik.touched.newPassword && formik.errors.newPassword
+            )}
             helperText={formik.touched.newPassword && formik.errors.newPassword}
             margin="normal"
           />
@@ -146,8 +230,12 @@ export const ChangePasswordForm: FC<ChangePasswordFormProps> = ({
             value={formik.values.confirmPassword}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            error={Boolean(formik.touched.confirmPassword && formik.errors.confirmPassword)}
-            helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
+            error={Boolean(
+              formik.touched.confirmPassword && formik.errors.confirmPassword
+            )}
+            helperText={
+              formik.touched.confirmPassword && formik.errors.confirmPassword
+            }
             margin="normal"
           />
 
@@ -171,7 +259,9 @@ export const ChangePasswordForm: FC<ChangePasswordFormProps> = ({
             sx={{ mt: 3, mb: 2 }}
             disabled={formik.isSubmitting}
           >
-            {formik.isSubmitting ? labels.submittingButton : labels.submitButton}
+            {formik.isSubmitting
+              ? labels.submittingButton
+              : labels.submitButton}
           </Button>
         </Box>
       </Box>

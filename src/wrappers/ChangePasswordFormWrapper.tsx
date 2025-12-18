@@ -7,13 +7,16 @@ export interface ChangePasswordFormWrapperProps {
   componentProps?: Partial<React.ComponentProps<typeof ChangePasswordForm>>;
 }
 
-export const ChangePasswordFormWrapper: FC<ChangePasswordFormWrapperProps> = ({ 
+export const ChangePasswordFormWrapper: FC<ChangePasswordFormWrapperProps> = ({
   onSuccess,
   componentProps = {},
 }) => {
   const { changePassword } = useAuth();
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: {
+    currentPassword: string;
+    newPassword: string;
+  }) => {
     const result = await changePassword(
       values.currentPassword,
       values.newPassword

@@ -1,10 +1,10 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { renderHook, act } from '@testing-library/react';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { act, renderHook } from '@testing-library/react';
 import { useLocalStorage } from '../../src/hooks/useLocalStorage';
 import { localStorageMock } from '../setup';
 
-const mockGetValue = jest.fn();
-const mockSetValue = jest.fn();
+const _mockGetValue = jest.fn();
+const _mockSetValue = jest.fn();
 
 jest.mock('@digitaldefiance/suite-core-lib', () => ({
   LocalStorageManager: {
@@ -14,8 +14,12 @@ jest.mock('@digitaldefiance/suite-core-lib', () => ({
 }));
 
 import { LocalStorageManager } from '@digitaldefiance/suite-core-lib';
-const mockedGetValue = LocalStorageManager.getValue as jest.MockedFunction<typeof LocalStorageManager.getValue>;
-const mockedSetValue = LocalStorageManager.setValue as jest.MockedFunction<typeof LocalStorageManager.setValue>;
+const mockedGetValue = LocalStorageManager.getValue as jest.MockedFunction<
+  typeof LocalStorageManager.getValue
+>;
+const mockedSetValue = LocalStorageManager.setValue as jest.MockedFunction<
+  typeof LocalStorageManager.setValue
+>;
 
 describe('useLocalStorage', () => {
   beforeEach(() => {
@@ -63,7 +67,9 @@ describe('useLocalStorage', () => {
 
   it('should work with object values', () => {
     mockedGetValue.mockReturnValue({ count: 0 });
-    const { result } = renderHook(() => useLocalStorage('objectKey', { count: 0 }));
+    const { result } = renderHook(() =>
+      useLocalStorage('objectKey', { count: 0 })
+    );
 
     act(() => {
       result.current[1]({ count: 5 });
@@ -75,7 +81,9 @@ describe('useLocalStorage', () => {
 
   it('should work with array values', () => {
     mockedGetValue.mockReturnValue([]);
-    const { result } = renderHook(() => useLocalStorage<string[]>('arrayKey', []));
+    const { result } = renderHook(() =>
+      useLocalStorage<string[]>('arrayKey', [])
+    );
 
     act(() => {
       result.current[1](['a', 'b', 'c']);

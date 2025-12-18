@@ -1,4 +1,9 @@
 import {
+  Constants,
+  SuiteCoreComponentId,
+  SuiteCoreStringKey,
+} from '@digitaldefiance/suite-core-lib';
+import {
   Box,
   Button,
   Checkbox,
@@ -10,7 +15,6 @@ import {
 import { useFormik } from 'formik';
 import { FC, useState } from 'react';
 import * as Yup from 'yup';
-import { Constants, SuiteCoreComponentId, SuiteCoreStringKey } from '@digitaldefiance/suite-core-lib';
 import { useI18n } from '../contexts';
 
 export interface BackupCodeLoginFormValues {
@@ -33,9 +37,9 @@ export interface BackupCodeLoginFormProps {
     | { token: string; codeCount: number; mnemonic?: string; message?: string }
     | { error: string; status?: number }
   >;
-  onNavigate?: (path: string, state?: any) => void;
+  onNavigate?: (path: string, state?: Record<string, unknown>) => void;
   isAuthenticated?: boolean;
-  validationSchema?: Yup.ObjectSchema<any>;
+  validationSchema?: Yup.ObjectSchema<BackupCodeLoginFormValues>;
   labels?: {
     title?: string;
     email?: string;
@@ -64,42 +68,159 @@ export const BackupCodeLoginForm: FC<BackupCodeLoginFormProps> = ({
   const { tComponent } = useI18n();
   const [loginType, setLoginType] = useState<'email' | 'username'>('email');
   const [loginError, setLoginError] = useState<string | null>(null);
-  const [recoveredMnemonic, setRecoveredMnemonic] = useState<string | null>(null);
+  const [recoveredMnemonic, setRecoveredMnemonic] = useState<string | null>(
+    null
+  );
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [codesRemaining, setCodesRemaining] = useState<number | null>(null);
 
   const translatedLabels = {
-    title: labels.title || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_Title),
-    email: labels.email || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Email),
-    username: labels.username || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Username),
-    code: labels.code || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_BackupCode),
-    newPassword: labels.newPassword || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_NewPassword),
-    confirmPassword: labels.confirmPassword || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ConfirmNewPassword),
-    recoverMnemonic: labels.recoverMnemonic || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_RecoverMnemonic),
-    login: labels.login || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_Login),
-    useUsername: labels.useUsername || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_UseUsername),
-    useEmail: labels.useEmail || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_UseEmailAddress),
-    dashboard: labels.dashboard || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Dashboard),
-    generateNewCodes: labels.generateNewCodes || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_GenerateNewCodes),
-    mnemonicLabel: labels.mnemonicLabel || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Mnemonic),
-    codesRemaining: labels.codesRemaining || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_CodesRemainingTemplate),
-    unexpectedError: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_UnexpectedError),
+    title:
+      labels.title ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.BackupCodeRecovery_Title
+      ),
+    email:
+      labels.email ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_Email
+      ),
+    username:
+      labels.username ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_Username
+      ),
+    code:
+      labels.code ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_BackupCode
+      ),
+    newPassword:
+      labels.newPassword ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_NewPassword
+      ),
+    confirmPassword:
+      labels.confirmPassword ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_ConfirmNewPassword
+      ),
+    recoverMnemonic:
+      labels.recoverMnemonic ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.BackupCodeRecovery_RecoverMnemonic
+      ),
+    login:
+      labels.login ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.BackupCodeRecovery_Login
+      ),
+    useUsername:
+      labels.useUsername ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Login_UseUsername
+      ),
+    useEmail:
+      labels.useEmail ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Login_UseEmailAddress
+      ),
+    dashboard:
+      labels.dashboard ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_Dashboard
+      ),
+    generateNewCodes:
+      labels.generateNewCodes ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.BackupCodeRecovery_GenerateNewCodes
+      ),
+    mnemonicLabel:
+      labels.mnemonicLabel ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_Mnemonic
+      ),
+    codesRemaining:
+      labels.codesRemaining ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.BackupCodeRecovery_CodesRemainingTemplate
+      ),
+    unexpectedError: tComponent<SuiteCoreStringKey>(
+      SuiteCoreComponentId,
+      SuiteCoreStringKey.Common_UnexpectedError
+    ),
   };
 
   const yupFieldValidation = {
     email: Yup.string()
-      .email(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_InvalidEmail))
-      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
+      .email(
+        tComponent<SuiteCoreStringKey>(
+          SuiteCoreComponentId,
+          SuiteCoreStringKey.Validation_InvalidEmail
+        )
+      )
+      .required(
+        tComponent<SuiteCoreStringKey>(
+          SuiteCoreComponentId,
+          SuiteCoreStringKey.Validation_Required
+        )
+      ),
     username: Yup.string()
-      .matches(Constants.UsernameRegex, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_UsernameRegexErrorTemplate))
-      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
+      .matches(
+        Constants.UsernameRegex,
+        tComponent<SuiteCoreStringKey>(
+          SuiteCoreComponentId,
+          SuiteCoreStringKey.Validation_UsernameRegexErrorTemplate
+        )
+      )
+      .required(
+        tComponent<SuiteCoreStringKey>(
+          SuiteCoreComponentId,
+          SuiteCoreStringKey.Validation_Required
+        )
+      ),
     code: Yup.string()
-      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required))
-      .matches(Constants.BACKUP_CODES.DisplayRegex, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_InvalidBackupCode)),
-    password: Yup.string()
-      .matches(Constants.PasswordRegex, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordRegexErrorTemplate)),
-    confirmPassword: Yup.string()
-      .oneOf([Yup.ref('newPassword')], tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordMatch)),
+      .required(
+        tComponent<SuiteCoreStringKey>(
+          SuiteCoreComponentId,
+          SuiteCoreStringKey.Validation_Required
+        )
+      )
+      .matches(
+        Constants.BACKUP_CODES.DisplayRegex,
+        tComponent<SuiteCoreStringKey>(
+          SuiteCoreComponentId,
+          SuiteCoreStringKey.Validation_InvalidBackupCode
+        )
+      ),
+    password: Yup.string().matches(
+      Constants.PasswordRegex,
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Validation_PasswordRegexErrorTemplate
+      )
+    ),
+    confirmPassword: Yup.string().oneOf(
+      [Yup.ref('newPassword')],
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Validation_PasswordMatch
+      )
+    ),
   };
 
   const formik = useFormik<BackupCodeLoginFormValues>({
@@ -111,12 +232,17 @@ export const BackupCodeLoginForm: FC<BackupCodeLoginFormProps> = ({
       confirmNewPassword: '',
       recoverMnemonic: false,
     },
-    validationSchema: validationSchema ?? Yup.object({
-      [loginType]: loginType === 'email' ? yupFieldValidation.email : yupFieldValidation.username,
-      code: yupFieldValidation.code,
-      newPassword: yupFieldValidation.password,
-      confirmNewPassword: yupFieldValidation.confirmPassword,
-    }),
+    validationSchema:
+      validationSchema ??
+      Yup.object({
+        [loginType]:
+          loginType === 'email'
+            ? yupFieldValidation.email
+            : yupFieldValidation.username,
+        code: yupFieldValidation.code,
+        newPassword: yupFieldValidation.password,
+        confirmNewPassword: yupFieldValidation.confirmPassword,
+      }),
     enableReinitialize: true,
     onSubmit: async (values, { setSubmitting }) => {
       try {
@@ -125,7 +251,9 @@ export const BackupCodeLoginForm: FC<BackupCodeLoginFormProps> = ({
           values.code,
           loginType === 'email',
           values.recoverMnemonic,
-          values.newPassword && values.newPassword.length > 0 ? values.newPassword : undefined
+          values.newPassword && values.newPassword.length > 0
+            ? values.newPassword
+            : undefined
         );
         if ('error' in loginResult) {
           setLoginError(loginResult.error);
@@ -151,33 +279,60 @@ export const BackupCodeLoginForm: FC<BackupCodeLoginFormProps> = ({
     },
   });
 
-  if (isAuthenticated && recoveredMnemonic === null && codesRemaining === null) {
+  if (
+    isAuthenticated &&
+    recoveredMnemonic === null &&
+    codesRemaining === null
+  ) {
     onNavigate?.('/dashboard');
     return null;
   }
 
   return (
     <Container component="main" maxWidth="xs">
-      <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <Box
+        sx={{
+          marginTop: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
         <Typography component="h1" variant="h5">
           {translatedLabels.title}
         </Typography>
-        <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 1, width: '100%' }}>
+        <Box
+          component="form"
+          onSubmit={formik.handleSubmit}
+          sx={{ mt: 1, width: '100%' }}
+        >
           {!isAuthenticated && (
             <>
               <TextField
                 margin="normal"
                 fullWidth
                 id={loginType}
-                label={loginType === 'email' ? translatedLabels.email : translatedLabels.username}
+                label={
+                  loginType === 'email'
+                    ? translatedLabels.email
+                    : translatedLabels.username
+                }
                 name={loginType}
                 autoComplete={loginType === 'email' ? 'email' : 'username'}
                 autoFocus
-                value={loginType === 'email' ? formik.values.email : formik.values.username}
+                value={
+                  loginType === 'email'
+                    ? formik.values.email
+                    : formik.values.username
+                }
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={formik.touched[loginType] && Boolean(formik.errors[loginType])}
-                helperText={formik.touched[loginType] && formik.errors[loginType]}
+                error={
+                  formik.touched[loginType] && Boolean(formik.errors[loginType])
+                }
+                helperText={
+                  formik.touched[loginType] && formik.errors[loginType]
+                }
                 disabled={isAuthenticated}
               />
               <TextField
@@ -204,8 +359,13 @@ export const BackupCodeLoginForm: FC<BackupCodeLoginFormProps> = ({
                 value={formik.values.newPassword}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={formik.touched.newPassword && Boolean(formik.errors.newPassword)}
-                helperText={formik.touched.newPassword && formik.errors.newPassword}
+                error={
+                  formik.touched.newPassword &&
+                  Boolean(formik.errors.newPassword)
+                }
+                helperText={
+                  formik.touched.newPassword && formik.errors.newPassword
+                }
                 disabled={isAuthenticated}
               />
               <TextField
@@ -218,8 +378,14 @@ export const BackupCodeLoginForm: FC<BackupCodeLoginFormProps> = ({
                 value={formik.values.confirmNewPassword}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={formik.touched.confirmNewPassword && Boolean(formik.errors.confirmNewPassword)}
-                helperText={formik.touched.confirmNewPassword && formik.errors.confirmNewPassword}
+                error={
+                  formik.touched.confirmNewPassword &&
+                  Boolean(formik.errors.confirmNewPassword)
+                }
+                helperText={
+                  formik.touched.confirmNewPassword &&
+                  formik.errors.confirmNewPassword
+                }
                 disabled={isAuthenticated}
               />
               <FormControlLabel
@@ -262,13 +428,18 @@ export const BackupCodeLoginForm: FC<BackupCodeLoginFormProps> = ({
           {codesRemaining !== null && (
             <Box sx={{ mt: 2 }}>
               <Typography variant="body2">
-                {translatedLabels.codesRemaining.replace('{count}', String(codesRemaining))}
+                {translatedLabels.codesRemaining.replace(
+                  '{count}',
+                  String(codesRemaining)
+                )}
               </Typography>
               <Button
                 fullWidth
                 variant="contained"
                 sx={{ mt: 2 }}
-                onClick={() => onNavigate?.('/backup-codes', { codeCount: codesRemaining })}
+                onClick={() =>
+                  onNavigate?.('/backup-codes', { codeCount: codesRemaining })
+                }
               >
                 {translatedLabels.generateNewCodes}
               </Button>
@@ -295,12 +466,15 @@ export const BackupCodeLoginForm: FC<BackupCodeLoginFormProps> = ({
                   fullWidth
                   variant="text"
                   onClick={() => {
-                    const newType = loginType === 'email' ? 'username' : 'email';
+                    const newType =
+                      loginType === 'email' ? 'username' : 'email';
                     formik.setFieldValue(loginType, '');
                     setLoginType(newType);
                   }}
                 >
-                  {loginType === 'email' ? translatedLabels.useUsername : translatedLabels.useEmail}
+                  {loginType === 'email'
+                    ? translatedLabels.useUsername
+                    : translatedLabels.useEmail}
                 </Button>
               </Box>
             </>

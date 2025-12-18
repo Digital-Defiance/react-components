@@ -1,11 +1,17 @@
 import {
   GlobalActiveContext,
+  I18nEngine,
   IActiveContext,
   LanguageRegistry,
-  I18nEngine,
-  CoreLanguageCode,
 } from '@digitaldefiance/i18n-lib';
-import { createContext, FC, ReactNode, useCallback, useContext, useState } from 'react';
+import {
+  createContext,
+  FC,
+  ReactNode,
+  useCallback,
+  useContext,
+  useState,
+} from 'react';
 
 export interface I18nProviderProps {
   children: ReactNode;
@@ -14,8 +20,17 @@ export interface I18nProviderProps {
 }
 
 export interface I18nContextType {
-  t: (key: string, vars?: Record<string, string | number>, language?: string) => string;
-  tComponent: <TStringKey extends string>(componentId: string, stringKey: TStringKey, vars?: Record<string, string | number>, language?: string) => string;
+  t: (
+    key: string,
+    vars?: Record<string, string | number>,
+    language?: string
+  ) => string;
+  tComponent: <TStringKey extends string>(
+    componentId: string,
+    stringKey: TStringKey,
+    vars?: Record<string, string | number>,
+    language?: string
+  ) => string;
   changeLanguage: (language: string) => void;
   currentLanguage: string;
 }
@@ -53,15 +68,29 @@ export const I18nProvider: FC<I18nProviderProps> = ({
   );
 
   const t = useCallback(
-    (key: string, vars?: Record<string, string | number>, language?: string) => {
+    (
+      key: string,
+      vars?: Record<string, string | number>,
+      language?: string
+    ) => {
       return i18nEngine.t(key, vars, language ?? currentLanguage);
     },
     [i18nEngine, currentLanguage]
   );
 
   const tComponent = useCallback(
-    <TStringKey extends string>(componentId: string, stringKey: TStringKey, vars?: Record<string, string | number>, language?: string): string => {
-      return i18nEngine.translate(componentId, stringKey, vars, language ?? currentLanguage);
+    <TStringKey extends string>(
+      componentId: string,
+      stringKey: TStringKey,
+      vars?: Record<string, string | number>,
+      language?: string
+    ): string => {
+      return i18nEngine.translate(
+        componentId,
+        stringKey,
+        vars,
+        language ?? currentLanguage
+      );
     },
     [currentLanguage, i18nEngine]
   );

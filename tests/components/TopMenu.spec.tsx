@@ -1,29 +1,34 @@
-import { describe, it, expect } from '@jest/globals';
-import React from 'react';
+import { I18nEngine } from '@digitaldefiance/i18n-lib';
+import { describe, expect, it } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
+import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { TopMenu } from '../../src/components/TopMenu';
-import { AuthContext, I18nProvider, MenuProvider, AppThemeProvider, SuiteConfigProvider } from '../../src/contexts';
-import { I18nEngine } from '@digitaldefiance/i18n-lib';
-import { MenuTypes } from '../../src/types/MenuType';
-import NotificationsIcon from '@mui/icons-material/Notifications';
+import {
+  AppThemeProvider,
+  AuthContext,
+  I18nProvider,
+  MenuProvider,
+  SuiteConfigProvider,
+} from '../../src/contexts';
 
-const mockAuthContext = (isAuthenticated: boolean) => ({
-  isAuthenticated,
-  isCheckingAuth: false,
-  userData: null,
-  mnemonic: null,
-  wallet: null,
-  language: 'en-US',
-  setLanguage: jest.fn(),
-  clearMnemonic: jest.fn(),
-  clearWallet: jest.fn(),
-} as any);
+const mockAuthContext = (isAuthenticated: boolean) =>
+  ({
+    isAuthenticated,
+    isCheckingAuth: false,
+    userData: null,
+    mnemonic: null,
+    wallet: null,
+    language: 'en-US',
+    setLanguage: jest.fn(),
+    clearMnemonic: jest.fn(),
+    clearWallet: jest.fn(),
+  } as any);
 
-const TestWrapper: React.FC<{ isAuthenticated: boolean; children: React.ReactNode }> = ({ 
-  isAuthenticated, 
-  children 
-}) => {
+const TestWrapper: React.FC<{
+  isAuthenticated: boolean;
+  children: React.ReactNode;
+}> = ({ isAuthenticated, children }) => {
   const engine = I18nEngine.getInstance('default');
   const authValue = mockAuthContext(isAuthenticated);
   return (
@@ -32,7 +37,12 @@ const TestWrapper: React.FC<{ isAuthenticated: boolean; children: React.ReactNod
         <AppThemeProvider>
           <AuthContext.Provider value={authValue}>
             <MenuProvider>
-              <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+              <MemoryRouter
+                future={{
+                  v7_startTransition: true,
+                  v7_relativeSplatPath: true,
+                }}
+              >
                 {children}
               </MemoryRouter>
             </MenuProvider>

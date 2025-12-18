@@ -1,19 +1,24 @@
-import { TextEncoder, TextDecoder } from 'util';
+import { TextDecoder, TextEncoder } from 'util';
 
 // Set polyfills BEFORE any other imports that might use them
-global.TextEncoder = TextEncoder as any;
-global.TextDecoder = TextDecoder as any;
+global.TextEncoder = TextEncoder as typeof global.TextEncoder;
+global.TextDecoder = TextDecoder as typeof global.TextDecoder;
 
+import { I18nEngine, createDefaultLanguages } from '@digitaldefiance/i18n-lib';
+import {
+  Constants,
+  createSuiteCoreComponentConfig,
+} from '@digitaldefiance/suite-core-lib';
 import '@testing-library/jest-dom';
 import { configure } from '@testing-library/react';
-import { I18nEngine, createDefaultLanguages } from '@digitaldefiance/i18n-lib';
-import { Constants, createSuiteCoreComponentConfig } from '@digitaldefiance/suite-core-lib';
 
 configure({ reactStrictMode: true });
 
 beforeAll(() => {
   const languages = createDefaultLanguages();
-  const engine = I18nEngine.registerIfNotExists('default', languages, { constants: Constants});
+  const engine = I18nEngine.registerIfNotExists('default', languages, {
+    constants: Constants,
+  });
   const coreConfig = createSuiteCoreComponentConfig();
   engine.registerIfNotExists(coreConfig);
 });
@@ -21,7 +26,6 @@ beforeAll(() => {
 afterAll(() => {
   I18nEngine.resetAll();
 });
-
 
 // Mock localStorage
 export const localStorageMock = {
@@ -43,7 +47,7 @@ if (typeof window !== 'undefined') {
     value: localStorageMock,
     writable: true,
   });
-  
+
   Object.defineProperty(window, 'APP_CONFIG', {
     value: undefined,
     writable: true,

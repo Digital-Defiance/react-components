@@ -2,23 +2,18 @@ import { MenuItem, TextField } from '@mui/material';
 import { FormikProps } from 'formik';
 import { ChangeEvent, FC } from 'react';
 
-export interface ExpirationSecondsSelectorProps {
+export interface ExpirationSecondsSelectorProps<T = Record<string, unknown>> {
   name: string;
   label: string;
-  formik: FormikProps<any>;
+  formik: FormikProps<T>;
   optionValues: number[];
   optionNames: string[];
   onChange?: (value: number) => void;
 }
 
-export const ExpirationSecondsSelector: FC<ExpirationSecondsSelectorProps> = ({
-  name,
-  label,
-  formik,
-  optionValues,
-  optionNames,
-  onChange,
-}) => {
+export const ExpirationSecondsSelector: FC<
+  ExpirationSecondsSelectorProps<Record<string, unknown>>
+> = ({ name, label, formik, optionValues, optionNames, onChange }) => {
   return (
     <TextField
       select

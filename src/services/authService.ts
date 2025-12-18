@@ -8,7 +8,6 @@ import {
   SecureString,
   uint8ArrayToHex,
 } from '@digitaldefiance/ecies-lib';
-import { CoreLanguageCode } from '@digitaldefiance/i18n-lib';
 import {
   getSuiteCoreTranslation,
   IConstants,
@@ -21,9 +20,35 @@ import axios, { isAxiosError } from 'axios';
 import { createApiClient } from './api';
 import { createAuthenticatedApiClient } from './authenticatedApi';
 
-interface AuthContextFunctions {
-  setUser: (user: IRequestUserDTO | null) => void;
-  setLanguage: (lang: CoreLanguageCode) => void;
+// API Response Types
+interface ApiErrorResponse {
+  message?: string;
+  error?: string;
+  errorType?: string;
+  errors?: Array<{ path: string; msg: string }>;
+}
+
+interface RegisterResponse {
+  message: string;
+  mnemonic?: string;
+}
+
+interface LoginResponse {
+  token: string;
+  user: IRequestUserDTO;
+  message?: string;
+}
+
+interface ChallengeResponse {
+  challenge: string;
+}
+
+interface BackupCodeLoginResponse {
+  token: string;
+  user: IRequestUserDTO;
+  codeCount: number;
+  mnemonic?: string;
+  message?: string;
 }
 
 export class AuthService {
@@ -62,21 +87,23 @@ export class AuthService {
       }
   > {
     try {
-      const response = await this.apiClient.post('/user/register', {
-        username,
-        email,
-        timezone,
-        ...(password ? { password } : {}),
-      });
+      const response = await this.apiClient.post<RegisterResponse>(
+        '/user/register',
+        {
+          username,
+          email,
+          timezone,
+          ...(password ? { password } : {}),
+        }
+      );
       if (response.status !== 201) {
+        const errorData = response.data as unknown as ApiErrorResponse;
         return {
-          error: response.data.message
-            ? response.data.message
+          error: errorData.message
+            ? errorData.message
             : getSuiteCoreTranslation(SuiteCoreStringKey.Registration_Error),
-          ...(response.data.errorType
-            ? { errorType: response.data.errorType }
-            : {}),
-          ...(response.data.errors ? { errors: response.data.errors } : {}),
+          ...(errorData.errorType ? { errorType: errorData.errorType } : {}),
+          ...(errorData.errors ? { errors: errorData.errors } : {}),
         };
       }
       return {
@@ -86,25 +113,20 @@ export class AuthService {
           getSuiteCoreTranslation(SuiteCoreStringKey.Registration_Success, {
             MNEMONIC: response.data.mnemonic,
           }),
-        mnemonic: response.data.mnemonic,
+        mnemonic: response.data.mnemonic ?? '',
       };
     } catch (error) {
-      if (isAxiosError(error) && error.response) {
+      if (isAxiosError<ApiErrorResponse>(error) && error.response) {
+        const errorData = error.response.data;
         return {
           error:
-            error.response.data.error?.message ??
-            error.response.data.message ??
-            error.message ??
+            errorData.error ??
+            errorData.message ??
+            (error as Error).message ??
             getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
-          ...(error.response.data.errorType
-            ? { errorType: error.response.data.errorType }
-            : {}),
-          ...(error.response.data.error?.field
-            ? { field: error.response.data.error.field }
-            : {}),
-          ...(error.response.data.errors
-            ? { errors: error.response.data.errors }
-            : {}),
+          ...(errorData.errorType ? { errorType: errorData.errorType } : {}),
+          ...(errorData.error ? { field: 'general' } : {}),
+          ...(errorData.errors ? { errors: errorData.errors } : {}),
         };
       } else {
         return {
@@ -132,14 +154,11 @@ export class AuthService {
       };
     }
     try {
-      const loginRequest = await this.apiClient.post(
+      const loginRequest = await this.apiClient.post<ChallengeResponse>(
         '/user/request-direct-login'
       );
       if (loginRequest.data.challenge) {
         const { wallet } = this.cryptoCore.walletAndSeedFromMnemonic(mnemonic);
-        const privateKey = wallet.getPrivateKey();
-        // Get compressed public key (already includes prefix)
-        const publicKeyWithPrefix = this.cryptoCore.getPublicKey(privateKey);
         const challengeBuffer = hexToUint8Array(loginRequest.data.challenge);
         const privateKeyBuffer = wallet.getPrivateKey();
         const signature = this.eciesService.signMessage(
@@ -147,7 +166,7 @@ export class AuthService {
           challengeBuffer
         );
         const signatureHex = uint8ArrayToHex(signature);
-        const loginResponse = await this.apiClient.post(
+        const loginResponse = await this.apiClient.post<LoginResponse>(
           '/user/direct-challenge',
           {
             username: username,
@@ -158,7 +177,7 @@ export class AuthService {
         );
         if (loginResponse.data.token && loginResponse.data.user) {
           return {
-            message: loginResponse.data.message,
+            message: loginResponse.data.message ?? '',
             token: loginResponse.data.token,
             user: loginResponse.data.user,
             wallet,
@@ -166,7 +185,7 @@ export class AuthService {
         }
       }
     } catch (error) {
-      if (isAxiosError(error) && error.response) {
+      if (isAxiosError<ApiErrorResponse>(error) && error.response) {
         // Check for DirectChallengeNotEnabled error
         if (
           error.response.status === 403 &&
@@ -192,15 +211,14 @@ export class AuthService {
           };
         }
 
+        const errorData = error.response.data;
         return {
           error:
-            error.response.data.error?.message ??
-            error.response.data.message ??
-            error.message ??
+            errorData.error ??
+            errorData.message ??
+            (error as Error).message ??
             getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
-          ...(error.response.data.errorType
-            ? { errorType: error.response.data.errorType }
-            : {}),
+          ...(errorData.errorType ? { errorType: errorData.errorType } : {}),
         };
       }
       console.error('directLogin: non-axios error:', error);
@@ -222,24 +240,26 @@ export class AuthService {
       };
     }
     try {
-      const result = await this.apiClient.post('/user/request-email-login', {
-        email: email ? email.email : undefined,
-        username,
-      });
+      const result = await this.apiClient.post<{ message: string }>(
+        '/user/request-email-login',
+        {
+          email: email ? email.email : undefined,
+          username,
+        }
+      );
       if (result.data.message) {
         return result.data.message;
       }
     } catch (error) {
-      if (isAxiosError(error) && error.response) {
+      if (isAxiosError<ApiErrorResponse>(error) && error.response) {
+        const errorData = error.response.data;
         return {
           error:
-            error.response.data.error?.message ??
-            error.response.data.message ??
-            error.message ??
+            errorData.error ??
+            errorData.message ??
+            (error as Error).message ??
             getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
-          ...(error.response.data.errorType
-            ? { errorType: error.response.data.errorType }
-            : {}),
+          ...(errorData.errorType ? { errorType: errorData.errorType } : {}),
         };
       }
     }
@@ -273,31 +293,33 @@ export class AuthService {
         challengeBuffer
       );
       const signatureHex = uint8ArrayToHex(signature);
-      const response = await this.apiClient.post('/user/email-login', {
-        token,
-        signature: signatureHex,
-        username: username ?? null,
-        email: email ?? null,
-      });
+      const response = await this.apiClient.post<LoginResponse>(
+        '/user/email-login',
+        {
+          token,
+          signature: signatureHex,
+          username: username ?? null,
+          email: email ?? null,
+        }
+      );
       if (response.data.token && response.data.user) {
         return {
-          message: response.data.message,
+          message: response.data.message ?? '',
           token: response.data.token,
           user: response.data.user,
           wallet,
         };
       }
     } catch (error) {
-      if (isAxiosError(error) && error.response) {
+      if (isAxiosError<ApiErrorResponse>(error) && error.response) {
+        const errorData = error.response.data;
         return {
           error:
-            error.response.data.error?.message ??
-            error.response.data.message ??
-            error.message ??
+            errorData.error ??
+            errorData.message ??
+            (error as Error).message ??
             getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
-          ...(error.response.data.errorType
-            ? { errorType: error.response.data.errorType }
-            : {}),
+          ...(errorData.errorType ? { errorType: errorData.errorType } : {}),
         };
       }
     }
@@ -310,23 +332,25 @@ export class AuthService {
     token: string
   ): Promise<IRequestUserDTO | { error: string; errorType?: string }> {
     try {
-      const response = await this.apiClient.get('/user/verify', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return response.data.user as IRequestUserDTO;
+      const response = await this.apiClient.get<{ user: IRequestUserDTO }>(
+        '/user/verify',
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return response.data.user;
     } catch (error) {
-      if (isAxiosError(error) && error.response) {
+      if (isAxiosError<ApiErrorResponse>(error) && error.response) {
+        const errorData = error.response.data;
         return {
-          error: error.response.data.message
-            ? error.response.data.message
-            : error.message
-            ? error.message
+          error: errorData.message
+            ? errorData.message
+            : (error as Error).message
+            ? (error as Error).message
             : getSuiteCoreTranslation(
                 SuiteCoreStringKey.Common_UnexpectedError
               ),
-          ...(error.response.data.errorType
-            ? { errorType: error.response.data.errorType }
-            : {}),
+          ...(errorData.errorType ? { errorType: errorData.errorType } : {}),
         };
       } else {
         return {
@@ -343,14 +367,20 @@ export class AuthService {
     user: IRequestUserDTO;
   }> {
     try {
-      const refreshResponse = await this.authenticatedApiClient.get(
-        '/user/refresh-token'
-      );
+      const refreshResponse = await this.authenticatedApiClient.get<{
+        user: IRequestUserDTO;
+      }>('/user/refresh-token');
       if (refreshResponse.status === 200) {
-        const newToken = refreshResponse.headers['authorization'];
+        const newToken = refreshResponse.headers['authorization'] as
+          | string
+          | undefined;
         let token: string | undefined = undefined;
         let user: IRequestUserDTO | undefined = undefined;
-        if (newToken?.startsWith('Bearer ')) {
+        if (
+          newToken &&
+          typeof newToken === 'string' &&
+          newToken.startsWith('Bearer ')
+        ) {
           token = newToken.slice(7);
         }
         if (refreshResponse.data.user) {
@@ -362,10 +392,6 @@ export class AuthService {
       }
     } catch (error) {
       console.error('Token refresh error:', error);
-      if (isAxiosError(error) && error.response) {
-        console.error('Error response:', error.response.data);
-        console.error('Error status:', error.response.status);
-      }
     }
     throw new TranslatableSuiteError(SuiteCoreStringKey.Common_UnexpectedError);
   }
@@ -381,16 +407,15 @@ export class AuthService {
       });
       return { success: true };
     } catch (error) {
-      if (isAxiosError(error) && error.response) {
+      if (isAxiosError<ApiErrorResponse>(error) && error.response) {
+        const errorData = error.response.data;
         return {
           error:
-            error.response.data.error?.message ??
-            error.response.data.message ??
-            error.message ??
+            errorData.error ??
+            errorData.message ??
+            (error as Error).message ??
             getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
-          ...(error.response.data.errorType
-            ? { errorType: error.response.data.errorType }
-            : {}),
+          ...(errorData.errorType ? { errorType: errorData.errorType } : {}),
         };
       }
       return {
@@ -418,12 +443,15 @@ export class AuthService {
     | { error: string; status?: number; errorType?: string }
   > {
     try {
-      const response = await this.apiClient.post('/user/backup-code', {
-        [isEmail ? 'email' : 'username']: identifier,
-        code,
-        recoverMnemonic,
-        ...(newPassword ? { newPassword } : {}),
-      });
+      const response = await this.apiClient.post<BackupCodeLoginResponse>(
+        '/user/backup-code',
+        {
+          [isEmail ? 'email' : 'username']: identifier,
+          code,
+          recoverMnemonic,
+          ...(newPassword ? { newPassword } : {}),
+        }
+      );
       if (response.data.token && response.data.user) {
         return {
           token: response.data.token,
@@ -435,26 +463,24 @@ export class AuthService {
           ...(response.data.message ? { message: response.data.message } : {}),
         };
       }
+      const errorData = response.data as unknown as ApiErrorResponse;
       return {
-        error: response.data.message
-          ? response.data.message
+        error: errorData.message
+          ? errorData.message
           : getSuiteCoreTranslation(SuiteCoreStringKey.Validation_InvalidToken),
-        ...(response.data.errorType
-          ? { errorType: response.data.errorType }
-          : {}),
+        ...(errorData.errorType ? { errorType: errorData.errorType } : {}),
       };
     } catch (error) {
       console.error('Backup code login error:', error);
-      if (isAxiosError(error) && error.response) {
+      if (isAxiosError<ApiErrorResponse>(error) && error.response) {
+        const errorData = error.response.data;
         return {
           error:
-            error.response.data.error.message ??
-            error.response.data.message ??
-            error.message ??
+            errorData.error ??
+            errorData.message ??
+            (error as Error).message ??
             getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
-          ...(error.response.data.errorType
-            ? { errorType: error.response.data.errorType }
-            : {}),
+          ...(errorData.errorType ? { errorType: errorData.errorType } : {}),
           status: error.response.status,
         };
       }

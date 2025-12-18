@@ -1,5 +1,12 @@
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
-import React, { ReactNode } from 'react';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  jest,
+} from '@jest/globals';
+import { ReactNode } from 'react';
 
 // Mock PasswordLoginService
 const mockPasswordLoginService = {
@@ -33,8 +40,6 @@ jest.mock('../services/authenticatedApi', () => ({
   })),
 }));
 
-
-
 jest.mock('@digitaldefiance/i18n-lib', () => {
   const actual = jest.requireActual('@digitaldefiance/i18n-lib');
   const mockI18nEngineInstance = {
@@ -60,7 +65,9 @@ jest.mock('@digitaldefiance/ecies-lib', () => {
   const actual = jest.requireActual('@digitaldefiance/ecies-lib');
   return {
     ...actual,
-    PasswordLoginService: jest.fn().mockImplementation(() => mockPasswordLoginService),
+    PasswordLoginService: jest
+      .fn()
+      .mockImplementation(() => mockPasswordLoginService),
   };
 });
 
@@ -70,7 +77,7 @@ jest.mock('./I18nProvider', () => {
     return React.createElement(React.Fragment, null, children);
   };
   I18nProvider.displayName = 'MockI18nProvider';
-  
+
   return {
     I18nProvider,
     useI18n: () => ({
@@ -93,21 +100,19 @@ jest.mock('@ethereumjs/wallet', () => ({
 }));
 
 // Now import after mocks
-import { render, renderHook, act, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import { createAuthenticatedApiClient } from '../services/authenticatedApi';
-import { Wallet } from '@ethereumjs/wallet';
+import {
+  ECIES as ECIESConstants,
+  SecureString,
+} from '@digitaldefiance/ecies-lib';
 import { Constants } from '@digitaldefiance/suite-core-lib';
+import { Wallet } from '@ethereumjs/wallet';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { localStorageMock } from '../../tests/setup';
-import { SecureString, ECIES as ECIESConstants } from '@digitaldefiance/ecies-lib';
-import { CurrencyCode } from '@digitaldefiance/i18n-lib';
 import { AuthProvider, useAuth } from './AuthProvider';
 import { I18nProvider } from './I18nProvider';
 import { AppThemeProvider } from './ThemeProvider';
 
 // Mock localStorage is imported from test-setup
-
-
 
 // Mock console methods
 const consoleMock = {
@@ -120,9 +125,9 @@ Object.defineProperty(console, 'error', { value: consoleMock.error });
 const TestWrapper = ({ children }: { children: ReactNode }) => (
   <I18nProvider i18nEngine={null as any} onLanguageChange={async () => {}}>
     <AppThemeProvider>
-      <AuthProvider 
-        baseUrl="http://localhost:3000" 
-        constants={Constants} 
+      <AuthProvider
+        baseUrl="http://localhost:3000"
+        constants={Constants}
         eciesConfig={ECIESConstants}
         onLogout={mockNavigate}
       >
@@ -137,20 +142,22 @@ const createMockUser = (admin = false) => ({
   id: '1',
   username: admin ? 'admin' : 'testuser',
   email: admin ? 'admin@example.com' : 'test@example.com',
-  roles: [{
-    id: 'role1',
-    _id: 'role1',
-    name: admin ? 'admin' : 'user',
-    member: true,
-    child: false,
-    system: false,
-    admin,
-    createdAt: '2023-01-01T00:00:00.000Z',
-    updatedAt: '2023-01-01T00:00:00.000Z',
-    deletedAt: undefined,
-    createdBy: 'system',
-    updatedBy: 'system',
-  }],
+  roles: [
+    {
+      id: 'role1',
+      _id: 'role1',
+      name: admin ? 'admin' : 'user',
+      member: true,
+      child: false,
+      system: false,
+      admin,
+      createdAt: '2023-01-01T00:00:00.000Z',
+      updatedAt: '2023-01-01T00:00:00.000Z',
+      deletedAt: undefined,
+      createdBy: 'system',
+      updatedBy: 'system',
+    },
+  ],
   siteLanguage: 'en-US',
   timezone: 'UTC',
   currency: 'USD',
@@ -201,11 +208,15 @@ describe('AuthProvider', () => {
         return null;
       });
 
-      const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
+      renderHook(() => useAuth(), { wrapper: TestWrapper });
 
       await waitFor(() => {
-        expect(localStorageMock.getItem).toHaveBeenCalledWith('mnemonicExpirationSeconds');
-        expect(localStorageMock.getItem).toHaveBeenCalledWith('walletExpirationSeconds');
+        expect(localStorageMock.getItem).toHaveBeenCalledWith(
+          'mnemonicExpirationSeconds'
+        );
+        expect(localStorageMock.getItem).toHaveBeenCalledWith(
+          'walletExpirationSeconds'
+        );
       });
     });
   });
@@ -227,18 +238,21 @@ describe('AuthProvider', () => {
       const mockUser = createMockUser();
       mockAuthService.verifyToken.mockResolvedValue(mockUser);
 
-      localStorageMock.getItem.mockImplementation((key) => 
+      localStorageMock.getItem.mockImplementation((key) =>
         key === 'authToken' ? 'valid-token' : null
       );
 
       const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
 
-      await waitFor(() => {
-        expect(result.current.loading).toBe(false);
-        expect(result.current.isCheckingAuth).toBe(false);
-        expect(result.current.isAuthenticated).toBe(true);
-      }, { timeout: 5000 });
-      
+      await waitFor(
+        () => {
+          expect(result.current.loading).toBe(false);
+          expect(result.current.isCheckingAuth).toBe(false);
+          expect(result.current.isAuthenticated).toBe(true);
+        },
+        { timeout: 5000 }
+      );
+
       expect(result.current.userData).toEqual(mockUser);
       expect(result.current.token).toBe('valid-token');
     });
@@ -265,16 +279,19 @@ describe('AuthProvider', () => {
       const mockAdminUser = createMockUser(true);
       mockAuthService.verifyToken.mockResolvedValue(mockAdminUser);
 
-      localStorageMock.getItem.mockImplementation((key) => 
+      localStorageMock.getItem.mockImplementation((key) =>
         key === 'authToken' ? 'admin-token' : null
       );
 
       const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
 
-      await waitFor(() => {
-        expect(result.current.loading).toBe(false);
-        expect(result.current.admin).toBe(true);
-      }, { timeout: 5000 });
+      await waitFor(
+        () => {
+          expect(result.current.loading).toBe(false);
+          expect(result.current.admin).toBe(true);
+        },
+        { timeout: 5000 }
+      );
     });
   });
 
@@ -300,13 +317,22 @@ describe('AuthProvider', () => {
 
       let loginResult;
       await act(async () => {
-        loginResult = await result.current.directLogin(mockMnemonic, 'testuser');
+        loginResult = await result.current.directLogin(
+          mockMnemonic,
+          'testuser'
+        );
       });
-      
+
       expect(mockAuthService.directLogin).toHaveBeenCalled();
       expect(loginResult).toEqual(mockLoginResult);
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('authToken', 'new-token');
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('user', JSON.stringify(mockUser));
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'authToken',
+        'new-token'
+      );
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'user',
+        JSON.stringify(mockUser)
+      );
     });
 
     it('should perform successful direct login with custom expiration seconds', async () => {
@@ -327,19 +353,31 @@ describe('AuthProvider', () => {
       let loginResult;
       await act(async () => {
         loginResult = await result.current.directLogin(
-          mockMnemonic, 
-          'testuser', 
-          undefined, 
+          mockMnemonic,
+          'testuser',
+          undefined,
           600, // mnemonicExpirationSeconds
           1200 // walletExpirationSeconds
         );
       });
-      
+
       expect(loginResult).toEqual(mockLoginResult);
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('authToken', 'new-token');
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('user', JSON.stringify(mockUser));
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('mnemonicExpirationSeconds', '600');
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('walletExpirationSeconds', '1200');
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'authToken',
+        'new-token'
+      );
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'user',
+        JSON.stringify(mockUser)
+      );
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'mnemonicExpirationSeconds',
+        '600'
+      );
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'walletExpirationSeconds',
+        '1200'
+      );
     });
 
     it('should handle direct login failure', async () => {
@@ -381,7 +419,7 @@ describe('AuthProvider', () => {
           'testuser'
         );
       });
-      
+
       expect(loginResult).toEqual(mockLoginResult);
     });
 
@@ -408,13 +446,19 @@ describe('AuthProvider', () => {
           'testuser',
           undefined,
           300, // mnemonicExpirationSeconds
-          900  // walletExpirationSeconds
+          900 // walletExpirationSeconds
         );
       });
-      
+
       expect(loginResult).toEqual(mockLoginResult);
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('mnemonicExpirationSeconds', '300');
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('walletExpirationSeconds', '900');
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'mnemonicExpirationSeconds',
+        '300'
+      );
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'walletExpirationSeconds',
+        '900'
+      );
     });
   });
 
@@ -438,14 +482,22 @@ describe('AuthProvider', () => {
       await act(async () => {
         refreshResult = await result.current.refreshToken();
       });
-      
+
       expect(refreshResult).toEqual(mockRefreshResult);
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('authToken', 'refreshed-token');
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('user', JSON.stringify(mockUser));
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'authToken',
+        'refreshed-token'
+      );
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'user',
+        JSON.stringify(mockUser)
+      );
     });
 
     it('should handle refresh token failure', async () => {
-      mockAuthService.refreshToken.mockRejectedValue(new Error('Refresh failed'));
+      mockAuthService.refreshToken.mockRejectedValue(
+        new Error('Refresh failed')
+      );
 
       const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
 
@@ -453,9 +505,11 @@ describe('AuthProvider', () => {
         expect(result.current.refreshToken).toBeDefined();
       });
 
-      await expect(act(async () => {
-        await result.current.refreshToken();
-      })).rejects.toThrow('Refresh failed');
+      await expect(
+        act(async () => {
+          await result.current.refreshToken();
+        })
+      ).rejects.toThrow('Refresh failed');
 
       expect(localStorageMock.removeItem).toHaveBeenCalledWith('authToken');
       expect(localStorageMock.removeItem).toHaveBeenCalledWith('user');
@@ -522,7 +576,7 @@ describe('AuthProvider', () => {
           true
         );
       });
-      
+
       expect(loginResult).toEqual({
         token: 'backup-token',
         codeCount: 5,
@@ -592,11 +646,15 @@ describe('AuthProvider', () => {
       // Mock successful password login service operations
       const mockMnemonic = new SecureString('test mnemonic');
       const mockWallet = Wallet.generate();
-      mockPasswordLoginService.getWalletAndMnemonicFromLocalStorageBundle.mockResolvedValue({
-        mnemonic: mockMnemonic,
-        wallet: mockWallet,
-      });
-      mockPasswordLoginService.setupPasswordLoginLocalStorageBundle.mockResolvedValue(mockWallet);
+      mockPasswordLoginService.getWalletAndMnemonicFromLocalStorageBundle.mockResolvedValue(
+        {
+          mnemonic: mockMnemonic,
+          wallet: mockWallet,
+        }
+      );
+      mockPasswordLoginService.setupPasswordLoginLocalStorageBundle.mockResolvedValue(
+        mockWallet
+      );
 
       const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
 
@@ -613,10 +671,16 @@ describe('AuthProvider', () => {
 
       let changeResult;
       await act(async () => {
-        changeResult = await result.current.changePassword('oldpass', 'newpass');
+        changeResult = await result.current.changePassword(
+          'oldpass',
+          'newpass'
+        );
       });
 
-      expect(changeResult).toEqual({ error: 'error_login_passwordLoginNotSetup', errorType: 'PasswordLoginNotSetup' });
+      expect(changeResult).toEqual({
+        error: 'error_login_passwordLoginNotSetup',
+        errorType: 'PasswordLoginNotSetup',
+      });
     });
   });
 
@@ -654,12 +718,15 @@ describe('AuthProvider', () => {
         result.current.setMnemonic(mockMnemonic, 300);
       });
 
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('mnemonicExpirationSeconds', '300');
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'mnemonicExpirationSeconds',
+        '300'
+      );
       expect(result.current.mnemonic).toEqual(mockMnemonic);
     });
 
     it('should use stored expiration seconds when duration not provided', async () => {
-      localStorageMock.getItem.mockImplementation((key) => 
+      localStorageMock.getItem.mockImplementation((key) =>
         key === 'mnemonicExpirationSeconds' ? '600' : null
       );
 
@@ -676,7 +743,10 @@ describe('AuthProvider', () => {
 
       expect(result.current.mnemonic).toEqual(mockMnemonic);
       // Should not call setItem when no duration provided
-      expect(localStorageMock.setItem).not.toHaveBeenCalledWith('mnemonicExpirationSeconds', expect.any(String));
+      expect(localStorageMock.setItem).not.toHaveBeenCalledWith(
+        'mnemonicExpirationSeconds',
+        expect.any(String)
+      );
     });
   });
 
@@ -714,12 +784,15 @@ describe('AuthProvider', () => {
         result.current.setWallet(mockWallet, 900);
       });
 
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('walletExpirationSeconds', '900');
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'walletExpirationSeconds',
+        '900'
+      );
       expect(result.current.wallet).toEqual(mockWallet);
     });
 
     it('should use stored expiration seconds when duration not provided', async () => {
-      localStorageMock.getItem.mockImplementation((key) => 
+      localStorageMock.getItem.mockImplementation((key) =>
         key === 'walletExpirationSeconds' ? '1200' : null
       );
 
@@ -736,14 +809,17 @@ describe('AuthProvider', () => {
 
       expect(result.current.wallet).toEqual(mockWallet);
       // Should not call setItem when no duration provided
-      expect(localStorageMock.setItem).not.toHaveBeenCalledWith('walletExpirationSeconds', expect.any(String));
+      expect(localStorageMock.setItem).not.toHaveBeenCalledWith(
+        'walletExpirationSeconds',
+        expect.any(String)
+      );
     });
   });
 
   describe('Expiration Settings Management', () => {
     it('should set mnemonic expiration seconds and update localStorage', async () => {
       const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
-      
+
       await waitFor(() => {
         expect(result.current.setMnemonicExpirationSeconds).toBeDefined();
       });
@@ -752,12 +828,15 @@ describe('AuthProvider', () => {
         result.current.setMnemonicExpirationSeconds(1800);
       });
 
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('mnemonicExpirationSeconds', '1800');
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'mnemonicExpirationSeconds',
+        '1800'
+      );
     });
 
     it('should set wallet expiration seconds and update localStorage', async () => {
       const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
-      
+
       await waitFor(() => {
         expect(result.current.setWalletExpirationSeconds).toBeDefined();
       });
@@ -766,7 +845,10 @@ describe('AuthProvider', () => {
         result.current.setWalletExpirationSeconds(3600);
       });
 
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('walletExpirationSeconds', '3600');
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'walletExpirationSeconds',
+        '3600'
+      );
     });
 
     it('should use updated expiration seconds after setting them', async () => {
@@ -800,8 +882,14 @@ describe('AuthProvider', () => {
       expect(result.current.mnemonic).toEqual(mockMnemonic);
       expect(result.current.wallet).toEqual(mockWallet);
       // Should not call setItem again since we're using stored defaults
-      expect(localStorageMock.setItem).not.toHaveBeenCalledWith('mnemonicExpirationSeconds', expect.any(String));
-      expect(localStorageMock.setItem).not.toHaveBeenCalledWith('walletExpirationSeconds', expect.any(String));
+      expect(localStorageMock.setItem).not.toHaveBeenCalledWith(
+        'mnemonicExpirationSeconds',
+        expect.any(String)
+      );
+      expect(localStorageMock.setItem).not.toHaveBeenCalledWith(
+        'walletExpirationSeconds',
+        expect.any(String)
+      );
     });
   });
 
@@ -823,8 +911,14 @@ describe('AuthProvider', () => {
       });
 
       // Verify localStorage was updated
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('mnemonicExpirationSeconds', '120');
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('walletExpirationSeconds', '180');
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'mnemonicExpirationSeconds',
+        '120'
+      );
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'walletExpirationSeconds',
+        '180'
+      );
 
       // Set mnemonic and wallet without explicit duration - should use the custom times
       act(() => {
@@ -834,7 +928,7 @@ describe('AuthProvider', () => {
 
       expect(result.current.mnemonic).toEqual(mockMnemonic);
       expect(result.current.wallet).toEqual(mockWallet);
-      
+
       // Verify timeout functions are set up (they should be active but we won't test timing)
       expect(result.current.mnemonic).toBeDefined();
       expect(result.current.wallet).toBeDefined();
@@ -862,21 +956,27 @@ describe('AuthProvider', () => {
         return null;
       });
 
-      mockPasswordLoginService.getWalletAndMnemonicFromLocalStorageBundle.mockResolvedValue({
-        mnemonic: mockMnemonic,
-        wallet: mockWallet,
-      });
+      mockPasswordLoginService.getWalletAndMnemonicFromLocalStorageBundle.mockResolvedValue(
+        {
+          mnemonic: mockMnemonic,
+          wallet: mockWallet,
+        }
+      );
       mockAuthService.directLogin.mockResolvedValue(mockLoginResult);
 
       const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
 
       let loginResult;
       await act(async () => {
-        loginResult = await result.current.passwordLogin(new SecureString('password'));
+        loginResult = await result.current.passwordLogin(
+          new SecureString('password')
+        );
       });
-      
+
       expect(loginResult).toEqual(mockLoginResult);
-      expect(mockPasswordLoginService.getWalletAndMnemonicFromLocalStorageBundle).toHaveBeenCalled();
+      expect(
+        mockPasswordLoginService.getWalletAndMnemonicFromLocalStorageBundle
+      ).toHaveBeenCalled();
     });
 
     it('should handle password login when not available', async () => {
@@ -886,10 +986,15 @@ describe('AuthProvider', () => {
 
       let loginResult;
       await act(async () => {
-        loginResult = await result.current.passwordLogin(new SecureString('password'));
+        loginResult = await result.current.passwordLogin(
+          new SecureString('password')
+        );
       });
 
-      expect(loginResult).toEqual({ error: 'error_login_passwordLoginNotSetup', errorType: 'PasswordLoginNotSetup' });
+      expect(loginResult).toEqual({
+        error: 'error_login_passwordLoginNotSetup',
+        errorType: 'PasswordLoginNotSetup',
+      });
     });
   });
 
@@ -898,7 +1003,9 @@ describe('AuthProvider', () => {
       const mockMnemonic = new SecureString('test mnemonic');
       const mockWallet = Wallet.generate();
 
-      mockPasswordLoginService.setupPasswordLoginLocalStorageBundle.mockResolvedValue(mockWallet);
+      mockPasswordLoginService.setupPasswordLoginLocalStorageBundle.mockResolvedValue(
+        mockWallet
+      );
 
       const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
 
@@ -909,14 +1016,21 @@ describe('AuthProvider', () => {
           new SecureString('password')
         );
       });
-      
-      expect(setupResult).toEqual({ success: true, message: expect.any(String) });
-      expect(mockPasswordLoginService.setupPasswordLoginLocalStorageBundle).toHaveBeenCalled();
+
+      expect(setupResult).toEqual({
+        success: true,
+        message: expect.any(String),
+      });
+      expect(
+        mockPasswordLoginService.setupPasswordLoginLocalStorageBundle
+      ).toHaveBeenCalled();
     });
 
     it('should handle password setup failure', async () => {
       const mockMnemonic = new SecureString('test mnemonic');
-      mockPasswordLoginService.setupPasswordLoginLocalStorageBundle.mockRejectedValue(new Error('Setup failed'));
+      mockPasswordLoginService.setupPasswordLoginLocalStorageBundle.mockRejectedValue(
+        new Error('Setup failed')
+      );
 
       const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
 
@@ -937,7 +1051,7 @@ describe('AuthProvider', () => {
 
   describe('isBrowserPasswordLoginAvailable', () => {
     it('should return true when encrypted password exists', async () => {
-      localStorageMock.getItem.mockImplementation((key) => 
+      localStorageMock.getItem.mockImplementation((key) =>
         key === 'encryptedPassword' ? 'mock-encrypted-password' : null
       );
 
@@ -1028,10 +1142,12 @@ describe('AuthProvider', () => {
         return null;
       });
 
-      mockPasswordLoginService.getWalletAndMnemonicFromLocalStorageBundle.mockResolvedValue({
-        mnemonic: null, // Invalid mnemonic
-        wallet: Wallet.generate(),
-      });
+      mockPasswordLoginService.getWalletAndMnemonicFromLocalStorageBundle.mockResolvedValue(
+        {
+          mnemonic: null, // Invalid mnemonic
+          wallet: Wallet.generate(),
+        }
+      );
 
       const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
 
@@ -1053,7 +1169,10 @@ describe('AuthProvider', () => {
 
       await waitFor(() => {
         expect(result.current.isAuthenticated).toBe(false);
-        expect(consoleMock.error).toHaveBeenCalledWith('Token verification failed:', expect.any(Error));
+        expect(consoleMock.error).toHaveBeenCalledWith(
+          'Token verification failed:',
+          expect.any(Error)
+        );
       });
     });
   });

@@ -1,3 +1,8 @@
+import {
+  Constants,
+  SuiteCoreComponentId,
+  SuiteCoreStringKey,
+} from '@digitaldefiance/suite-core-lib';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
   Alert,
@@ -13,7 +18,6 @@ import {
 import { useFormik } from 'formik';
 import { FC, useState } from 'react';
 import * as Yup from 'yup';
-import { SuiteCoreComponentId, SuiteCoreStringKey, Constants } from '@digitaldefiance/suite-core-lib';
 import { useI18n } from '../contexts';
 
 export interface LoginFormValues {
@@ -21,7 +25,7 @@ export interface LoginFormValues {
   username?: string;
   password?: string;
   mnemonic?: string;
-  [key: string]: any;
+  [key: string]: string | boolean | undefined;
 }
 
 export interface LoginFormProps {
@@ -51,8 +55,10 @@ export interface LoginFormProps {
   usernameValidation?: Yup.StringSchema;
   passwordValidation?: Yup.StringSchema;
   mnemonicValidation?: Yup.StringSchema;
-  additionalFields?: (formik: ReturnType<typeof useFormik<LoginFormValues>>) => React.ReactNode;
-  additionalInitialValues?: Record<string, any>;
+  additionalFields?: (
+    formik: ReturnType<typeof useFormik<LoginFormValues>>
+  ) => React.ReactNode;
+  additionalInitialValues?: Record<string, string | boolean>;
   additionalValidation?: Record<string, Yup.Schema>;
 }
 
@@ -88,40 +94,160 @@ export const LoginForm: FC<LoginFormProps> = ({
   additionalValidation = {},
 }) => {
   const { tComponent } = useI18n();
-  const [loginType, setLoginType] = useState<'email' | 'username'>(initialLoginType);
-  const [authType, setAuthType] = useState<'password' | 'mnemonic'>(initialAuthType);
+  const [loginType, setLoginType] = useState<'email' | 'username'>(
+    initialLoginType
+  );
+  const [authType, setAuthType] = useState<'password' | 'mnemonic'>(
+    initialAuthType
+  );
   const [showSecret, setShowSecret] = useState(false);
 
   // Use translations with fallbacks
   const labels = {
-    title: titleText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_Title),
-    email: emailLabel || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Email),
-    username: usernameLabel || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Username),
-    password: passwordLabel || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Password),
-    mnemonic: mnemonicLabel || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Mnemonic),
-    signIn: signInButtonText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.SignInButton),
-    forgotPassword: forgotPasswordText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_ForgotPassword),
-    signUp: signUpText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_SignUp),
-    useUsername: useUsernameText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_UseUsername),
-    useEmail: useEmailText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Login_UseEmailAddress),
-    useMnemonic: useMnemonicText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_UseMnemonic),
-    usePassword: usePasswordText || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_UsePassword),
-    toggleVisibility: toggleVisibilityLabel || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.TogglePasswordVisibility),
+    title:
+      titleText ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Login_Title
+      ),
+    email:
+      emailLabel ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_Email
+      ),
+    username:
+      usernameLabel ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_Username
+      ),
+    password:
+      passwordLabel ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_Password
+      ),
+    mnemonic:
+      mnemonicLabel ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_Mnemonic
+      ),
+    signIn:
+      signInButtonText ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.SignInButton
+      ),
+    forgotPassword:
+      forgotPasswordText ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Login_ForgotPassword
+      ),
+    signUp:
+      signUpText ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Login_SignUp
+      ),
+    useUsername:
+      useUsernameText ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Login_UseUsername
+      ),
+    useEmail:
+      useEmailText ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Login_UseEmailAddress
+      ),
+    useMnemonic:
+      useMnemonicText ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_UseMnemonic
+      ),
+    usePassword:
+      usePasswordText ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_UsePassword
+      ),
+    toggleVisibility:
+      toggleVisibilityLabel ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.TogglePasswordVisibility
+      ),
   };
 
   const validation = {
-    email: emailValidation || Yup.string()
-      .email(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_InvalidEmail))
-      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
-    username: usernameValidation || Yup.string()
-      .matches(Constants.UsernameRegex, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_UsernameRegexErrorTemplate))
-      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
-    password: passwordValidation || Yup.string()
-      .min(1, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required))
-      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
-    mnemonic: mnemonicValidation || Yup.string()
-      .matches(Constants.MnemonicRegex, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_InvalidMnemonic))
-      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
+    email:
+      emailValidation ||
+      Yup.string()
+        .email(
+          tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_InvalidEmail
+          )
+        )
+        .required(
+          tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_Required
+          )
+        ),
+    username:
+      usernameValidation ||
+      Yup.string()
+        .matches(
+          Constants.UsernameRegex,
+          tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_UsernameRegexErrorTemplate
+          )
+        )
+        .required(
+          tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_Required
+          )
+        ),
+    password:
+      passwordValidation ||
+      Yup.string()
+        .min(
+          1,
+          tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_Required
+          )
+        )
+        .required(
+          tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_Required
+          )
+        ),
+    mnemonic:
+      mnemonicValidation ||
+      Yup.string()
+        .matches(
+          Constants.MnemonicRegex,
+          tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_InvalidMnemonic
+          )
+        )
+        .required(
+          tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_Required
+          )
+        ),
   };
 
   const formik = useFormik<LoginFormValues>({
@@ -133,7 +259,8 @@ export const LoginForm: FC<LoginFormProps> = ({
       ...additionalInitialValues,
     },
     validationSchema: Yup.object({
-      [loginType]: loginType === 'email' ? validation.email : validation.username,
+      [loginType]:
+        loginType === 'email' ? validation.email : validation.username,
       ...(authType === 'mnemonic'
         ? { mnemonic: validation.mnemonic }
         : { password: validation.password }),
@@ -144,8 +271,15 @@ export const LoginForm: FC<LoginFormProps> = ({
       try {
         setStatus(null);
         await onSubmit(values);
-      } catch (error: any) {
-        setStatus(error.message || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_UnexpectedError));
+      } catch (error: unknown) {
+        const err = error as { message?: string };
+        setStatus(
+          err.message ||
+            tComponent<SuiteCoreStringKey>(
+              SuiteCoreComponentId,
+              SuiteCoreStringKey.Common_UnexpectedError
+            )
+        );
         throw error;
       }
     },
@@ -164,7 +298,11 @@ export const LoginForm: FC<LoginFormProps> = ({
         <Typography component="h1" variant="h5">
           {labels.title}
         </Typography>
-        <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 1, width: '100%' }}>
+        <Box
+          component="form"
+          onSubmit={formik.handleSubmit}
+          sx={{ mt: 1, width: '100%' }}
+        >
           {formik.status && (
             <Alert severity="error" sx={{ mb: 2 }}>
               {formik.status}
@@ -178,9 +316,15 @@ export const LoginForm: FC<LoginFormProps> = ({
             name={loginType}
             autoComplete={loginType === 'email' ? 'email' : 'username'}
             autoFocus
-            value={loginType === 'email' ? formik.values.email : formik.values.username}
+            value={
+              loginType === 'email'
+                ? formik.values.email
+                : formik.values.username
+            }
             onChange={formik.handleChange}
-            error={formik.touched[loginType] && Boolean(formik.errors[loginType])}
+            error={
+              formik.touched[loginType] && Boolean(formik.errors[loginType])
+            }
             helperText={formik.touched[loginType] && formik.errors[loginType]}
           />
           {authType === 'password' ? (
@@ -275,7 +419,8 @@ export const LoginForm: FC<LoginFormProps> = ({
                   fullWidth
                   variant="text"
                   onClick={() => {
-                    const newType = loginType === 'email' ? 'username' : 'email';
+                    const newType =
+                      loginType === 'email' ? 'username' : 'email';
                     formik.setFieldValue(loginType, '');
                     setLoginType(newType);
                   }}
@@ -288,12 +433,15 @@ export const LoginForm: FC<LoginFormProps> = ({
                   fullWidth
                   variant="text"
                   onClick={() => {
-                    const newType = authType === 'password' ? 'mnemonic' : 'password';
+                    const newType =
+                      authType === 'password' ? 'mnemonic' : 'password';
                     formik.setFieldValue(authType, '');
                     setAuthType(newType);
                   }}
                 >
-                  {authType === 'password' ? labels.useMnemonic : labels.usePassword}
+                  {authType === 'password'
+                    ? labels.useMnemonic
+                    : labels.usePassword}
                 </Button>
               )}
             </Box>

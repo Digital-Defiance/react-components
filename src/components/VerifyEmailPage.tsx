@@ -1,4 +1,8 @@
 import {
+  SuiteCoreComponentId,
+  SuiteCoreStringKey,
+} from '@digitaldefiance/suite-core-lib';
+import {
   Alert,
   Box,
   Button,
@@ -7,8 +11,7 @@ import {
   Link,
   Typography,
 } from '@mui/material';
-import { FC, useEffect, useState } from 'react';
-import { SuiteCoreComponentId, SuiteCoreStringKey } from '@digitaldefiance/suite-core-lib';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { useI18n } from '../contexts';
 
 export interface VerifyEmailPageProps {
@@ -35,22 +38,67 @@ export const VerifyEmailPage: FC<VerifyEmailPageProps> = ({
   loginLink = '/login',
   resendLink = '/resend-verification',
 }) => {
-  const { t, tComponent } = useI18n();
+  const { tComponent } = useI18n();
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
-  const [verificationStatus, setVerificationStatus] = useState<'pending' | 'success' | 'error'>(
-    'pending'
-  );
+  const [verificationStatus, setVerificationStatus] = useState<
+    'pending' | 'success' | 'error'
+  >('pending');
 
-  const translatedLabels = {
-    title: labels.title || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_EmailVerification),
-    success: labels.success || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.EmailVerification_Success),
-    failed: labels.failed || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.EmailVerification_Failed),
-    noToken: labels.noToken || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.NoVerificationTokenProvided),
-    proceedToLogin: labels.proceedToLogin || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.ProceedToLogin),
-    contactSupport: labels.contactSupport || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.HavingTroubleContactSupport),
-    requestNewEmail: labels.requestNewEmail || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.RequestNewVerificationEmail),
-  };
+  const translatedLabels = useMemo<{
+    title: string;
+    success: string;
+    failed: string;
+    noToken: string;
+    proceedToLogin: string;
+    contactSupport: string;
+    requestNewEmail: string;
+  }>(() => {
+    return {
+      title:
+        labels.title ||
+        tComponent<SuiteCoreStringKey>(
+          SuiteCoreComponentId,
+          SuiteCoreStringKey.Common_EmailVerification
+        ),
+      success:
+        labels.success ||
+        tComponent<SuiteCoreStringKey>(
+          SuiteCoreComponentId,
+          SuiteCoreStringKey.EmailVerification_Success
+        ),
+      failed:
+        labels.failed ||
+        tComponent<SuiteCoreStringKey>(
+          SuiteCoreComponentId,
+          SuiteCoreStringKey.EmailVerification_Failed
+        ),
+      noToken:
+        labels.noToken ||
+        tComponent<SuiteCoreStringKey>(
+          SuiteCoreComponentId,
+          SuiteCoreStringKey.NoVerificationTokenProvided
+        ),
+      proceedToLogin:
+        labels.proceedToLogin ||
+        tComponent<SuiteCoreStringKey>(
+          SuiteCoreComponentId,
+          SuiteCoreStringKey.ProceedToLogin
+        ),
+      contactSupport:
+        labels.contactSupport ||
+        tComponent<SuiteCoreStringKey>(
+          SuiteCoreComponentId,
+          SuiteCoreStringKey.HavingTroubleContactSupport
+        ),
+      requestNewEmail:
+        labels.requestNewEmail ||
+        tComponent<SuiteCoreStringKey>(
+          SuiteCoreComponentId,
+          SuiteCoreStringKey.RequestNewVerificationEmail
+        ),
+    };
+  }, [labels, tComponent]);
 
   useEffect(() => {
     const verifyEmail = async (verificationToken: string) => {
@@ -98,7 +146,10 @@ export const VerifyEmailPage: FC<VerifyEmailPageProps> = ({
           <CircularProgress />
         ) : (
           <Box sx={{ width: '100%', mt: 2 }}>
-            <Alert severity={verificationStatus === 'success' ? 'success' : 'error'} sx={{ mb: 2 }}>
+            <Alert
+              severity={verificationStatus === 'success' ? 'success' : 'error'}
+              sx={{ mb: 2 }}
+            >
               {message}
             </Alert>
 

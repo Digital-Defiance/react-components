@@ -45,15 +45,14 @@ export interface TopMenuProps {
   additionalMenus?: Array<AdditionalDropdownMenu>;
 }
 
-export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus }) => {
+export const TopMenu: FC<TopMenuProps> = ({ Logo }) => {
   const { isAuthenticated } = useContext(AuthContext);
   const { getTopMenus } = useMenu();
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
 
   const handleOpenSideMenu = () => setIsSideMenuOpen(true);
   const handleCloseSideMenu = () => setIsSideMenuOpen(false);
-  const { t, tComponent } = useI18n();
-  const appConfig = window.APP_CONFIG;
+  const { tComponent } = useI18n();
   const siteTitle = tComponent<SuiteCoreStringKey>(
     SuiteCoreComponentId,
     SuiteCoreStringKey.Common_SiteTemplate

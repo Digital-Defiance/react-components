@@ -1,8 +1,19 @@
-import { Alert, Box, Button, Container, TextField, Typography } from '@mui/material';
+import {
+  Constants,
+  SuiteCoreComponentId,
+  SuiteCoreStringKey,
+} from '@digitaldefiance/suite-core-lib';
+import {
+  Alert,
+  Box,
+  Button,
+  Container,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { useFormik } from 'formik';
 import { FC, useState } from 'react';
 import * as Yup from 'yup';
-import { Constants, SuiteCoreComponentId, SuiteCoreStringKey } from '@digitaldefiance/suite-core-lib';
 import { useI18n } from '../contexts';
 
 export interface BackupCodesFormValues {
@@ -35,76 +46,131 @@ export const BackupCodesForm: FC<BackupCodesFormProps> = ({
   passwordValidation,
   labels = {},
 }) => {
-  const { t, tComponent } = useI18n();
+  const { tComponent } = useI18n();
   const [apiError, setApiError] = useState<string | null>(null);
   const [apiSuccess, setApiSuccess] = useState<string | null>(null);
   const [backupCodes, setBackupCodes] = useState<string[] | null>(null);
 
   const validation = {
-    mnemonic: mnemonicValidation || Yup.string()
-      .trim()
-      .matches(Constants.MnemonicRegex, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_MnemonicRegex))
-      .optional(),
-    password: passwordValidation || Yup.string()
-      .trim()
-      .matches(Constants.PasswordRegex, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordRegexErrorTemplate))
-      .optional(),
+    mnemonic:
+      mnemonicValidation ||
+      Yup.string()
+        .trim()
+        .matches(
+          Constants.MnemonicRegex,
+          tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_MnemonicRegex
+          )
+        )
+        .optional(),
+    password:
+      passwordValidation ||
+      Yup.string()
+        .trim()
+        .matches(
+          Constants.PasswordRegex,
+          tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_PasswordRegexErrorTemplate
+          )
+        )
+        .optional(),
   };
 
   const translatedLabels = {
-    codesRemaining: labels.codesRemaining || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_CodesRemainingTemplate),
-    mnemonic: labels.mnemonic || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Mnemonic),
-    password: labels.password || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Password),
-    generateButton: labels.generateButton || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_GenerateNewCodes),
-    successTitle: labels.successTitle || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.BackupCodeRecovery_YourNewCodes),
-    xorError: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_MnemonicOrPasswordRequired),
-    unexpectedError: tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_UnexpectedError),
+    codesRemaining:
+      labels.codesRemaining ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.BackupCodeRecovery_CodesRemainingTemplate
+      ),
+    mnemonic:
+      labels.mnemonic ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_Mnemonic
+      ),
+    password:
+      labels.password ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_Password
+      ),
+    generateButton:
+      labels.generateButton ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.BackupCodeRecovery_GenerateNewCodes
+      ),
+    successTitle:
+      labels.successTitle ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.BackupCodeRecovery_YourNewCodes
+      ),
+    xorError: tComponent<SuiteCoreStringKey>(
+      SuiteCoreComponentId,
+      SuiteCoreStringKey.Validation_MnemonicOrPasswordRequired
+    ),
+    unexpectedError: tComponent<SuiteCoreStringKey>(
+      SuiteCoreComponentId,
+      SuiteCoreStringKey.Common_UnexpectedError
+    ),
   };
 
   const validationSchema = Yup.object({
     mnemonic: validation.mnemonic,
     password: validation.password,
   })
-    .test('xor-mnemonic-password-mnemonic', translatedLabels.xorError, function (value) {
-      const mnemonic = value?.mnemonic?.trim() ?? '';
-      const password = value?.password?.trim() ?? '';
-      const hasMnemonic = mnemonic.length > 0;
-      const hasPassword = password.length > 0;
+    .test(
+      'xor-mnemonic-password-mnemonic',
+      translatedLabels.xorError,
+      function (value) {
+        const mnemonic = value?.mnemonic?.trim() ?? '';
+        const password = value?.password?.trim() ?? '';
+        const hasMnemonic = mnemonic.length > 0;
+        const hasPassword = password.length > 0;
 
-      if (!hasMnemonic && !hasPassword) {
-        return this.createError({
-          path: 'mnemonic',
-          message: translatedLabels.xorError,
-        });
+        if (!hasMnemonic && !hasPassword) {
+          return this.createError({
+            path: 'mnemonic',
+            message: translatedLabels.xorError,
+          });
+        }
+        if (hasMnemonic && hasPassword) {
+          return this.createError({
+            path: 'mnemonic',
+            message: translatedLabels.xorError,
+          });
+        }
+        return true;
       }
-      if (hasMnemonic && hasPassword) {
-        return this.createError({
-          path: 'mnemonic',
-          message: translatedLabels.xorError,
-        });
-      }
-      return true;
-    })
-    .test('xor-mnemonic-password-password', translatedLabels.xorError, function (value) {
-      const mnemonic = value?.mnemonic?.trim() ?? '';
-      const password = value?.password?.trim() ?? '';
-      const hasMnemonic = mnemonic.length > 0;
-      const hasPassword = password.length > 0;
+    )
+    .test(
+      'xor-mnemonic-password-password',
+      translatedLabels.xorError,
+      function (value) {
+        const mnemonic = value?.mnemonic?.trim() ?? '';
+        const password = value?.password?.trim() ?? '';
+        const hasMnemonic = mnemonic.length > 0;
+        const hasPassword = password.length > 0;
 
-      if (!hasMnemonic && !hasPassword) {
-        return this.createError({
-          path: 'password',
-          message: translatedLabels.xorError,
-        });
+        if (!hasMnemonic && !hasPassword) {
+          return this.createError({
+            path: 'password',
+            message: translatedLabels.xorError,
+          });
+        }
+        if (hasMnemonic && hasPassword) {
+          return this.createError({
+            path: 'password',
+            message: translatedLabels.xorError,
+          });
+        }
+        return true;
       }
-      if (hasMnemonic && hasPassword) {
-        return this.createError({
-          path: 'password',
-          message: translatedLabels.xorError,
-        });
-      }
-      return true;
-    });
+    );
 
   const formik = useFormik<BackupCodesFormValues>({
     initialValues: {
@@ -123,9 +189,12 @@ export const BackupCodesForm: FC<BackupCodesFormProps> = ({
           setApiSuccess(result.message);
         }
         setApiError(null);
-      } catch (e: any) {
+      } catch (e: unknown) {
         setApiSuccess(null);
-        setApiError(e.response?.data?.message ?? translatedLabels.unexpectedError);
+        const error = e as { response?: { data?: { message?: string } } };
+        setApiError(
+          error.response?.data?.message ?? translatedLabels.unexpectedError
+        );
       } finally {
         setSubmitting(false);
       }
@@ -136,10 +205,17 @@ export const BackupCodesForm: FC<BackupCodesFormProps> = ({
     <Container component="main" maxWidth="xs">
       <Box>
         <Typography component="h1" variant="h5">
-          {translatedLabels.codesRemaining.replace('{count}', String(backupCodesRemaining ?? 0))}
+          {translatedLabels.codesRemaining.replace(
+            '{count}',
+            String(backupCodesRemaining ?? 0)
+          )}
         </Typography>
       </Box>
-      <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 1, width: '100%' }}>
+      <Box
+        component="form"
+        onSubmit={formik.handleSubmit}
+        sx={{ mt: 1, width: '100%' }}
+      >
         <TextField
           margin="normal"
           fullWidth
@@ -152,8 +228,14 @@ export const BackupCodesForm: FC<BackupCodesFormProps> = ({
           value={formik.values.mnemonic}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          error={(formik.touched.mnemonic || formik.submitCount > 0) && Boolean(formik.errors.mnemonic)}
-          helperText={(formik.touched.mnemonic || formik.submitCount > 0) && formik.errors.mnemonic}
+          error={
+            (formik.touched.mnemonic || formik.submitCount > 0) &&
+            Boolean(formik.errors.mnemonic)
+          }
+          helperText={
+            (formik.touched.mnemonic || formik.submitCount > 0) &&
+            formik.errors.mnemonic
+          }
         />
         <TextField
           margin="normal"
@@ -165,8 +247,14 @@ export const BackupCodesForm: FC<BackupCodesFormProps> = ({
           value={formik.values.password}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          error={(formik.touched.password || formik.submitCount > 0) && Boolean(formik.errors.password)}
-          helperText={(formik.touched.password || formik.submitCount > 0) && formik.errors.password}
+          error={
+            (formik.touched.password || formik.submitCount > 0) &&
+            Boolean(formik.errors.password)
+          }
+          helperText={
+            (formik.touched.password || formik.submitCount > 0) &&
+            formik.errors.password
+          }
         />
         <Button type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
           {translatedLabels.generateButton}

@@ -1,8 +1,18 @@
-import { Alert, Box, Button, Container, TextField, Typography } from '@mui/material';
+import {
+  SuiteCoreComponentId,
+  SuiteCoreStringKey,
+} from '@digitaldefiance/suite-core-lib';
+import {
+  Alert,
+  Box,
+  Button,
+  Container,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { useFormik } from 'formik';
 import { FC, useState } from 'react';
 import * as Yup from 'yup';
-import { SuiteCoreComponentId, SuiteCoreStringKey } from '@digitaldefiance/suite-core-lib';
 import { useI18n } from '../contexts';
 
 export interface ForgotPasswordFormValues {
@@ -30,16 +40,48 @@ export const ForgotPasswordForm: FC<ForgotPasswordFormProps> = ({
   const [apiError, setApiError] = useState<string>('');
 
   const validation = {
-    email: emailValidation || Yup.string()
-      .email(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_InvalidEmail))
-      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
+    email:
+      emailValidation ||
+      Yup.string()
+        .email(
+          tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_InvalidEmail
+          )
+        )
+        .required(
+          tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_Required
+          )
+        ),
   };
 
   const translatedLabels = {
-    title: labels.title || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.ForgotPassword_Title),
-    email: labels.email || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_Email),
-    sendResetLink: labels.sendResetLink || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.ForgotPassword_SendResetLink),
-    successMessage: labels.successMessage || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordReset_Success),
+    title:
+      labels.title ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.ForgotPassword_Title
+      ),
+    email:
+      labels.email ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_Email
+      ),
+    sendResetLink:
+      labels.sendResetLink ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.ForgotPassword_SendResetLink
+      ),
+    successMessage:
+      labels.successMessage ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.PasswordReset_Success
+      ),
   };
 
   const formik = useFormik<ForgotPasswordFormValues>({
@@ -54,8 +96,15 @@ export const ForgotPasswordForm: FC<ForgotPasswordFormProps> = ({
         await onSubmit(values);
         setSuccess(true);
         setApiError('');
-      } catch (error: any) {
-        setApiError(error.response?.data?.message || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.ForgotPassword_Error));
+      } catch (error: unknown) {
+        const err = error as { response?: { data?: { message?: string } } };
+        setApiError(
+          err.response?.data?.message ||
+            tComponent<SuiteCoreStringKey>(
+              SuiteCoreComponentId,
+              SuiteCoreStringKey.ForgotPassword_Error
+            )
+        );
         setSuccess(false);
       }
     },
@@ -75,7 +124,11 @@ export const ForgotPasswordForm: FC<ForgotPasswordFormProps> = ({
           {translatedLabels.title}
         </Typography>
 
-        <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 1, width: '100%' }}>
+        <Box
+          component="form"
+          onSubmit={formik.handleSubmit}
+          sx={{ mt: 1, width: '100%' }}
+        >
           <TextField
             fullWidth
             id="email"

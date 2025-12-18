@@ -1,12 +1,17 @@
+import {
+  getSuiteCoreTranslation,
+  SuiteCoreStringKey,
+} from '@digitaldefiance/suite-core-lib';
 import { useMemo, useState } from 'react';
-import { createAuthenticatedApiClient } from '../services';
 import { useSuiteConfig } from '../contexts';
-import { getSuiteCoreTranslation, SuiteCoreStringKey } from '@digitaldefiance/suite-core-lib';
+import { createAuthenticatedApiClient } from '../services';
 
 export interface UseEmailVerificationResult {
   isVerifying: boolean;
   error: Error | null;
-  verifyEmail: (token: string) => Promise<{ success: boolean; message?: string }>;
+  verifyEmail: (
+    token: string
+  ) => Promise<{ success: boolean; message?: string }>;
 }
 
 export const useEmailVerification = (): UseEmailVerificationResult => {
@@ -19,10 +24,15 @@ export const useEmailVerification = (): UseEmailVerificationResult => {
     setIsVerifying(true);
     setError(null);
     try {
-      const result = await api.post('/verify-email', { token: verificationToken });
+      const result = await api.post<{ message: string }>('/verify-email', {
+        token: verificationToken,
+      });
       return { success: true, message: result.data.message };
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || getSuiteCoreTranslation(SuiteCoreStringKey.Error_VerificationFailed);
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } } };
+      const errorMessage =
+        axiosError.response?.data?.message ||
+        getSuiteCoreTranslation(SuiteCoreStringKey.Error_VerificationFailed);
       const error = new Error(errorMessage);
       setError(error);
       return { success: false, message: errorMessage };

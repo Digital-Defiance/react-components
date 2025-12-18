@@ -1,15 +1,21 @@
 import { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RegisterForm, RegisterFormValues, RegisterFormProps } from '../components/RegisterForm';
+import {
+  RegisterForm,
+  RegisterFormProps,
+  RegisterFormValues,
+} from '../components/RegisterForm';
 import { useAuth, useSuiteConfig } from '../contexts';
 
 export interface RegisterFormWrapperProps {
   onSuccess?: () => void;
   redirectTo?: string;
-  componentProps?: Partial<Omit<RegisterFormProps, 'onSubmit' | 'timezones' | 'getInitialTimezone'>>;
+  componentProps?: Partial<
+    Omit<RegisterFormProps, 'onSubmit' | 'timezones' | 'getInitialTimezone'>
+  >;
 }
 
-export const RegisterFormWrapper: FC<RegisterFormWrapperProps> = ({ 
+export const RegisterFormWrapper: FC<RegisterFormWrapperProps> = ({
   onSuccess,
   redirectTo,
   componentProps = {},
@@ -18,7 +24,7 @@ export const RegisterFormWrapper: FC<RegisterFormWrapperProps> = ({
   const navigate = useNavigate();
   const { routes, timezones } = useSuiteConfig();
 
-  const handleSubmit = async (values: RegisterFormValues, usePassword: boolean) => {
+  const handleSubmit = async (values: RegisterFormValues) => {
     const result = await register(
       values.username,
       values.email,
@@ -35,13 +41,20 @@ export const RegisterFormWrapper: FC<RegisterFormWrapperProps> = ({
     return result;
   };
 
-  const defaultTimezones = timezones || ['UTC', 'America/New_York', 'America/Los_Angeles', 'Europe/London'];
+  const defaultTimezones = timezones || [
+    'UTC',
+    'America/New_York',
+    'America/Los_Angeles',
+    'Europe/London',
+  ];
 
   return (
-    <RegisterForm 
+    <RegisterForm
       onSubmit={handleSubmit}
       timezones={defaultTimezones}
-      getInitialTimezone={() => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'}
+      getInitialTimezone={() =>
+        Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+      }
       {...componentProps}
     />
   );

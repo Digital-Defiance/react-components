@@ -1,8 +1,19 @@
-import { Alert, Box, Button, Container, TextField, Typography } from '@mui/material';
+import {
+  Constants,
+  SuiteCoreComponentId,
+  SuiteCoreStringKey,
+} from '@digitaldefiance/suite-core-lib';
+import {
+  Alert,
+  Box,
+  Button,
+  Container,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { useFormik } from 'formik';
 import { FC, useState } from 'react';
 import * as Yup from 'yup';
-import { Constants, SuiteCoreComponentId, SuiteCoreStringKey } from '@digitaldefiance/suite-core-lib';
 import { useI18n } from '../contexts';
 
 export interface ResetPasswordFormValues {
@@ -32,26 +43,82 @@ export const ResetPasswordForm: FC<ResetPasswordFormProps> = ({
   confirmPasswordValidation,
   labels = {},
 }) => {
-  const { t, tComponent } = useI18n();
+  const { tComponent } = useI18n();
   const [success, setSuccess] = useState(false);
   const [apiError, setApiError] = useState<string>('');
 
   const validation = {
-    password: passwordValidation || Yup.string()
-      .min(Constants.PasswordMinLength, tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordMinLengthTemplate))
-      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
-    confirmPassword: confirmPasswordValidation || Yup.string()
-      .oneOf([Yup.ref('password')], tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_PasswordMatch))
-      .required(tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Validation_Required)),
+    password:
+      passwordValidation ||
+      Yup.string()
+        .min(
+          Constants.PasswordMinLength,
+          tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_PasswordMinLengthTemplate
+          )
+        )
+        .required(
+          tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_Required
+          )
+        ),
+    confirmPassword:
+      confirmPasswordValidation ||
+      Yup.string()
+        .oneOf(
+          [Yup.ref('password')],
+          tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_PasswordMatch
+          )
+        )
+        .required(
+          tComponent<SuiteCoreStringKey>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_Required
+          )
+        ),
   };
 
   const translatedLabels = {
-    title: labels.title || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordReset_Title),
-    password: labels.password || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_NewPassword),
-    confirmPassword: labels.confirmPassword || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Common_ConfirmNewPassword),
-    resetButton: labels.resetButton || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordReset_Button),
-    successMessage: labels.successMessage || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.PasswordReset_Success),
-    invalidToken: labels.invalidToken || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.ForgotPassword_InvalidToken),
+    title:
+      labels.title ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.PasswordReset_Title
+      ),
+    password:
+      labels.password ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_NewPassword
+      ),
+    confirmPassword:
+      labels.confirmPassword ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_ConfirmNewPassword
+      ),
+    resetButton:
+      labels.resetButton ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.PasswordReset_Button
+      ),
+    successMessage:
+      labels.successMessage ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.PasswordReset_Success
+      ),
+    invalidToken:
+      labels.invalidToken ||
+      tComponent<SuiteCoreStringKey>(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.ForgotPassword_InvalidToken
+      ),
   };
 
   const formik = useFormik<ResetPasswordFormValues>({
@@ -73,8 +140,15 @@ export const ResetPasswordForm: FC<ResetPasswordFormProps> = ({
         await onSubmit(token, values.password);
         setSuccess(true);
         setApiError('');
-      } catch (error: any) {
-        setApiError(error.response?.data?.message || tComponent<SuiteCoreStringKey>(SuiteCoreComponentId, SuiteCoreStringKey.Error_PasswordChange));
+      } catch (error: unknown) {
+        const err = error as { response?: { data?: { message?: string } } };
+        setApiError(
+          err.response?.data?.message ||
+            tComponent<SuiteCoreStringKey>(
+              SuiteCoreComponentId,
+              SuiteCoreStringKey.Error_PasswordChange
+            )
+        );
         setSuccess(false);
       }
     },
@@ -104,7 +178,11 @@ export const ResetPasswordForm: FC<ResetPasswordFormProps> = ({
           {translatedLabels.title}
         </Typography>
 
-        <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 1, width: '100%' }}>
+        <Box
+          component="form"
+          onSubmit={formik.handleSubmit}
+          sx={{ mt: 1, width: '100%' }}
+        >
           <TextField
             fullWidth
             id="password"
@@ -128,8 +206,12 @@ export const ResetPasswordForm: FC<ResetPasswordFormProps> = ({
             value={formik.values.confirmPassword}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            error={Boolean(formik.touched.confirmPassword && formik.errors.confirmPassword)}
-            helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
+            error={Boolean(
+              formik.touched.confirmPassword && formik.errors.confirmPassword
+            )}
+            helperText={
+              formik.touched.confirmPassword && formik.errors.confirmPassword
+            }
             margin="normal"
           />
 
