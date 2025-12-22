@@ -90,7 +90,6 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo }) => {
             <>
               <Button
                 color="inherit"
-                // @ts-expect-error - MUI Button with react-router Link has type incompatibility
                 component={Link}
                 to="/dashboard"
               >
@@ -115,7 +114,6 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo }) => {
             <>
               <Button
                 color="inherit"
-                // @ts-expect-error - MUI Button with react-router Link has type incompatibility
                 component={Link}
                 to="/login"
               >
@@ -126,7 +124,6 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo }) => {
               </Button>
               <Button
                 color="inherit"
-                // @ts-expect-error - MUI Button with react-router Link has type incompatibility
                 component={Link}
                 to="/register"
               >
