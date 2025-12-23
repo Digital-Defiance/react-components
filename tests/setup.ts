@@ -5,7 +5,9 @@ global.TextEncoder = TextEncoder as typeof global.TextEncoder;
 global.TextDecoder = TextDecoder as typeof global.TextDecoder;
 
 // Import React first to ensure it's properly initialized
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import React from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import ReactDOM from 'react-dom/client';
 
 import { I18nEngine, createDefaultLanguages } from '@digitaldefiance/i18n-lib';
