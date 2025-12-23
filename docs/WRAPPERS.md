@@ -37,6 +37,7 @@ import {
   ThemeProvider 
 } from '@digitaldefiance/express-suite-react-components';
 
+{% raw %}
 function App() {
   return (
     <SuiteConfigProvider
@@ -62,6 +63,7 @@ function App() {
     </SuiteConfigProvider>
   );
 }
+{% endraw %}
 ```
 
 ### 2. Use Wrappers (Easiest)
@@ -79,6 +81,7 @@ function LoginPage() {
 ```tsx
 import { LoginFormWrapper } from '@digitaldefiance/express-suite-react-components';
 
+{% raw %}
 function LoginPage() {
   return (
     <LoginFormWrapper
@@ -92,6 +95,7 @@ function LoginPage() {
     />
   );
 }
+{% endraw %}
 ```
 
 ### 4. Use Hooks Directly (Maximum Control)
@@ -157,6 +161,7 @@ Pre-configured login form with Auth context integration.
 
 **Example:**
 ```tsx
+{% raw %}
 <LoginFormWrapper
   onSuccess={() => analytics.track('login')}
   redirectTo="/welcome"
@@ -165,6 +170,7 @@ Pre-configured login form with Auth context integration.
     authType: 'mnemonic',
   }}
 />
+{% endraw %}
 ```
 
 ### RegisterFormWrapper
@@ -177,6 +183,7 @@ Pre-configured registration form with Auth context integration.
 
 **Example:**
 ```tsx
+{% raw %}
 <RegisterFormWrapper
   onSuccess={() => sendWelcomeEmail()}
   componentProps={{
@@ -185,6 +192,7 @@ Pre-configured registration form with Auth context integration.
     },
   }}
 />
+{% endraw %}
 ```
 
 ### UserSettingsFormWrapper
@@ -196,6 +204,7 @@ Pre-configured settings form using `useUserSettings` hook.
 
 **Example:**
 ```tsx
+{% raw %}
 <UserSettingsFormWrapper
   onSuccess={() => showToast('Settings saved!')}
   componentProps={{
@@ -204,6 +213,7 @@ Pre-configured settings form using `useUserSettings` hook.
     },
   }}
 />
+{% endraw %}
 ```
 
 ### BackupCodesWrapper
@@ -325,6 +335,7 @@ const {
 The `SuiteConfigProvider` centralizes configuration for all wrappers:
 
 ```tsx
+{% raw %}
 <SuiteConfigProvider
   baseUrl="https://api.example.com"
   routes={{
@@ -342,6 +353,7 @@ The `SuiteConfigProvider` centralizes configuration for all wrappers:
   ]}
   timezones={['UTC', 'America/New_York', /* ... */]}
 >
+{% endraw %}
 ```
 
 All wrappers will automatically use these settings.
@@ -382,6 +394,7 @@ function LoginPage() {
 
 **After (with customization):**
 ```tsx
+{% raw %}
 function LoginPage() {
   return (
     <LoginFormWrapper
@@ -392,4 +405,5 @@ function LoginPage() {
     />
   );
 }
+{% endraw %}
 ```
