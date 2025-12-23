@@ -4,6 +4,10 @@ import { TextDecoder, TextEncoder } from 'util';
 global.TextEncoder = TextEncoder as typeof global.TextEncoder;
 global.TextDecoder = TextDecoder as typeof global.TextDecoder;
 
+// Import React first to ensure it's properly initialized
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+
 import { I18nEngine, createDefaultLanguages } from '@digitaldefiance/i18n-lib';
 import {
   Constants,

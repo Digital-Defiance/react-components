@@ -5,6 +5,8 @@ module.exports = {
   testEnvironmentOptions: {
     resources: 'usable',
     runScripts: 'dangerously',
+    // Enable React 19 support in jsdom
+    customExportConditions: [''],
   },
   maxWorkers: 4,
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
@@ -42,8 +44,12 @@ module.exports = {
       '<rootDir>/../digitaldefiance-suite-core-lib/src/index.ts',
     '^bson$':
       '<rootDir>/../digitaldefiance-express-suite-test-utils/src/lib/bson-mock.ts',
+    '^mongoose$': '<rootDir>/../digitaldefiance-express-suite-test-utils/src/lib/bson-mock.ts',
+    // Ensure single instance of React
+    '^react$': require.resolve('react'),
+    '^react-dom$': require.resolve('react-dom'),
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(@noble|@scure|ethereum-cryptography|@ethereumjs)/)',
+    'node_modules/(?!(@noble|@scure|ethereum-cryptography|@ethereumjs|uuid|@digitaldefiance/express-suite-test-utils)/)',
   ],
 };
