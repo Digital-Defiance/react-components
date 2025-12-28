@@ -50,6 +50,6 @@ module.exports = {
     '^react-dom$': require.resolve('react-dom'),
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(@noble|@scure|ethereum-cryptography|@ethereumjs|uuid|@digitaldefiance/express-suite-test-utils)/)',
+    'node_modules/(?!(@noble|@scure|ethereum-cryptography|@ethereumjs|uuid|@digitaldefiance/express-suite-test-utils|paillier-bigint|bigint-crypto-utils)/)',
   ],
 };

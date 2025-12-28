@@ -454,9 +454,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digitaldefiance/ecies-lib@npm:4.5.17":
-  version: 4.5.17
-  resolution: "@digitaldefiance/ecies-lib@npm:4.5.17"
+"@digitaldefiance/ecies-lib@npm:4.6.3":
+  version: 4.6.3
+  resolution: "@digitaldefiance/ecies-lib@npm:4.6.3"
   dependencies:
     "@digitaldefiance/i18n-lib": "npm:3.8.16"
     "@ethereumjs/wallet": "npm:^10.0.0"
@@ -470,7 +470,7 @@ __metadata:
   peerDependenciesMeta:
     paillier-bigint:
       optional: true
-  checksum: 10c0/488365e6426b99ce3cd448be3cddb075d3571a467fbb98770d4471251149b8706fb9a0681f4953cffde2dc67456a918d4af0db1b708b27c4c92aeb13d6ee34ac
+  checksum: 10c0/92fb5227cf32da46fe86ceccf1e22ea55d80aef097094e00e23d35979462cc0b1421e73c2b1c736e088e516db855dddd6cb58700afeb407521d57309890b4b3f
   languageName: node
   linkType: hard
 
@@ -480,7 +480,7 @@ __metadata:
   dependencies:
     "@digitaldefiance/express-suite-test-utils": "npm:1.0.12"
     "@digitaldefiance/i18n-lib": "npm:3.8.16"
-    "@digitaldefiance/suite-core-lib": "npm:3.6.25"
+    "@digitaldefiance/suite-core-lib": "npm:3.6.27"
     "@emotion/react": "npm:^11.14.0"
     "@emotion/styled": "npm:^11.14.0"
     "@mui/icons-material": "npm:^7.0.2"
@@ -537,13 +537,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digitaldefiance/suite-core-lib@npm:3.6.25":
-  version: 3.6.25
-  resolution: "@digitaldefiance/suite-core-lib@npm:3.6.25"
+"@digitaldefiance/suite-core-lib@npm:3.6.27":
+  version: 3.6.27
+  resolution: "@digitaldefiance/suite-core-lib@npm:3.6.27"
   dependencies:
-    "@digitaldefiance/ecies-lib": "npm:4.5.17"
+    "@digitaldefiance/ecies-lib": "npm:4.6.3"
     "@digitaldefiance/i18n-lib": "npm:3.8.16"
-  checksum: 10c0/b37ce934d2e99f0307ea44bcba55ef6259e4c82d7c32b4b9eb00b3c446b93c342d816860d4474b7d4beac4a4b1f1e3a1b230d01ed633f95d3033abfbd984988d
+  checksum: 10c0/d143ecac1ab42ba515f7c489ff22aa18b75d937c4dd3f49fb41a55f8b6e60c65a7fe5c7e4407061ab5c2832f724e2db761e576034accde6b80c5724279cde841
   languageName: node
   linkType: hard
 
