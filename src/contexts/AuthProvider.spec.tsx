@@ -63,8 +63,24 @@ jest.mock('@digitaldefiance/i18n-lib', () => {
 
 jest.mock('@digitaldefiance/ecies-lib', () => {
   const actual = jest.requireActual('@digitaldefiance/ecies-lib');
+  
+  // Mock ECIESService to avoid ID provider validation issues in tests
+  const mockECIESService = jest.fn().mockImplementation(() => ({
+    generateNewMnemonic: jest.fn(),
+    mnemonicToSimpleKeyPair: jest.fn(),
+    getPublicKey: jest.fn(),
+    encryptSimpleOrSingle: jest.fn(),
+    decryptSimpleOrSingleWithHeader: jest.fn(),
+    signMessage: jest.fn(),
+    verifyMessage: jest.fn(),
+    config: {},
+    constants: actual.Constants,
+    idProvider: actual.Constants.idProvider,
+  }));
+  
   return {
     ...actual,
+    ECIESService: mockECIESService,
     PasswordLoginService: jest
       .fn()
       .mockImplementation(() => mockPasswordLoginService),

@@ -454,19 +454,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digitaldefiance/ecies-lib@npm:4.8.2":
-  version: 4.8.2
-  resolution: "@digitaldefiance/ecies-lib@npm:4.8.2"
+"@digitaldefiance/ecies-lib@npm:4.10.7":
+  version: 4.10.7
+  resolution: "@digitaldefiance/ecies-lib@npm:4.10.7"
   dependencies:
     "@digitaldefiance/i18n-lib": "npm:3.8.16"
     "@ethereumjs/wallet": "npm:^10.0.0"
     "@noble/curves": "npm:1.9.0"
     "@noble/hashes": "npm:1.8.0"
     "@scure/bip32": "npm:1.7.0"
-    bson: "npm:^7.0.0"
+    bson: "npm:^6.10.4"
     paillier-bigint: "npm:^3.4.1"
     ts-brand: "npm:^0.2.0"
-  checksum: 10c0/6c47f6f53895a707c0e6f77005e825958d134bedd50b719ae871150ea6ad081efe9333ceac8c7939bf5b276c33c339a6548bc7802525812688b077d846ec9220
+  checksum: 10c0/3e32f2e111653ee3d5cb3c5ce9339679d2f3301cb0df7e2f7cfa316a70efee47f2bf559c4a76b1c0bb4742fdc44d08d5772bce3f8fabd4a168c3fed1e2bfcfe7
   languageName: node
   linkType: hard
 
@@ -476,7 +476,7 @@ __metadata:
   dependencies:
     "@digitaldefiance/express-suite-test-utils": "npm:1.0.12"
     "@digitaldefiance/i18n-lib": "npm:3.8.16"
-    "@digitaldefiance/suite-core-lib": "npm:3.6.34"
+    "@digitaldefiance/suite-core-lib": "npm:3.6.37"
     "@emotion/react": "npm:^11.14.0"
     "@emotion/styled": "npm:^11.14.0"
     "@mui/icons-material": "npm:^7.0.2"
@@ -533,13 +533,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digitaldefiance/suite-core-lib@npm:3.6.34":
-  version: 3.6.34
-  resolution: "@digitaldefiance/suite-core-lib@npm:3.6.34"
+"@digitaldefiance/suite-core-lib@npm:3.6.37":
+  version: 3.6.37
+  resolution: "@digitaldefiance/suite-core-lib@npm:3.6.37"
   dependencies:
-    "@digitaldefiance/ecies-lib": "npm:4.8.2"
+    "@digitaldefiance/ecies-lib": "npm:4.10.7"
     "@digitaldefiance/i18n-lib": "npm:3.8.16"
-  checksum: 10c0/a2ab10f9a7412fa973f68450429d52aa518d9626e06cdf9d4d57ad574da84fd5adf3cd99c34bc641f12d06791f169a114d22c14627110b20caf62f4a2ea21b06
+  checksum: 10c0/5c44bcd8a83585c933c867dbf96bfa122b361590f3cfa999fbc20642b3f1be7e98be4077691389dda37ab0c5f4721b84f3843508561710c21f37249bb1ba4376
   languageName: node
   linkType: hard
 
@@ -2287,13 +2287,6 @@ __metadata:
   version: 6.10.4
   resolution: "bson@npm:6.10.4"
   checksum: 10c0/6c6819ce642516901349f42c5d9d131d5a4e84352a3859c814d4abf6b2b9249e3685b57fc4cf7b5737fb5c71252f65900a41826c1429815a93e43f0f5bb3c173
-  languageName: node
-  linkType: hard
-
-"bson@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "bson@npm:7.0.0"
-  checksum: 10c0/6b12fb0411f4e6f4473da878c0aa615f03439040a349f4115beae336e3922265b25d833c6cc93fcb299017904b32e4ef86e284996f1103addc5918c576b57d9d
   languageName: node
   linkType: hard
 
