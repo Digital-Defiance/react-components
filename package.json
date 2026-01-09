@@ -1,6 +1,6 @@
 {
   "name": "@digitaldefiance/express-suite-react-components",
-  "version": "2.9.28",
+  "version": "2.9.29",
   "homepage": "https://github.com/Digital-Defiance/react-components",
   "description": "React MUI components for Digital Defiance Express Suite",
   "repository": {
@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@digitaldefiance/i18n-lib": "3.8.16",
-    "@digitaldefiance/suite-core-lib": "3.6.37",
+    "@digitaldefiance/suite-core-lib": "3.6.38",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.0.2",
