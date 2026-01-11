@@ -1,4 +1,5 @@
 import {
+  AESGCMService,
   Constants as AppConstants,
   ECIESService,
   EmailString,
@@ -496,7 +497,9 @@ const AuthProviderInner = ({
     );
   const getPasswordLoginService = useCallback(() => {
     const eciesService: ECIESService = new ECIESService(eciesConfig);
+    const aesGcmService = new AESGCMService();
     return new PasswordLoginService(
+      aesGcmService,
       eciesService,
       new Pbkdf2Service(
         AppConstants.PBKDF2_PROFILES,
