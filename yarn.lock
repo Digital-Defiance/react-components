@@ -454,9 +454,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digitaldefiance/ecies-lib@npm:4.12.7":
-  version: 4.12.7
-  resolution: "@digitaldefiance/ecies-lib@npm:4.12.7"
+"@digitaldefiance/ecies-lib@npm:4.12.8":
+  version: 4.12.8
+  resolution: "@digitaldefiance/ecies-lib@npm:4.12.8"
   dependencies:
     "@digitaldefiance/i18n-lib": "npm:3.8.16"
     "@ethereumjs/wallet": "npm:^10.0.0"
@@ -464,10 +464,11 @@ __metadata:
     "@noble/hashes": "npm:1.8.0"
     "@scure/bip32": "npm:1.7.0"
     bson: "npm:^6.10.4"
+    crc-32: "npm:^1.2.2"
     js-sha3: "npm:^0.9.3"
     paillier-bigint: "npm:^3.4.1"
     ts-brand: "npm:^0.2.0"
-  checksum: 10c0/7369aa07dfb02e8758cc56799a896f4c646ed4baed7676baaf3568a553c54e1c8b19aa8073003c7d6883fd97e9b1caabc4a53f9a4c807ac607656052c90e72da
+  checksum: 10c0/e41e930ed239d88aacc0c990f42f04cb89fad20ed4d5684be95d9edb72f9de596551ca3a12581d1c6ab2d4f70a8905f1d00e2058da91e1996a5d50d18cf8d4f5
   languageName: node
   linkType: hard
 
@@ -477,7 +478,7 @@ __metadata:
   dependencies:
     "@digitaldefiance/express-suite-test-utils": "npm:1.0.12"
     "@digitaldefiance/i18n-lib": "npm:3.8.16"
-    "@digitaldefiance/suite-core-lib": "npm:3.6.46"
+    "@digitaldefiance/suite-core-lib": "npm:3.6.47"
     "@emotion/react": "npm:^11.14.0"
     "@emotion/styled": "npm:^11.14.0"
     "@mui/icons-material": "npm:^7.0.2"
@@ -534,13 +535,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digitaldefiance/suite-core-lib@npm:3.6.46":
-  version: 3.6.46
-  resolution: "@digitaldefiance/suite-core-lib@npm:3.6.46"
+"@digitaldefiance/suite-core-lib@npm:3.6.47":
+  version: 3.6.47
+  resolution: "@digitaldefiance/suite-core-lib@npm:3.6.47"
   dependencies:
-    "@digitaldefiance/ecies-lib": "npm:4.12.7"
+    "@digitaldefiance/ecies-lib": "npm:4.12.8"
     "@digitaldefiance/i18n-lib": "npm:3.8.16"
-  checksum: 10c0/b27312ae6fb42112acdec4d549015600fa2bb00908b54c55992792a46ca2dfa869e0b0933d49ec823f6872db82f05918ca99262a412e972fb518e96a995299be
+  checksum: 10c0/d1035a31f4be58fd058b3fd89d5ec7f9f2b1370fc5e4eac0431ce67e23895b15ce9c96303f83becfc9968758eabea4d487ac169b94894ffa16d77eb61b154125
   languageName: node
   linkType: hard
 
@@ -2495,6 +2496,15 @@ __metadata:
     path-type: "npm:^4.0.0"
     yaml: "npm:^1.10.0"
   checksum: 10c0/b923ff6af581638128e5f074a5450ba12c0300b71302398ea38dbeabd33bbcaa0245ca9adbedfcf284a07da50f99ede5658c80bb3e39e2ce770a99d28a21ef03
+  languageName: node
+  linkType: hard
+
+"crc-32@npm:^1.2.2":
+  version: 1.2.2
+  resolution: "crc-32@npm:1.2.2"
+  bin:
+    crc32: bin/crc32.njs
+  checksum: 10c0/11dcf4a2e77ee793835d49f2c028838eae58b44f50d1ff08394a610bfd817523f105d6ae4d9b5bef0aad45510f633eb23c903e9902e4409bed1ce70cb82b9bf0
   languageName: node
   linkType: hard
 
