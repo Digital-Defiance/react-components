@@ -121,7 +121,7 @@ describe('User Management Wrapper Components', () => {
   });
 
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <SuiteConfigProvider
         baseUrl="https://api.test.com"
         routes={{

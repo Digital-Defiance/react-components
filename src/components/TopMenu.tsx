@@ -11,7 +11,7 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import React, { FC, ReactElement, useContext, useState } from 'react';
+import React, { ElementType, FC, ReactElement, useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthProvider';
 import { useI18n } from '../contexts/I18nProvider';
@@ -90,7 +90,7 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo }) => {
             <>
               <Button
                 color="inherit"
-                component={Link}
+                component={Link as ElementType}
                 to="/dashboard"
               >
                 {tComponent<SuiteCoreStringKey>(
@@ -114,7 +114,7 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo }) => {
             <>
               <Button
                 color="inherit"
-                component={Link}
+                component={Link as ElementType}
                 to="/login"
               >
                 {tComponent<SuiteCoreStringKey>(
@@ -124,7 +124,7 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo }) => {
               </Button>
               <Button
                 color="inherit"
-                component={Link}
+                component={Link as ElementType}
                 to="/register"
               >
                 {tComponent<SuiteCoreStringKey>(
