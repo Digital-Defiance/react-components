@@ -1,6 +1,6 @@
 {
   "name": "@digitaldefiance/express-suite-react-components",
-  "version": "2.9.41",
+  "version": "2.9.46",
   "homepage": "https://github.com/Digital-Defiance/react-components",
   "description": "React MUI components for Digital Defiance Express Suite",
   "repository": {
@@ -11,6 +11,7 @@
   "types": "src/index.d.ts",
   "scripts": {
     "build": "npx nx build digitaldefiance-express-suite-react-components",
+    "build:prod": "NODE_ENV=production npx nx build digitaldefiance-express-suite-react-components --configuration=production",
     "build:stream": "npx nx build --outputStyle=stream digitaldefiance-express-suite-react-components",
     "build:logged": "npx nx build --outputStyle=stream digitaldefiance-express-suite-react-components 2>&1 | ansifilter -o build.log",
     "test": "NODE_OPTIONS='--max-old-space-size=6144' npx nx test digitaldefiance-express-suite-react-components",
@@ -31,7 +32,7 @@
   },
   "dependencies": {
     "@digitaldefiance/i18n-lib": "3.8.16",
-    "@digitaldefiance/suite-core-lib": "3.7.1",
+    "@digitaldefiance/suite-core-lib": "3.7.6",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.0.2",
