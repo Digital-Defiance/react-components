@@ -454,9 +454,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digitaldefiance/ecies-lib@npm:4.13.7":
-  version: 4.13.7
-  resolution: "@digitaldefiance/ecies-lib@npm:4.13.7"
+"@digitaldefiance/ecies-lib@npm:4.13.8":
+  version: 4.13.8
+  resolution: "@digitaldefiance/ecies-lib@npm:4.13.8"
   dependencies:
     "@digitaldefiance/i18n-lib": "npm:3.8.16"
     "@ethereumjs/wallet": "npm:^10.0.0"
@@ -468,7 +468,7 @@ __metadata:
     js-sha3: "npm:^0.9.3"
     paillier-bigint: "npm:^3.4.1"
     ts-brand: "npm:^0.2.0"
-  checksum: 10c0/05900b8703b14c940ead83eb0abf6aa4b3e12d89ae672f94ec41d802bbf8e4cbb85e527557cef763aa33a59fbff49279124fb2563c9b26c660842cbe4266c92c
+  checksum: 10c0/57cdd711a5b2e7de997ad6b1aa7b8f2dc132a46c603639719cb1bbbbb602e3f8771958331e26cae2ec7f9d2e0969b1e8126ffc6fbb82a9aaf8698e79cf1587a7
   languageName: node
   linkType: hard
 
@@ -478,7 +478,7 @@ __metadata:
   dependencies:
     "@digitaldefiance/express-suite-test-utils": "npm:1.0.12"
     "@digitaldefiance/i18n-lib": "npm:3.8.16"
-    "@digitaldefiance/suite-core-lib": "npm:3.7.7"
+    "@digitaldefiance/suite-core-lib": "npm:3.7.8"
     "@emotion/react": "npm:^11.14.0"
     "@emotion/styled": "npm:^11.14.0"
     "@mui/icons-material": "npm:^7.0.2"
@@ -535,13 +535,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digitaldefiance/suite-core-lib@npm:3.7.7":
-  version: 3.7.7
-  resolution: "@digitaldefiance/suite-core-lib@npm:3.7.7"
+"@digitaldefiance/suite-core-lib@npm:3.7.8":
+  version: 3.7.8
+  resolution: "@digitaldefiance/suite-core-lib@npm:3.7.8"
   dependencies:
-    "@digitaldefiance/ecies-lib": "npm:4.13.7"
+    "@digitaldefiance/ecies-lib": "npm:4.13.8"
     "@digitaldefiance/i18n-lib": "npm:3.8.16"
-  checksum: 10c0/d5bef04d11de016e6b70426401530467224328b7a0340995df26d62eb4469a428b6924c02c00249aad968429b6426212a0e564c9ad48568e6b41dd0d8cd19f74
+  checksum: 10c0/3e44c68ffd71f19f52ce18d922b93a623c4c38b463a0adbf2a234ec270d54ce06d7f0b63d24947a0ba542e79fd79594c2e20b35ddb63c3576ba28af8534090b8
   languageName: node
   linkType: hard
 
