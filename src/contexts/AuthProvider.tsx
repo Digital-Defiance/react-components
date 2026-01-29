@@ -21,6 +21,7 @@ import {
   IUserSettings,
   SuiteCoreComponentId,
   SuiteCoreStringKey,
+  SuiteCoreStringKeyValue,
 } from '@digitaldefiance/suite-core-lib';
 import { Wallet } from '@ethereumjs/wallet';
 import { PaletteMode } from '@mui/material';
@@ -518,7 +519,7 @@ const AuthProviderInner = ({
     async (password: SecureString, username?: string, email?: EmailString) => {
       if (!isBrowserPasswordLoginAvailable()) {
         return {
-          error: tComponent<SuiteCoreStringKey>(
+          error: tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Error_Login_PasswordLoginNotSetup
           ),
@@ -635,7 +636,7 @@ const AuthProviderInner = ({
         setMnemonic(mnemonic);
         return {
           success: true,
-          message: tComponent<SuiteCoreStringKey>(
+          message: tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.PasswordLogin_Setup_Success
           ),
@@ -644,7 +645,7 @@ const AuthProviderInner = ({
         setLoading(false);
         return {
           success: false,
-          message: tComponent<SuiteCoreStringKey>(
+          message: tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.PasswordLogin_Setup_Failure
           ),
@@ -751,7 +752,7 @@ const AuthProviderInner = ({
     > => {
       if (!isBrowserPasswordLoginAvailable()) {
         return {
-          error: tComponent<SuiteCoreStringKey>(
+          error: tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Error_Login_PasswordLoginNotSetup
           ),
@@ -769,7 +770,7 @@ const AuthProviderInner = ({
         if (!mnemonic) {
           setLoading(false);
           return {
-            error: tComponent<SuiteCoreStringKey>(
+            error: tComponent<SuiteCoreStringKeyValue>(
               SuiteCoreComponentId,
               SuiteCoreStringKey.PasswordLogin_InvalidCurrentPassword
             ),
@@ -785,7 +786,7 @@ const AuthProviderInner = ({
         setMnemonic(mnemonic);
         return {
           success: true,
-          message: tComponent<SuiteCoreStringKey>(
+          message: tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.PasswordChange_Success
           ),

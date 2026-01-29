@@ -1,6 +1,7 @@
 import {
   SuiteCoreComponentId,
   SuiteCoreStringKey,
+  SuiteCoreStringKeyValue,
 } from '@digitaldefiance/suite-core-lib';
 import {
   Alert,
@@ -44,13 +45,13 @@ export const ForgotPasswordForm: FC<ForgotPasswordFormProps> = ({
       emailValidation ||
       Yup.string()
         .email(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_InvalidEmail
           )
         )
         .required(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_Required
           )
@@ -60,25 +61,25 @@ export const ForgotPasswordForm: FC<ForgotPasswordFormProps> = ({
   const translatedLabels = {
     title:
       labels.title ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.ForgotPassword_Title
       ),
     email:
       labels.email ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_Email
       ),
     sendResetLink:
       labels.sendResetLink ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.ForgotPassword_SendResetLink
       ),
     successMessage:
       labels.successMessage ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.PasswordReset_Success
       ),
@@ -100,7 +101,7 @@ export const ForgotPasswordForm: FC<ForgotPasswordFormProps> = ({
         const err = error as { response?: { data?: { message?: string } } };
         setApiError(
           err.response?.data?.message ||
-            tComponent<SuiteCoreStringKey>(
+            tComponent<SuiteCoreStringKeyValue>(
               SuiteCoreComponentId,
               SuiteCoreStringKey.ForgotPassword_Error
             )

@@ -2,6 +2,7 @@ import {
   Constants,
   SuiteCoreComponentId,
   SuiteCoreStringKey,
+  SuiteCoreStringKeyValue,
 } from '@digitaldefiance/suite-core-lib';
 import {
   Alert,
@@ -59,7 +60,7 @@ export const ChangePasswordForm: FC<ChangePasswordFormProps> = ({
     currentPassword:
       currentPasswordValidation ||
       Yup.string().required(
-        tComponent<SuiteCoreStringKey>(
+        tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.Validation_Required
         )
@@ -69,13 +70,13 @@ export const ChangePasswordForm: FC<ChangePasswordFormProps> = ({
       Yup.string()
         .min(
           Constants.PasswordMinLength,
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_PasswordMinLengthTemplate
           )
         )
         .required(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_Required
           )
@@ -85,13 +86,13 @@ export const ChangePasswordForm: FC<ChangePasswordFormProps> = ({
       Yup.string()
         .oneOf(
           [Yup.ref('newPassword')],
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_PasswordMatch
           )
         )
         .required(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_Required
           )
@@ -101,43 +102,43 @@ export const ChangePasswordForm: FC<ChangePasswordFormProps> = ({
   const labels = {
     title:
       titleText ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_ChangePassword
       ),
     currentPassword:
       currentPasswordLabel ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_CurrentPassword
       ),
     newPassword:
       newPasswordLabel ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_NewPassword
       ),
     confirmPassword:
       confirmPasswordLabel ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_ConfirmNewPassword
       ),
     submitButton:
       submitButtonText ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_ChangePassword
       ),
     submittingButton:
       submittingButtonText ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_ChangingPassword
       ),
     success:
       successMessage ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.PasswordChange_Success
       ),

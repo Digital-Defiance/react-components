@@ -1,6 +1,7 @@
 import {
   SuiteCoreComponentId,
   SuiteCoreStringKey,
+  SuiteCoreStringKeyValue,
 } from '@digitaldefiance/suite-core-lib';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import {
@@ -67,43 +68,43 @@ export const ApiAccess: FC<ApiAccessProps> = ({
   const translatedLabels = {
     title:
       labels.title ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.ApiAccess_Title
       ),
     tokenNotAvailable:
       labels.tokenNotAvailable ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.ApiAccess_TokenNotAvailable
       ),
     copyButton:
       labels.copyButton ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_CopyToClipboard
       ),
     notificationTitle:
       labels.notificationTitle ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_Notification
       ),
     copied:
       labels.copied ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_CopiedToClipboard
       ),
     copyFailed:
       labels.copyFailed ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Error_FailedToCopy
       ),
     ok:
       labels.ok ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_OK
       ),

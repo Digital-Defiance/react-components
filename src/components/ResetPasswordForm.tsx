@@ -2,6 +2,7 @@ import {
   Constants,
   SuiteCoreComponentId,
   SuiteCoreStringKey,
+  SuiteCoreStringKeyValue,
 } from '@digitaldefiance/suite-core-lib';
 import {
   Alert,
@@ -53,13 +54,13 @@ export const ResetPasswordForm: FC<ResetPasswordFormProps> = ({
       Yup.string()
         .min(
           Constants.PasswordMinLength,
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_PasswordMinLengthTemplate
           )
         )
         .required(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_Required
           )
@@ -69,13 +70,13 @@ export const ResetPasswordForm: FC<ResetPasswordFormProps> = ({
       Yup.string()
         .oneOf(
           [Yup.ref('password')],
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_PasswordMatch
           )
         )
         .required(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_Required
           )
@@ -85,37 +86,37 @@ export const ResetPasswordForm: FC<ResetPasswordFormProps> = ({
   const translatedLabels = {
     title:
       labels.title ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.PasswordReset_Title
       ),
     password:
       labels.password ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_NewPassword
       ),
     confirmPassword:
       labels.confirmPassword ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_ConfirmNewPassword
       ),
     resetButton:
       labels.resetButton ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.PasswordReset_Button
       ),
     successMessage:
       labels.successMessage ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.PasswordReset_Success
       ),
     invalidToken:
       labels.invalidToken ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.ForgotPassword_InvalidToken
       ),
@@ -144,7 +145,7 @@ export const ResetPasswordForm: FC<ResetPasswordFormProps> = ({
         const err = error as { response?: { data?: { message?: string } } };
         setApiError(
           err.response?.data?.message ||
-            tComponent<SuiteCoreStringKey>(
+            tComponent<SuiteCoreStringKeyValue>(
               SuiteCoreComponentId,
               SuiteCoreStringKey.Error_PasswordChange
             )

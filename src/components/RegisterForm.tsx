@@ -2,6 +2,7 @@ import {
   Constants,
   SuiteCoreComponentId,
   SuiteCoreStringKey,
+  SuiteCoreStringKeyValue,
 } from '@digitaldefiance/suite-core-lib';
 import {
   Alert,
@@ -106,27 +107,27 @@ export const RegisterForm: FC<RegisterFormProps> = ({
       Yup.string()
         .min(
           Constants.UsernameMinLength,
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_UsernameMinLengthTemplate
           )
         )
         .max(
           Constants.UsernameMaxLength,
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_UsernameMaxLengthTemplate
           )
         )
         .matches(
           Constants.UsernameRegex,
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_UsernameRegexErrorTemplate
           )
         )
         .required(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_Required
           )
@@ -135,13 +136,13 @@ export const RegisterForm: FC<RegisterFormProps> = ({
       emailValidation ||
       Yup.string()
         .email(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_InvalidEmail
           )
         )
         .required(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_Required
           )
@@ -150,14 +151,14 @@ export const RegisterForm: FC<RegisterFormProps> = ({
       timezoneValidation ||
       Yup.string()
         .required(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_TimezoneRequired
           )
         )
         .oneOf(
           timezones,
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_TimezoneInvalid
           )
@@ -167,20 +168,20 @@ export const RegisterForm: FC<RegisterFormProps> = ({
       Yup.string()
         .matches(
           Constants.PasswordRegex,
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_PasswordRegexErrorTemplate
           )
         )
         .min(
           8,
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_PasswordMinLengthTemplate
           )
         )
         .required(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_Required
           )
@@ -190,13 +191,13 @@ export const RegisterForm: FC<RegisterFormProps> = ({
       Yup.string()
         .oneOf(
           [Yup.ref('password')],
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_PasswordMatch
           )
         )
         .required(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_Required
           )
@@ -283,7 +284,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
       >
         <Typography variant="h4" component="h1" gutterBottom>
           {labels.title ||
-            tComponent<SuiteCoreStringKey>(
+            tComponent<SuiteCoreStringKeyValue>(
               SuiteCoreComponentId,
               SuiteCoreStringKey.Common_Registration
             )}
@@ -300,7 +301,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
             name="username"
             label={
               labels.username ||
-              tComponent<SuiteCoreStringKey>(
+              tComponent<SuiteCoreStringKeyValue>(
                 SuiteCoreComponentId,
                 SuiteCoreStringKey.Common_Username
               )
@@ -324,7 +325,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
             name="email"
             label={
               labels.email ||
-              tComponent<SuiteCoreStringKey>(
+              tComponent<SuiteCoreStringKeyValue>(
                 SuiteCoreComponentId,
                 SuiteCoreStringKey.Common_Email
               )
@@ -343,7 +344,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
           <FormControl fullWidth margin="normal">
             <InputLabel id="timezone-label">
               {labels.timezone ||
-                tComponent<SuiteCoreStringKey>(
+                tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Common_Timezone
                 )}
@@ -358,7 +359,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
               error={formik.touched.timezone && Boolean(formik.errors.timezone)}
               label={
                 labels.timezone ||
-                tComponent<SuiteCoreStringKey>(
+                tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Common_Timezone
                 )
@@ -382,12 +383,12 @@ export const RegisterForm: FC<RegisterFormProps> = ({
             <Button variant="text" onClick={() => setUsePassword(!usePassword)}>
               {usePassword
                 ? labels.useMnemonic ||
-                  tComponent<SuiteCoreStringKey>(
+                  tComponent<SuiteCoreStringKeyValue>(
                     SuiteCoreComponentId,
                     SuiteCoreStringKey.Common_UseMnemonic
                   )
                 : labels.usePassword ||
-                  tComponent<SuiteCoreStringKey>(
+                  tComponent<SuiteCoreStringKeyValue>(
                     SuiteCoreComponentId,
                     SuiteCoreStringKey.Common_UsePassword
                   )}
@@ -402,7 +403,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
                 name="password"
                 label={
                   labels.password ||
-                  tComponent<SuiteCoreStringKey>(
+                  tComponent<SuiteCoreStringKeyValue>(
                     SuiteCoreComponentId,
                     SuiteCoreStringKey.Common_Password
                   )
@@ -423,7 +424,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
                 name="confirmPassword"
                 label={
                   labels.confirmPassword ||
-                  tComponent<SuiteCoreStringKey>(
+                  tComponent<SuiteCoreStringKeyValue>(
                     SuiteCoreComponentId,
                     SuiteCoreStringKey.Common_ConfirmNewPassword
                   )
@@ -455,13 +456,13 @@ export const RegisterForm: FC<RegisterFormProps> = ({
                   onChange={formik.handleChange}
                 />
               }
-              label={tComponent<SuiteCoreStringKey>(
+              label={tComponent<SuiteCoreStringKeyValue>(
                 SuiteCoreComponentId,
                 SuiteCoreStringKey.Registration_DirectChallengeLabel
               )}
             />
             <FormHelperText>
-              {tComponent<SuiteCoreStringKey>(
+              {tComponent<SuiteCoreStringKeyValue>(
                 SuiteCoreComponentId,
                 SuiteCoreStringKey.Registration_DirectChallengeHelper
               )}
@@ -486,12 +487,12 @@ export const RegisterForm: FC<RegisterFormProps> = ({
           >
             {registering
               ? labels.registering ||
-                tComponent<SuiteCoreStringKey>(
+                tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Registration_Registering
                 )
               : labels.register ||
-                tComponent<SuiteCoreStringKey>(
+                tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Registration_RegisterButton
                 )}
@@ -504,13 +505,13 @@ export const RegisterForm: FC<RegisterFormProps> = ({
             >
               <AlertTitle>
                 {labels.registering ||
-                  tComponent<SuiteCoreStringKey>(
+                  tComponent<SuiteCoreStringKeyValue>(
                     SuiteCoreComponentId,
                     SuiteCoreStringKey.Registration_Registering
                   )}
               </AlertTitle>
               <Typography variant="body2" component="div">
-                {tComponent<SuiteCoreStringKey>(
+                {tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Registration_RegisteringMessage
                 )}
@@ -525,14 +526,14 @@ export const RegisterForm: FC<RegisterFormProps> = ({
             >
               <AlertTitle>
                 {labels.successTitle ||
-                  tComponent<SuiteCoreStringKey>(
+                  tComponent<SuiteCoreStringKeyValue>(
                     SuiteCoreComponentId,
                     SuiteCoreStringKey.Registration_SuccessTitle
                   )}
               </AlertTitle>
               <Typography variant="body2" component="div">
                 {labels.mnemonicSuccess ||
-                  tComponent<SuiteCoreStringKey>(
+                  tComponent<SuiteCoreStringKeyValue>(
                     SuiteCoreComponentId,
                     SuiteCoreStringKey.Registration_MnemonicSuccess
                   )}
@@ -546,7 +547,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
                 <Box sx={{ textAlign: 'center' }}>
                   <Link href="/login">
                     {labels.proceedToLogin ||
-                      tComponent<SuiteCoreStringKey>(
+                      tComponent<SuiteCoreStringKeyValue>(
                         SuiteCoreComponentId,
                         SuiteCoreStringKey.ProceedToLogin
                       )}
@@ -560,20 +561,20 @@ export const RegisterForm: FC<RegisterFormProps> = ({
             <Alert severity="success" sx={{ mt: 2, mb: 2 }}>
               <AlertTitle>
                 {labels.successTitle ||
-                  tComponent<SuiteCoreStringKey>(
+                  tComponent<SuiteCoreStringKeyValue>(
                     SuiteCoreComponentId,
                     SuiteCoreStringKey.Registration_SuccessTitle
                   )}
               </AlertTitle>
               <Typography variant="body2" component="div">
-                {tComponent<SuiteCoreStringKey>(
+                {tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Registration_Success
                 )}
                 <Box sx={{ textAlign: 'center' }}>
                   <Link href="/login">
                     {labels.proceedToLogin ||
-                      tComponent<SuiteCoreStringKey>(
+                      tComponent<SuiteCoreStringKeyValue>(
                         SuiteCoreComponentId,
                         SuiteCoreStringKey.ProceedToLogin
                       )}
@@ -586,7 +587,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
             <Box sx={{ textAlign: 'center' }}>
               <Link href="/login" variant="body2">
                 {labels.loginLink ||
-                  tComponent<SuiteCoreStringKey>(
+                  tComponent<SuiteCoreStringKeyValue>(
                     SuiteCoreComponentId,
                     SuiteCoreStringKey.Registration_LoginLink
                   )}

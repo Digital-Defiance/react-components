@@ -2,6 +2,7 @@ import {
   Constants,
   SuiteCoreComponentId,
   SuiteCoreStringKey,
+  SuiteCoreStringKeyValue,
 } from '@digitaldefiance/suite-core-lib';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import {
@@ -106,79 +107,79 @@ export const LoginForm: FC<LoginFormProps> = ({
   const labels = {
     title:
       titleText ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Login_Title
       ),
     email:
       emailLabel ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_Email
       ),
     username:
       usernameLabel ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_Username
       ),
     password:
       passwordLabel ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_Password
       ),
     mnemonic:
       mnemonicLabel ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_Mnemonic
       ),
     signIn:
       signInButtonText ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.SignInButton
       ),
     forgotPassword:
       forgotPasswordText ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Login_ForgotPassword
       ),
     signUp:
       signUpText ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Login_SignUp
       ),
     useUsername:
       useUsernameText ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Login_UseUsername
       ),
     useEmail:
       useEmailText ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Login_UseEmailAddress
       ),
     useMnemonic:
       useMnemonicText ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_UseMnemonic
       ),
     usePassword:
       usePasswordText ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_UsePassword
       ),
     toggleVisibility:
       toggleVisibilityLabel ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.TogglePasswordVisibility
       ),
@@ -189,13 +190,13 @@ export const LoginForm: FC<LoginFormProps> = ({
       emailValidation ||
       Yup.string()
         .email(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_InvalidEmail
           )
         )
         .required(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_Required
           )
@@ -205,13 +206,13 @@ export const LoginForm: FC<LoginFormProps> = ({
       Yup.string()
         .matches(
           Constants.UsernameRegex,
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_UsernameRegexErrorTemplate
           )
         )
         .required(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_Required
           )
@@ -221,13 +222,13 @@ export const LoginForm: FC<LoginFormProps> = ({
       Yup.string()
         .min(
           1,
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_Required
           )
         )
         .required(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_Required
           )
@@ -237,13 +238,13 @@ export const LoginForm: FC<LoginFormProps> = ({
       Yup.string()
         .matches(
           Constants.MnemonicRegex,
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_InvalidMnemonic
           )
         )
         .required(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_Required
           )
@@ -275,7 +276,7 @@ export const LoginForm: FC<LoginFormProps> = ({
         const err = error as { message?: string };
         setStatus(
           err.message ||
-            tComponent<SuiteCoreStringKey>(
+            tComponent<SuiteCoreStringKeyValue>(
               SuiteCoreComponentId,
               SuiteCoreStringKey.Common_UnexpectedError
             )

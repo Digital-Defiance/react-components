@@ -2,6 +2,7 @@ import {
   Constants,
   SuiteCoreComponentId,
   SuiteCoreStringKey,
+  SuiteCoreStringKeyValue,
 } from '@digitaldefiance/suite-core-lib';
 import {
   Box,
@@ -77,89 +78,89 @@ export const BackupCodeLoginForm: FC<BackupCodeLoginFormProps> = ({
   const translatedLabels = {
     title:
       labels.title ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.BackupCodeRecovery_Title
       ),
     email:
       labels.email ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_Email
       ),
     username:
       labels.username ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_Username
       ),
     code:
       labels.code ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_BackupCode
       ),
     newPassword:
       labels.newPassword ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_NewPassword
       ),
     confirmPassword:
       labels.confirmPassword ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_ConfirmNewPassword
       ),
     recoverMnemonic:
       labels.recoverMnemonic ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.BackupCodeRecovery_RecoverMnemonic
       ),
     login:
       labels.login ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.BackupCodeRecovery_Login
       ),
     useUsername:
       labels.useUsername ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Login_UseUsername
       ),
     useEmail:
       labels.useEmail ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Login_UseEmailAddress
       ),
     dashboard:
       labels.dashboard ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_Dashboard
       ),
     generateNewCodes:
       labels.generateNewCodes ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.BackupCodeRecovery_GenerateNewCodes
       ),
     mnemonicLabel:
       labels.mnemonicLabel ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_Mnemonic
       ),
     codesRemaining:
       labels.codesRemaining ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.BackupCodeRecovery_CodesRemainingTemplate
       ),
-    unexpectedError: tComponent<SuiteCoreStringKey>(
+    unexpectedError: tComponent<SuiteCoreStringKeyValue>(
       SuiteCoreComponentId,
       SuiteCoreStringKey.Common_UnexpectedError
     ),
@@ -168,13 +169,13 @@ export const BackupCodeLoginForm: FC<BackupCodeLoginFormProps> = ({
   const yupFieldValidation = {
     email: Yup.string()
       .email(
-        tComponent<SuiteCoreStringKey>(
+        tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.Validation_InvalidEmail
         )
       )
       .required(
-        tComponent<SuiteCoreStringKey>(
+        tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.Validation_Required
         )
@@ -182,41 +183,41 @@ export const BackupCodeLoginForm: FC<BackupCodeLoginFormProps> = ({
     username: Yup.string()
       .matches(
         Constants.UsernameRegex,
-        tComponent<SuiteCoreStringKey>(
+        tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.Validation_UsernameRegexErrorTemplate
         )
       )
       .required(
-        tComponent<SuiteCoreStringKey>(
+        tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.Validation_Required
         )
       ),
     code: Yup.string()
       .required(
-        tComponent<SuiteCoreStringKey>(
+        tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.Validation_Required
         )
       )
       .matches(
         Constants.BACKUP_CODES.DisplayRegex,
-        tComponent<SuiteCoreStringKey>(
+        tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.Validation_InvalidBackupCode
         )
       ),
     password: Yup.string().matches(
       Constants.PasswordRegex,
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Validation_PasswordRegexErrorTemplate
       )
     ),
     confirmPassword: Yup.string().oneOf(
       [Yup.ref('newPassword')],
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Validation_PasswordMatch
       )

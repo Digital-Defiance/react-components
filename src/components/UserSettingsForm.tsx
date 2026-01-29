@@ -2,6 +2,7 @@ import { CurrencyCode } from '@digitaldefiance/i18n-lib';
 import {
   SuiteCoreComponentId,
   SuiteCoreStringKey,
+  SuiteCoreStringKeyValue,
 } from '@digitaldefiance/suite-core-lib';
 import {
   Alert,
@@ -107,13 +108,13 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
       emailValidation ||
       Yup.string()
         .email(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_InvalidEmail
           )
         )
         .required(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_Required
           )
@@ -122,14 +123,14 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
       timezoneValidation ||
       Yup.string()
         .required(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_TimezoneRequired
           )
         )
         .test(
           'valid-timezone',
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_TimezoneInvalid
           ),
@@ -138,7 +139,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
     siteLanguage:
       siteLanguageValidation ||
       Yup.string().required(
-        tComponent<SuiteCoreStringKey>(
+        tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.Validation_Required
         )
@@ -147,14 +148,14 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
       currencyValidation ||
       Yup.string()
         .required(
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_Required
           )
         )
         .test(
           'valid-currency',
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_Required
           ),
@@ -163,7 +164,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
     darkMode:
       darkModeValidation ||
       Yup.boolean().required(
-        tComponent<SuiteCoreStringKey>(
+        tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.Validation_Required
         )
@@ -171,7 +172,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
     directChallenge:
       directChallengeValidation ||
       Yup.boolean().required(
-        tComponent<SuiteCoreStringKey>(
+        tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.Validation_Required
         )
@@ -202,7 +203,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
         setSuccessMessage(
           result.message ||
             labels.successMessage ||
-            tComponent<SuiteCoreStringKey>(
+            tComponent<SuiteCoreStringKeyValue>(
               SuiteCoreComponentId,
               SuiteCoreStringKey.Settings_SaveSuccess
             )
@@ -254,7 +255,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
       >
         <Typography variant="h4" component="h1" gutterBottom>
           {labels.title ||
-            tComponent<SuiteCoreStringKey>(
+            tComponent<SuiteCoreStringKeyValue>(
               SuiteCoreComponentId,
               SuiteCoreStringKey.Settings_Title
             )}
@@ -271,7 +272,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
             name="email"
             label={
               labels.email ||
-              tComponent<SuiteCoreStringKey>(
+              tComponent<SuiteCoreStringKeyValue>(
                 SuiteCoreComponentId,
                 SuiteCoreStringKey.Common_Email
               )
@@ -286,7 +287,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
               (formik.touched.email &&
                 (formik.errors.email || apiErrors.email)) ||
               labels.emailHelper ||
-              tComponent<SuiteCoreStringKey>(
+              tComponent<SuiteCoreStringKeyValue>(
                 SuiteCoreComponentId,
                 SuiteCoreStringKey.Settings_EmailHelper
               )
@@ -297,7 +298,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
           <FormControl fullWidth margin="normal">
             <InputLabel id="timezone-label">
               {labels.timezone ||
-                tComponent<SuiteCoreStringKey>(
+                tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Common_Timezone
                 )}
@@ -312,7 +313,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
               error={formik.touched.timezone && Boolean(formik.errors.timezone)}
               label={
                 labels.timezone ||
-                tComponent<SuiteCoreStringKey>(
+                tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Common_Timezone
                 )
@@ -335,7 +336,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
           <FormControl fullWidth margin="normal">
             <InputLabel id="language-label">
               {labels.siteLanguage ||
-                tComponent<SuiteCoreStringKey>(
+                tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Settings_SiteLanguage
                 )}
@@ -353,7 +354,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
               }
               label={
                 labels.siteLanguage ||
-                tComponent<SuiteCoreStringKey>(
+                tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Settings_SiteLanguage
                 )
@@ -376,7 +377,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
           <FormControl fullWidth margin="normal">
             <InputLabel id="currency-label">
               {labels.currency ||
-                tComponent<SuiteCoreStringKey>(
+                tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Settings_Currency
                 )}
@@ -391,7 +392,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
               error={formik.touched.currency && Boolean(formik.errors.currency)}
               label={
                 labels.currency ||
-                tComponent<SuiteCoreStringKey>(
+                tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Settings_Currency
                 )
@@ -423,7 +424,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
               }
               label={
                 labels.darkMode ||
-                tComponent<SuiteCoreStringKey>(
+                tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Settings_DarkMode
                 )
@@ -443,7 +444,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
               }
               label={
                 labels.directChallenge ||
-                tComponent<SuiteCoreStringKey>(
+                tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Registration_DirectChallengeLabel
                 )
@@ -455,7 +456,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
               sx={{ ml: 4, mt: -1 }}
             >
               {labels.directChallengeHelper ||
-                tComponent<SuiteCoreStringKey>(
+                tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Registration_DirectChallengeHelper
                 )}
@@ -486,12 +487,12 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
           >
             {saving
               ? labels.saving ||
-                tComponent<SuiteCoreStringKey>(
+                tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Settings_Saving
                 )
               : labels.save ||
-                tComponent<SuiteCoreStringKey>(
+                tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Settings_Save
                 )}

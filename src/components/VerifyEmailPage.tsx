@@ -1,6 +1,7 @@
 import {
   SuiteCoreComponentId,
   SuiteCoreStringKey,
+  SuiteCoreStringKeyValue,
 } from '@digitaldefiance/suite-core-lib';
 import {
   Alert,
@@ -57,43 +58,43 @@ export const VerifyEmailPage: FC<VerifyEmailPageProps> = ({
     return {
       title:
         labels.title ||
-        tComponent<SuiteCoreStringKey>(
+        tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.Common_EmailVerification
         ),
       success:
         labels.success ||
-        tComponent<SuiteCoreStringKey>(
+        tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.EmailVerification_Success
         ),
       failed:
         labels.failed ||
-        tComponent<SuiteCoreStringKey>(
+        tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.EmailVerification_Failed
         ),
       noToken:
         labels.noToken ||
-        tComponent<SuiteCoreStringKey>(
+        tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.NoVerificationTokenProvided
         ),
       proceedToLogin:
         labels.proceedToLogin ||
-        tComponent<SuiteCoreStringKey>(
+        tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.ProceedToLogin
         ),
       contactSupport:
         labels.contactSupport ||
-        tComponent<SuiteCoreStringKey>(
+        tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.HavingTroubleContactSupport
         ),
       requestNewEmail:
         labels.requestNewEmail ||
-        tComponent<SuiteCoreStringKey>(
+        tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.RequestNewVerificationEmail
         ),

@@ -3,6 +3,7 @@ import {
   IRoleDTO,
   SuiteCoreComponentId,
   SuiteCoreStringKey,
+  SuiteCoreStringKeyValue,
 } from '@digitaldefiance/suite-core-lib';
 import {
   AccountCircle,
@@ -123,7 +124,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({
     const baseOptions: IMenuOption[] = [
       {
         id: 'dashboard',
-        label: tComponent<SuiteCoreStringKey>(
+        label: tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.Common_Dashboard
         ),
@@ -143,7 +144,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({
       },
       {
         id: 'logout',
-        label: tComponent<SuiteCoreStringKey>(
+        label: tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.LogoutButton
         ),
@@ -155,7 +156,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({
       },
       {
         id: 'login',
-        label: tComponent<SuiteCoreStringKey>(
+        label: tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.Login_LoginButton
         ),
@@ -167,7 +168,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({
       },
       {
         id: 'register',
-        label: tComponent<SuiteCoreStringKey>(
+        label: tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.RegisterButton
         ),
@@ -179,7 +180,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({
       },
       {
         id: 'forgot-password',
-        label: tComponent<SuiteCoreStringKey>(
+        label: tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.ForgotPassword_Title
         ),
@@ -191,7 +192,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({
       },
       {
         id: 'change-password',
-        label: tComponent<SuiteCoreStringKey>(
+        label: tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.Common_ChangePassword
         ),
@@ -205,7 +206,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({
         ? [
             {
               id: 'backup-code',
-              label: tComponent<SuiteCoreStringKey>(
+              label: tComponent<SuiteCoreStringKeyValue>(
                 SuiteCoreComponentId,
                 SuiteCoreStringKey.BackupCodeRecovery_Title
               ),
@@ -217,7 +218,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({
             },
             {
               id: 'backup-codes',
-              label: tComponent<SuiteCoreStringKey>(
+              label: tComponent<SuiteCoreStringKeyValue>(
                 SuiteCoreComponentId,
                 SuiteCoreStringKey.BackupCodeRecovery_GenerateNewCodes
               ),
@@ -239,7 +240,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({
       },
       {
         id: 'clear-mnemonic',
-        label: tComponent<SuiteCoreStringKey>(
+        label: tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.Common_ClearMnemonic
         ),
@@ -252,7 +253,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({
       },
       {
         id: 'clear-wallet',
-        label: tComponent<SuiteCoreStringKey>(
+        label: tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.Common_ClearWallet
         ),
@@ -276,11 +277,11 @@ export const MenuProvider: FC<MenuProviderProps> = ({
         id: 'theme-toggle',
         label:
           colorMode === 'dark'
-            ? tComponent<SuiteCoreStringKey>(
+            ? tComponent<SuiteCoreStringKeyValue>(
                 SuiteCoreComponentId,
                 SuiteCoreStringKey.Common_ThemeToggle_Light
               )
-            : tComponent<SuiteCoreStringKey>(
+            : tComponent<SuiteCoreStringKeyValue>(
                 SuiteCoreComponentId,
                 SuiteCoreStringKey.Common_ThemeToggle_Dark
               ),
@@ -292,7 +293,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({
       },
       {
         id: 'user-settings',
-        label: tComponent<SuiteCoreStringKey>(
+        label: tComponent<SuiteCoreStringKeyValue>(
           SuiteCoreComponentId,
           SuiteCoreStringKey.Settings_Title
         ),

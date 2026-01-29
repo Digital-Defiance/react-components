@@ -2,6 +2,7 @@ import {
   Constants,
   SuiteCoreComponentId,
   SuiteCoreStringKey,
+  SuiteCoreStringKeyValue,
 } from '@digitaldefiance/suite-core-lib';
 import {
   Alert,
@@ -58,7 +59,7 @@ export const BackupCodesForm: FC<BackupCodesFormProps> = ({
         .trim()
         .matches(
           Constants.MnemonicRegex,
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_MnemonicRegex
           )
@@ -70,7 +71,7 @@ export const BackupCodesForm: FC<BackupCodesFormProps> = ({
         .trim()
         .matches(
           Constants.PasswordRegex,
-          tComponent<SuiteCoreStringKey>(
+          tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_PasswordRegexErrorTemplate
           )
@@ -81,39 +82,39 @@ export const BackupCodesForm: FC<BackupCodesFormProps> = ({
   const translatedLabels = {
     codesRemaining:
       labels.codesRemaining ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.BackupCodeRecovery_CodesRemainingTemplate
       ),
     mnemonic:
       labels.mnemonic ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_Mnemonic
       ),
     password:
       labels.password ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.Common_Password
       ),
     generateButton:
       labels.generateButton ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.BackupCodeRecovery_GenerateNewCodes
       ),
     successTitle:
       labels.successTitle ||
-      tComponent<SuiteCoreStringKey>(
+      tComponent<SuiteCoreStringKeyValue>(
         SuiteCoreComponentId,
         SuiteCoreStringKey.BackupCodeRecovery_YourNewCodes
       ),
-    xorError: tComponent<SuiteCoreStringKey>(
+    xorError: tComponent<SuiteCoreStringKeyValue>(
       SuiteCoreComponentId,
       SuiteCoreStringKey.Validation_MnemonicOrPasswordRequired
     ),
-    unexpectedError: tComponent<SuiteCoreStringKey>(
+    unexpectedError: tComponent<SuiteCoreStringKeyValue>(
       SuiteCoreComponentId,
       SuiteCoreStringKey.Common_UnexpectedError
     ),

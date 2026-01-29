@@ -1,6 +1,7 @@
 import {
   SuiteCoreComponentId,
   SuiteCoreStringKey,
+  SuiteCoreStringKeyValue,
 } from '@digitaldefiance/suite-core-lib';
 import MenuIcon from '@mui/icons-material/Menu';
 import {
@@ -53,7 +54,7 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo }) => {
   const handleOpenSideMenu = () => setIsSideMenuOpen(true);
   const handleCloseSideMenu = () => setIsSideMenuOpen(false);
   const { tComponent } = useI18n();
-  const siteTitle = tComponent<SuiteCoreStringKey>(
+  const siteTitle = tComponent<SuiteCoreStringKeyValue>(
     SuiteCoreComponentId,
     SuiteCoreStringKey.Common_SiteTemplate
   );
@@ -93,7 +94,7 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo }) => {
                 component={Link as ElementType}
                 to="/dashboard"
               >
-                {tComponent<SuiteCoreStringKey>(
+                {tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Common_Dashboard
                 )}
@@ -117,7 +118,7 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo }) => {
                 component={Link as ElementType}
                 to="/login"
               >
-                {tComponent<SuiteCoreStringKey>(
+                {tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.Login_LoginButton
                 )}
@@ -127,7 +128,7 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo }) => {
                 component={Link as ElementType}
                 to="/register"
               >
-                {tComponent<SuiteCoreStringKey>(
+                {tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
                   SuiteCoreStringKey.RegisterButton
                 )}
