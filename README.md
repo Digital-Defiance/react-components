@@ -57,6 +57,8 @@ Pre-configured components that integrate with application contexts. See the [Com
 - **TopMenu** - App bar with navigation and menu
 - **TranslatedTitle** - Document title updater with i18n support
 - **UserLanguageSelector** - Language selection component
+- **UserMenu** - User account dropdown menu
+- **UserSettingsForm** - User settings form component
 
 ### Hooks
 
