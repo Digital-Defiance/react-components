@@ -25,6 +25,11 @@ export interface I18nContextType {
     vars?: Record<string, string | number>,
     language?: string
   ) => string;
+  tBranded: <TStringKey extends string>(
+    stringKey: TStringKey,
+    vars?: Record<string, string | number>,
+    language?: string
+  ) => string;
   tComponent: <TStringKey extends string>(
     componentId: string,
     stringKey: TStringKey,
@@ -67,6 +72,21 @@ export const I18nProvider: FC<I18nProviderProps> = ({
     [onLanguageChange, i18nEngine, context]
   );
 
+  const tBranded = useCallback(
+    (
+      key: string,
+      vars?: Record<string, string | number>,
+      language?: string
+    ) => {
+      return i18nEngine.translateStringKey(
+        key,
+        vars,
+        language ?? currentLanguage
+      );
+    },
+    [i18nEngine, currentLanguage]
+  );
+
   const t = useCallback(
     (
       key: string,
@@ -98,6 +118,7 @@ export const I18nProvider: FC<I18nProviderProps> = ({
   const value = {
     t,
     tComponent,
+    tBranded,
     changeLanguage,
     currentLanguage,
   };

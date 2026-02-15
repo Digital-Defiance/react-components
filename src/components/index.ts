@@ -23,3 +23,5 @@ export * from './TranslatedTitle';
 export * from './UserMenu';
 export * from './UserLanguageSelector';
 export * from './VerifyEmailPage';
+export * from './T';
+export * from './TDiv';
