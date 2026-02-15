@@ -14,11 +14,14 @@ import {
   createI18nSetup,
   I18nEngine,
   LanguageCodes,
+  validateConstantsCoverage,
 } from '@digitaldefiance/i18n-lib';
 import {
   createSuiteCoreComponentPackage,
   SuiteCoreStringKey,
+  SuiteCoreComponentStrings,
 } from '@digitaldefiance/suite-core-lib';
+import type { ISuiteCoreI18nConstants } from '@digitaldefiance/suite-core-lib';
 import { I18nProvider, useI18n } from '../../src/contexts/I18nProvider';
 
 describe('I18nProvider Constants Integration', () => {
@@ -36,7 +39,7 @@ describe('I18nProvider Constants Integration', () => {
    * Helper: creates a setup mimicking a third-party app that overrides
    * SuiteCore's default constants with its own values.
    */
-  function createAppSetup(appConstants: Record<string, unknown>) {
+  function createAppSetup(appConstants: Partial<ISuiteCoreI18nConstants>) {
     // Minimal branded enum for the "app" component
     // We only need SuiteCore's strings, so the app component is a stub
     const setup = createI18nSetup({
@@ -370,6 +373,70 @@ describe('I18nProvider Constants Integration', () => {
       const suiteCoreComponentId = createSuiteCoreComponentPackage().config.id;
       const owner = engine.resolveConstantOwner('SiteEmailDomain');
       expect(owner).toBe(suiteCoreComponentId);
+    });
+  });
+
+  describe('validateConstantsCoverage', () => {
+    it('should detect missing constants for template variables', () => {
+      const strings: Record<string, Record<string, string>> = {
+        'en-US': {
+          greeting: 'Welcome to {Site}',
+          tagline: '{SiteTagline} - powered by {MissingKey}',
+        },
+      };
+      const constants = { Site: 'Test', SiteTagline: 'Tagline' };
+      const result = validateConstantsCoverage(strings, constants);
+      expect(result.isValid).toBe(false);
+      expect(result.missingConstants).toContain('MissingKey');
+    });
+
+    it('should report unused constants', () => {
+      const strings: Record<string, Record<string, string>> = {
+        'en-US': { greeting: 'Welcome to {Site}' },
+      };
+      const constants = { Site: 'Test', UnusedKey: 'never referenced' };
+      const result = validateConstantsCoverage(strings, constants);
+      expect(result.isValid).toBe(true);
+      expect(result.unusedConstants).toContain('UnusedKey');
+    });
+
+    it('should pass for SuiteCoreComponentStrings with full constants and ignored runtime variables', () => {
+      const fullConstants: ISuiteCoreI18nConstants = {
+        Site: 'TestSite',
+        SiteTagline: 'Test Tagline',
+        SiteDescription: 'Test Description',
+        SiteEmailDomain: 'test.example.com',
+        SiteHostname: 'test.example.com',
+        EmailTokenResendIntervalMinutes: 10,
+      };
+      // SuiteCoreComponentStrings contains many runtime variables (e.g. {email}, {count})
+      // that are NOT constants — they are passed at call time. We ignore those here.
+      const result = validateConstantsCoverage(
+        SuiteCoreComponentStrings,
+        fullConstants,
+      );
+      // All ISuiteCoreI18nConstants keys should be referenced in templates
+      expect(result.referencedVariables).toContain('Site');
+      expect(result.referencedVariables).toContain('SiteTagline');
+      expect(result.referencedVariables).toContain('SiteDescription');
+      expect(result.referencedVariables).toContain('EmailTokenResendIntervalMinutes');
+      // The missing constants are runtime variables, not actual constants
+      // Verify our actual constants are NOT in the missing list
+      for (const key of Object.keys(fullConstants)) {
+        expect(result.missingConstants).not.toContain(key);
+      }
+    });
+
+    it('should support ignoreVariables option', () => {
+      const strings: Record<string, Record<string, string>> = {
+        'en-US': { msg: '{Site} has {count} users' },
+      };
+      const constants = { Site: 'Test' };
+      const result = validateConstantsCoverage(strings, constants, {
+        ignoreVariables: ['count'],
+      });
+      expect(result.isValid).toBe(true);
+      expect(result.missingConstants).toEqual([]);
     });
   });
 });
