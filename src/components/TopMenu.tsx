@@ -1,4 +1,6 @@
 import {
+  Constants,
+  IConstants,
   SuiteCoreComponentId,
   SuiteCoreStringKey,
   SuiteCoreStringKeyValue,
@@ -44,9 +46,10 @@ export interface AdditionalDropdownMenu {
 export interface TopMenuProps {
   Logo: React.ReactNode;
   additionalMenus?: Array<AdditionalDropdownMenu>;
+  constants?: IConstants;
 }
 
-export const TopMenu: FC<TopMenuProps> = ({ Logo }) => {
+export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus, constants }) => {
   const { isAuthenticated } = useContext(AuthContext);
   const { getTopMenus } = useMenu();
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
@@ -56,7 +59,8 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo }) => {
   const { tComponent } = useI18n();
   const siteTitle = tComponent<SuiteCoreStringKeyValue>(
     SuiteCoreComponentId,
-    SuiteCoreStringKey.Common_SiteTemplate
+    SuiteCoreStringKey.Common_SiteTemplate,
+    { Site: (constants ?? Constants).Site }
   );
 
   return (
