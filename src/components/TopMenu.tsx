@@ -14,7 +14,7 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import React, { ElementType, FC, ReactElement, useContext, useState } from 'react';
+import React, { ElementType, FC, ReactElement, useContext, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthProvider';
 import { useI18n } from '../contexts/I18nProvider';
@@ -63,6 +63,21 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus, constants }) 
     { Site: (constants ?? Constants).Site }
   );
 
+  const allMenus = useMemo(() => {
+    const contextMenus = getTopMenus();
+    if (!additionalMenus || additionalMenus.length === 0) {
+      return contextMenus;
+    }
+    const additional = additionalMenus.map((m) => ({
+      ...m,
+      options: [],
+      isUserMenu: false,
+    }));
+    return [...contextMenus, ...additional].sort(
+      (a, b) => (b.priority ?? 0) - (a.priority ?? 0)
+    );
+  }, [getTopMenus, additionalMenus]);
+
   return (
     <AppBar position="fixed" sx={{ top: 10 }}>
       <Toolbar>
@@ -103,7 +118,7 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus, constants }) 
                   SuiteCoreStringKey.Common_Dashboard
                 )}
               </Button>
-              {getTopMenus().map((menu, index) =>
+              {allMenus.map((menu, index) =>
                 menu.isUserMenu ? (
                   <UserMenu key={`user-menu`} />
                 ) : (
