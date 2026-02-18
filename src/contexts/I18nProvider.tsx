@@ -1,6 +1,5 @@
 import {
   GlobalActiveContext,
-  I18nEngine,
   IActiveContext,
   LanguageRegistry,
 } from '@digitaldefiance/i18n-lib';
@@ -13,9 +12,33 @@ import {
   useState,
 } from 'react';
 
+/**
+ * Minimal structural interface accepted by I18nProvider.
+ * Both I18nEngine and PluginI18nEngine satisfy this interface.
+ */
+export interface II18nEngineCompat {
+  setLanguage(language: string): void;
+  translate(
+    componentId: string,
+    stringKey: string,
+    variables?: Record<string, string | number>,
+    language?: string
+  ): string;
+  t(
+    template: string,
+    vars?: Record<string, string | number>,
+    language?: string
+  ): string;
+  translateStringKey?(
+    key: string,
+    vars?: Record<string, string | number>,
+    language?: string
+  ): string;
+}
+
 export interface I18nProviderProps {
   children: ReactNode;
-  i18nEngine: I18nEngine;
+  i18nEngine: II18nEngineCompat;
   onLanguageChange?: (language: string) => Promise<void>;
 }
 
@@ -78,11 +101,8 @@ export const I18nProvider: FC<I18nProviderProps> = ({
       vars?: Record<string, string | number>,
       language?: string
     ) => {
-      return i18nEngine.translateStringKey(
-        key,
-        vars,
-        language ?? currentLanguage
-      );
+      if (!i18nEngine.translateStringKey) return `[${key}]`;
+      return i18nEngine.translateStringKey(key, vars, language ?? currentLanguage);
     },
     [i18nEngine, currentLanguage]
   );
