@@ -24,7 +24,7 @@ export interface II18nEngineCompat {
     variables?: Record<string, string | number>,
     language?: string
   ): string;
-  t(
+  t?(
     template: string,
     vars?: Record<string, string | number>,
     language?: string
@@ -113,6 +113,7 @@ export const I18nProvider: FC<I18nProviderProps> = ({
       vars?: Record<string, string | number>,
       language?: string
     ) => {
+      if (!i18nEngine.t) return `[${key}]`;
       return i18nEngine.t(key, vars, language ?? currentLanguage);
     },
     [i18nEngine, currentLanguage]
