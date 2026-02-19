@@ -24,11 +24,6 @@ export interface II18nEngineCompat {
     variables?: Record<string, string | number>,
     language?: string
   ): string;
-  t?(
-    template: string,
-    vars?: Record<string, string | number>,
-    language?: string
-  ): string;
   translateStringKey?(
     key: string,
     vars?: Record<string, string | number>,
@@ -113,8 +108,10 @@ export const I18nProvider: FC<I18nProviderProps> = ({
       vars?: Record<string, string | number>,
       language?: string
     ) => {
-      if (!i18nEngine.t) return `[${key}]`;
-      return i18nEngine.t(key, vars, language ?? currentLanguage);
+      if (i18nEngine.translateStringKey) {
+        return i18nEngine.translateStringKey(key, vars, language ?? currentLanguage);
+      }
+      return `[${key}]`;
     },
     [i18nEngine, currentLanguage]
   );
