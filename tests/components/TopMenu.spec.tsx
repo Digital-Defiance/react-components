@@ -1,4 +1,4 @@
-import { I18nEngine } from '@digitaldefiance/i18n-lib';
+import { I18nEngine, createDefaultLanguages } from '@digitaldefiance/i18n-lib';
 import { describe, expect, it } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
@@ -11,6 +11,11 @@ import {
   MenuProvider,
   SuiteConfigProvider,
 } from '../../src/contexts';
+import {
+  Constants,
+  IConstants,
+  createSuiteCoreComponentConfig,
+} from '@digitaldefiance/suite-core-lib';
 
 const mockAuthContext = (isAuthenticated: boolean) =>
   ({
@@ -153,5 +158,81 @@ describe('TopMenu', () => {
 
     // Should have dashboard link when authenticated
     expect(screen.getByText(/dashboard/i)).toBeDefined();
+  });
+
+  describe('site title constants propagation', () => {
+    const CUSTOM_SITE = 'My Custom App';
+
+    const CustomConstants: IConstants = {
+      ...Constants,
+      Site: CUSTOM_SITE,
+    } as IConstants;
+
+    /**
+     * Wrapper that registers a fresh i18n engine with custom constants,
+     * simulating what a real app does via createI18nSetup.
+     */
+    const CustomConstantsWrapper: React.FC<{
+      children: React.ReactNode;
+    }> = ({ children }) => {
+      const engineKey = `custom-constants-${Date.now()}`;
+      const languages = createDefaultLanguages();
+      const engine = I18nEngine.registerIfNotExists(engineKey, languages, {
+        constants: CustomConstants,
+      });
+      const coreConfig = createSuiteCoreComponentConfig();
+      engine.registerIfNotExists(coreConfig);
+
+      const authValue = mockAuthContext(false);
+      return (
+        <SuiteConfigProvider baseUrl="http://localhost:3000">
+          <I18nProvider i18nEngine={engine}>
+            <AppThemeProvider>
+              <AuthContext.Provider value={authValue}>
+                <MenuProvider>
+                  <MemoryRouter
+                    future={{
+                      v7_startTransition: true,
+                      v7_relativeSplatPath: true,
+                    }}
+                  >
+                    {children}
+                  </MemoryRouter>
+                </MenuProvider>
+              </AuthContext.Provider>
+            </AppThemeProvider>
+          </I18nProvider>
+        </SuiteConfigProvider>
+      );
+    };
+
+    it('should use i18n engine registered constants when no constants prop is passed', () => {
+      render(
+        <CustomConstantsWrapper>
+          <TopMenu Logo={Logo} />
+        </CustomConstantsWrapper>
+      );
+
+      // The site title should come from the engine's registered constants,
+      // NOT from the default Constants.Site ('New Site')
+      expect(screen.getByText(CUSTOM_SITE)).toBeDefined();
+      expect(screen.queryByText('New Site')).toBeNull();
+    });
+
+    it('should use explicit constants prop when provided', () => {
+      const explicitConstants: IConstants = {
+        ...Constants,
+        Site: 'Explicit Override',
+      } as IConstants;
+
+      render(
+        <CustomConstantsWrapper>
+          <TopMenu Logo={Logo} constants={explicitConstants} />
+        </CustomConstantsWrapper>
+      );
+
+      expect(screen.getByText('Explicit Override')).toBeDefined();
+      expect(screen.queryByText(CUSTOM_SITE)).toBeNull();
+    });
   });
 });

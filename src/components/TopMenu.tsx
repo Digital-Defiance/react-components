@@ -1,5 +1,4 @@
 import {
-  Constants,
   IConstants,
   SuiteCoreComponentId,
   SuiteCoreStringKey,
@@ -57,10 +56,13 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus, constants }) 
   const handleOpenSideMenu = () => setIsSideMenuOpen(true);
   const handleCloseSideMenu = () => setIsSideMenuOpen(false);
   const { tComponent } = useI18n();
+  // When constants are explicitly provided, pass Site as a template variable
+  // override. Otherwise let the i18n engine resolve {Site} from its registered
+  // constants (which the consuming app sets up via createI18nSetup).
   const siteTitle = tComponent<SuiteCoreStringKeyValue>(
     SuiteCoreComponentId,
     SuiteCoreStringKey.Common_SiteTemplate,
-    { Site: (constants ?? Constants).Site }
+    constants ? { Site: constants.Site } : undefined
   );
 
   const allMenus = useMemo(() => {
