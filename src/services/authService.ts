@@ -23,9 +23,28 @@ import { createAuthenticatedApiClient } from './authenticatedApi';
 // API Response Types
 interface ApiErrorResponse {
   message?: string;
-  error?: string;
+  error?: string | { message?: string; statusCode?: number; stack?: string };
   errorType?: string;
   errors?: Array<{ path: string; msg: string }>;
+}
+
+/**
+ * Extract a human-readable error string from an API error response.
+ * The backend may send `error` as either a plain string or an object
+ * with `{ message, statusCode, stack }`.
+ */
+export function extractErrorMessage(errorData: ApiErrorResponse): string | undefined {
+  if (typeof errorData.error === 'string') {
+    return errorData.error;
+  }
+  if (
+    typeof errorData.error === 'object' &&
+    errorData.error !== null &&
+    typeof errorData.error.message === 'string'
+  ) {
+    return errorData.error.message;
+  }
+  return errorData.message;
 }
 
 interface RegisterResponse {
@@ -120,8 +139,7 @@ export class AuthService {
         const errorData = error.response.data;
         return {
           error:
-            errorData.error ??
-            errorData.message ??
+            extractErrorMessage(errorData) ??
             (error as Error).message ??
             getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
           ...(errorData.errorType ? { errorType: errorData.errorType } : {}),
@@ -214,8 +232,7 @@ export class AuthService {
         const errorData = error.response.data;
         return {
           error:
-            errorData.error ??
-            errorData.message ??
+            extractErrorMessage(errorData) ??
             (error as Error).message ??
             getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
           ...(errorData.errorType ? { errorType: errorData.errorType } : {}),
@@ -255,8 +272,7 @@ export class AuthService {
         const errorData = error.response.data;
         return {
           error:
-            errorData.error ??
-            errorData.message ??
+            extractErrorMessage(errorData) ??
             (error as Error).message ??
             getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
           ...(errorData.errorType ? { errorType: errorData.errorType } : {}),
@@ -315,8 +331,7 @@ export class AuthService {
         const errorData = error.response.data;
         return {
           error:
-            errorData.error ??
-            errorData.message ??
+            extractErrorMessage(errorData) ??
             (error as Error).message ??
             getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
           ...(errorData.errorType ? { errorType: errorData.errorType } : {}),
@@ -411,8 +426,7 @@ export class AuthService {
         const errorData = error.response.data;
         return {
           error:
-            errorData.error ??
-            errorData.message ??
+            extractErrorMessage(errorData) ??
             (error as Error).message ??
             getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
           ...(errorData.errorType ? { errorType: errorData.errorType } : {}),
@@ -476,8 +490,7 @@ export class AuthService {
         const errorData = error.response.data;
         return {
           error:
-            errorData.error ??
-            errorData.message ??
+            extractErrorMessage(errorData) ??
             (error as Error).message ??
             getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
           ...(errorData.errorType ? { errorType: errorData.errorType } : {}),
