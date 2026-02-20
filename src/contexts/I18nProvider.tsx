@@ -29,6 +29,12 @@ export interface II18nEngineCompat {
     vars?: Record<string, string | number>,
     language?: string
   ): string;
+  /** Template processor that handles {{component.key}} and {variable} patterns */
+  t?(
+    template: string,
+    variables?: Record<string, string | number>,
+    language?: string
+  ): string;
 }
 
 export interface I18nProviderProps {
@@ -108,6 +114,11 @@ export const I18nProvider: FC<I18nProviderProps> = ({
       vars?: Record<string, string | number>,
       language?: string
     ) => {
+      // If the engine has a template processor and the key looks like a template
+      // (contains {{...}} or {variable} patterns), use t() for template resolution
+      if (i18nEngine.t && (/\{\{/.test(key) || /\{[A-Za-z]/.test(key))) {
+        return i18nEngine.t(key, vars, language ?? currentLanguage);
+      }
       if (i18nEngine.translateStringKey) {
         return i18nEngine.translateStringKey(key, vars, language ?? currentLanguage);
       }
