@@ -1,4 +1,8 @@
-import { I18nEngine, createDefaultLanguages } from '@digitaldefiance/i18n-lib';
+import {
+  I18nEngine,
+  createDefaultLanguages,
+  createI18nSetup,
+} from '@digitaldefiance/i18n-lib';
 import { describe, expect, it } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
@@ -14,7 +18,10 @@ import {
 import {
   Constants,
   IConstants,
+  SuiteCoreComponentId,
+  SuiteCoreStringKey,
   createSuiteCoreComponentConfig,
+  createSuiteCoreComponentPackage,
 } from '@digitaldefiance/suite-core-lib';
 
 const mockAuthContext = (isAuthenticated: boolean) =>
@@ -169,24 +176,27 @@ describe('TopMenu', () => {
     } as IConstants;
 
     /**
-     * Wrapper that registers a fresh i18n engine with custom constants,
-     * simulating what a real app does via createI18nSetup.
+     * Wrapper that uses createI18nSetup — the same factory real apps use —
+     * so library defaults are registered first and then overridden by app
+     * constants through the constants registry (not engine config).
      */
-    const CustomConstantsWrapper: React.FC<{
+    const CreateI18nSetupWrapper: React.FC<{
       children: React.ReactNode;
     }> = ({ children }) => {
-      const engineKey = `custom-constants-${Date.now()}`;
-      const languages = createDefaultLanguages();
-      const engine = I18nEngine.registerIfNotExists(engineKey, languages, {
+      const instanceKey = `setup-${Date.now()}`;
+      const setup = createI18nSetup({
+        componentId: `test-app-${instanceKey}`,
+        stringKeyEnum: SuiteCoreStringKey,
+        strings: {},
         constants: CustomConstants,
+        libraryComponents: [createSuiteCoreComponentPackage()],
+        instanceKey,
       });
-      const coreConfig = createSuiteCoreComponentConfig();
-      engine.registerIfNotExists(coreConfig);
 
       const authValue = mockAuthContext(false);
       return (
         <SuiteConfigProvider baseUrl="http://localhost:3000">
-          <I18nProvider i18nEngine={engine}>
+          <I18nProvider i18nEngine={setup.engine}>
             <AppThemeProvider>
               <AuthContext.Provider value={authValue}>
                 <MenuProvider>
@@ -208,9 +218,9 @@ describe('TopMenu', () => {
 
     it('should use i18n engine registered constants when no constants prop is passed', () => {
       render(
-        <CustomConstantsWrapper>
+        <CreateI18nSetupWrapper>
           <TopMenu Logo={Logo} />
-        </CustomConstantsWrapper>
+        </CreateI18nSetupWrapper>
       );
 
       // The site title should come from the engine's registered constants,
@@ -226,13 +236,94 @@ describe('TopMenu', () => {
       } as IConstants;
 
       render(
-        <CustomConstantsWrapper>
+        <CreateI18nSetupWrapper>
           <TopMenu Logo={Logo} constants={explicitConstants} />
-        </CustomConstantsWrapper>
+        </CreateI18nSetupWrapper>
       );
 
       expect(screen.getByText('Explicit Override')).toBeDefined();
       expect(screen.queryByText(CUSTOM_SITE)).toBeNull();
+    });
+
+    it('should resolve app constants even when getSuiteCoreI18nEngine pre-creates the engine', () => {
+      // Simulate the race condition: getSuiteCoreI18nEngine() is called
+      // during module load (e.g., from an error class import) BEFORE
+      // createI18nSetup runs. This pre-creates the 'default' engine
+      // without app constants.
+      const instanceKey = `race-${Date.now()}`;
+
+      // Step 1: Pre-create engine (simulates getSuiteCoreI18nEngine side effect)
+      const languages = createDefaultLanguages();
+      I18nEngine.registerIfNotExists(instanceKey, languages);
+      const preCreatedEngine = I18nEngine.getInstance(instanceKey);
+      preCreatedEngine.registerIfNotExists(createSuiteCoreComponentConfig());
+
+      // Step 2: Now run createI18nSetup (simulates app initialization)
+      const setup = createI18nSetup({
+        componentId: `race-app-${instanceKey}`,
+        stringKeyEnum: SuiteCoreStringKey,
+        strings: {},
+        constants: CustomConstants,
+        libraryComponents: [createSuiteCoreComponentPackage()],
+        instanceKey,
+      });
+
+      const authValue = mockAuthContext(false);
+      render(
+        <SuiteConfigProvider baseUrl="http://localhost:3000">
+          <I18nProvider i18nEngine={setup.engine}>
+            <AppThemeProvider>
+              <AuthContext.Provider value={authValue}>
+                <MenuProvider>
+                  <MemoryRouter
+                    future={{
+                      v7_startTransition: true,
+                      v7_relativeSplatPath: true,
+                    }}
+                  >
+                    <TopMenu Logo={Logo} />
+                  </MemoryRouter>
+                </MenuProvider>
+              </AuthContext.Provider>
+            </AppThemeProvider>
+          </I18nProvider>
+        </SuiteConfigProvider>
+      );
+
+      expect(screen.getByText(CUSTOM_SITE)).toBeDefined();
+      expect(screen.queryByText('New Site')).toBeNull();
+    });
+
+    it('should resolve {Site} directly from engine.translate without React', () => {
+      // Bypass React entirely — call engine.translate the same way
+      // tComponent does and verify the result.
+      const instanceKey = `direct-${Date.now()}`;
+      const setup = createI18nSetup({
+        componentId: `direct-app-${instanceKey}`,
+        stringKeyEnum: SuiteCoreStringKey,
+        strings: {},
+        constants: CustomConstants,
+        libraryComponents: [createSuiteCoreComponentPackage()],
+        instanceKey,
+      });
+
+      // This is exactly what tComponent does when constants prop is NOT passed:
+      const resultNoVars = setup.engine.translate(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_SiteTemplate,
+        undefined,
+        'en-US'
+      );
+      expect(resultNoVars).toBe(CUSTOM_SITE);
+
+      // And when constants prop IS passed:
+      const resultWithVars = setup.engine.translate(
+        SuiteCoreComponentId,
+        SuiteCoreStringKey.Common_SiteTemplate,
+        { Site: 'Explicit' },
+        'en-US'
+      );
+      expect(resultWithVars).toBe('Explicit');
     });
   });
 });
