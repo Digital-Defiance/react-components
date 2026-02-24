@@ -8,11 +8,17 @@ export type { BackupCodesWrapperProps } from './BackupCodesWrapper';
 export { ChangePasswordFormWrapper } from './ChangePasswordFormWrapper';
 export type { ChangePasswordFormWrapperProps } from './ChangePasswordFormWrapper';
 
+export { ForgotPasswordFormWrapper } from './ForgotPasswordFormWrapper';
+export type { ForgotPasswordFormWrapperProps } from './ForgotPasswordFormWrapper';
+
 export { LoginFormWrapper } from './LoginFormWrapper';
 export type { LoginFormWrapperProps } from './LoginFormWrapper';
 
 export { RegisterFormWrapper } from './RegisterFormWrapper';
 export type { RegisterFormWrapperProps } from './RegisterFormWrapper';
+
+export { ResetPasswordFormWrapper } from './ResetPasswordFormWrapper';
+export type { ResetPasswordFormWrapperProps } from './ResetPasswordFormWrapper';
 
 export { LogoutPageWrapper } from './LogoutPageWrapper';
 export type { LogoutPageWrapperProps } from './LogoutPageWrapper';
