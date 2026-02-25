@@ -364,6 +364,209 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 4.19.11
+
+- Version sync release; re-applies all changes from v2.14.x line (see below)
+
+### Version 3.6.12
+
+- Version sync release; reverts to pre-v2.14.x codebase baseline
+
+### Versions 2.14.13 - 2.14.15
+
+- Dependency updates
+
+### Version 2.14.14
+
+- Added `ForgotPasswordFormWrapper` and `ResetPasswordFormWrapper` components
+- Exported new wrappers from `wrappers/index.tsx`
+
+### Version 2.14.12
+
+- Expanded TopMenu tests with `createI18nSetup` integration coverage
+
+### Version 2.14.11
+
+- TopMenu: removed hard `Constants` import; site title now resolves from i18n constants registry when `constants` prop is omitted
+- AuthService: added `extractErrorMessage` helper for structured API error objects
+- Added comprehensive `authService.spec.ts` test suite
+- Expanded TopMenu test coverage
+
+### Version 2.14.9
+
+- Dependency updates
+
+### Version 2.14.8
+
+- I18nProvider: added null guard for optional `t()` method on engine
+
+### Version 2.14.7
+
+- I18nProvider: simplified `tBranded` to delegate directly to `i18nEngine.t()`
+
+### Version 2.14.6
+
+- I18nProvider: added template-pattern detection to route `{{…}}` / `{var}` keys through `i18nEngine.t()`
+
+### Version 2.14.5
+
+- I18nProvider: introduced `II18nEngineCompat` interface replacing direct `I18nEngine` import; supports both `I18nEngine` and `PluginI18nEngine`
+- Added `t()` and optional `translateStringKey()` to engine compat interface
+
+### Versions 2.14.3 - 2.14.4
+
+- Dependency updates
+
+### Version 2.14.2
+
+- Expanded I18nConstants integration tests
+
+### Version 2.14.1
+
+- TopMenu: added `additionalMenus` prop with priority-based merge into context menus
+- Added I18nConstants integration test suite (375 lines) verifying constant override flow
+
+### Version 2.13.15
+
+- TopMenu: added `constants` prop to pass `IConstants` for site title template variable
+
+### Version 2.13.14
+
+- TranslatedTitle: added `vars` prop for template variable support
+
+### Version 2.13.13
+
+- Added `Tbranded` (`T.tsx`) and `TDivBranded` (`TDiv.tsx`) translation components
+- Exported new components from `components/index.ts`
+- Added `tBranded` function to I18nProvider context
+
+### Versions 2.13.10 - 2.13.12
+
+- Dependency updates
+
+### Versions 2.13.1 - 2.13.5
+
+- README: documented UserMenu and UserSettingsForm components
+- Dependency updates
+
+### Versions 2.12.0 - 2.12.31
+
+- Dependency updates
+
+### Versions 2.11.2 - 2.11.4
+
+- Dependency updates
+
+### Version 2.11.1
+
+- Removed committed `yarn.lock` and `showcase/yarn.lock` from repository
+
+### Version 2.10.0
+
+- Migrated all components to use `SuiteCoreStringKeyValue` type parameter for translation calls
+- Updated PrivateRoute, UnAuthRoute, and all form components with stricter i18n typing
+- Refactored AuthProvider and MenuContext for improved type safety
+
+### Versions 2.9.46 - 2.9.48
+
+- Dependency updates
+
+### Version 2.9.40
+
+- TopMenu: replaced `@ts-expect-error` with `Link as ElementType` cast for MUI/react-router compatibility
+- Fixed wrapper test import
+
+### Versions 2.9.38 - 2.9.39
+
+- Dependency updates
+
+### Version 2.9.37
+
+- Dependency updates (added `@digitaldefiance/i18n-lib` peer dependency)
+
+### Versions 2.9.34 - 2.9.36
+
+- Dependency updates
+
+### Version 2.9.33
+
+- AuthProvider: integrated `AESGCMService` into `PasswordLoginService` construction
+
+### Versions 2.9.29 - 2.9.32
+
+- Dependency updates
+
+### Version 2.9.28
+
+- Added ECIESService mock to AuthProvider test suite for ID provider validation
+
+### Versions 2.9.25 - 2.9.27
+
+- Dependency updates
+
+### Versions 2.9.21 - 2.9.24
+
+- Dependency updates
+
+### Version 2.9.20
+
+- Added showcase app with Hero, About, and Components pages
+- Added GitHub Actions workflow for showcase deployment
+
+### Version 2.9.19
+
+- Added `docs/WRAPPERS.md` documentation
+- Updated test setup
+
+### Version 2.9.18
+
+- Jest config: added `transformIgnorePatterns` for ESM dependencies
+- Extended test setup with additional mocks
+
+### Versions 2.9.16 - 2.9.17
+
+- Dependency updates
+
+### Versions 2.9.14 - 2.9.16
+
+- Dependency updates
+- Added `yarn.lock` and `.yarn/install-state.gz` to repository
+
+### Version 2.9.13
+
+- TopMenu: removed `@ts-expect-error` comments (cleanup)
+- Dependency updates
+
+### Version 2.9.12
+
+- Major ESLint and accessibility overhaul across all components
+- Enhanced form components (LoginForm, RegisterForm, BackupCodeLoginForm, etc.) with improved accessibility attributes and error handling
+- Refactored AuthProvider, I18nProvider, and MenuContext with stricter typing
+- Updated hooks (`useBackupCodes`, `useEmailVerification`, `useUserSettings`) for better error handling
+- Improved test suites across auth, components, contexts, and hooks
+
+### Version 2.9.11
+
+- Refactored `jest.config.js`; removed key-generation spec file
+
+### Version 2.9.10
+
+- AuthService: refactored key handling to use `getPublicKey()` for compressed public keys
+- Reformatted authService for consistent code style
+- Added `authService-key-generation.spec.ts` test suite
+
+### Versions 2.9.8 - 2.9.9
+
+- Dependency updates
+
+### Version 2.9.6
+
+- TopMenu: added `@ts-expect-error` annotations for MUI Button / react-router Link type incompatibility
+
+### Versions 2.9.4 - 2.9.5
+
+- Dependency updates
+
 ### Version 2.9.1
 
 - Upgrade libraries
