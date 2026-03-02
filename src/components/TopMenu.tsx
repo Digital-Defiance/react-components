@@ -46,9 +46,10 @@ export interface TopMenuProps {
   Logo: React.ReactNode;
   additionalMenus?: Array<AdditionalDropdownMenu>;
   constants?: IConstants;
+  showTitle?: boolean;
 }
 
-export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus, constants }) => {
+export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus, constants, showTitle }) => {
   const { isAuthenticated } = useContext(AuthContext);
   const { getTopMenus } = useMenu();
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
@@ -96,7 +97,7 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus, constants }) 
         <Box
           sx={{
             height: 40,
-            width: 40,
+            width: 'auto',
             marginRight: 2,
             display: 'flex',
             alignItems: 'center',
@@ -104,9 +105,11 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus, constants }) 
         >
           {Logo}
         </Box>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          {siteTitle}
-        </Typography>
+        {showTitle !== false && (
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            {siteTitle}
+          </Typography>
+        )}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {isAuthenticated ? (
             <>
