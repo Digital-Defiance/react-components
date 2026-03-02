@@ -106,7 +106,7 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus, constants, sh
           {Logo}
         </Box>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            {(showTitle !== false) ? siteTitle : '&nbsp;' }
+            {(showTitle !== false) ? siteTitle : '\u00A0' }
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {isAuthenticated ? (
