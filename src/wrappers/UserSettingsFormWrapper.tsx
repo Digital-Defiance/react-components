@@ -13,7 +13,7 @@ export const UserSettingsFormWrapper: FC<UserSettingsFormWrapperProps> = ({
   onSuccess,
   componentProps = {},
 }) => {
-  const { settings, isLoading, updateSettings } = useUserSettingsPublic();
+  const { settings, updateSettings } = useUserSettingsPublic();
   const { languages } = useSuiteConfig();
 
   const handleSubmit = async (values: UserSettingsFormValues) => {
@@ -24,7 +24,9 @@ export const UserSettingsFormWrapper: FC<UserSettingsFormWrapperProps> = ({
     return result;
   };
 
-  if (isLoading || !settings) {
+  // Only show loading on initial load, not during updates
+  // Once we have settings, keep showing the form even during updates
+  if (!settings) {
     return <div>{getSuiteCoreTranslation(SuiteCoreStringKey.Common_Loading)}...</div>;
   }
 

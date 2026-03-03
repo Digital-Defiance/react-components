@@ -82,7 +82,7 @@ export const useUserSettings = ({
           setting.siteLanguage !== undefined &&
           setting.siteLanguage !== currentLanguage
         ) {
-          changeLanguage(setting.siteLanguage);
+          await changeLanguage(setting.siteLanguage);
         }
 
         // Send to server if authenticated and we have complete settings (including email)
