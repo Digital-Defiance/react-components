@@ -10,7 +10,7 @@ export interface IMenuOption {
   /**
    * Text to display for the menu option
    */
-  label: string;
+  label: string | ReactNode | Array<ReactNode>;
   /**
    * Where the menu option should be displayed
    */

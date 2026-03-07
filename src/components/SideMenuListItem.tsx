@@ -45,7 +45,7 @@ export const SideMenuListItem: FC<SideMenuListItemProps> = ({
   );
 
   if (menuItem.divider) {
-    return <Divider key={menuItem.label} />;
+    return <Divider key={menuItem.id} />;
   } else if (menuItem.link) {
     return (
       <ListItemButton key={menuItem.id} onClick={handleMenuItemClick(menuItem)}>
