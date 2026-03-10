@@ -200,6 +200,7 @@ export type AuthProviderProps = {
    * If not provided, logout will only clear auth state without navigation
    */
   onLogout?: () => void;
+  emailDomain: string;
 };
 
 export const AuthContext = createContext<AuthContextData>(
@@ -212,13 +213,14 @@ const AuthProviderInner = ({
   constants,
   eciesConfig,
   onLogout,
+  emailDomain,
 }: AuthProviderProps) => {
   const { tComponent } = useI18n();
   const { setColorMode: themeSetPaletteMode, mode: colorMode } = useTheme();
 
   const authService = useMemo(
-    () => createAuthService(constants, baseUrl, eciesConfig),
-    [constants, baseUrl, eciesConfig]
+    () => createAuthService(constants, baseUrl, eciesConfig, emailDomain),
+    [constants, baseUrl, eciesConfig, emailDomain]
   );
   const authenticatedApi = useMemo(
     () => createAuthenticatedApiClient(baseUrl),
@@ -907,6 +909,7 @@ export const AuthProvider = ({
   constants,
   eciesConfig,
   onLogout,
+  emailDomain,
 }: AuthProviderProps) => {
   return (
     <AuthProviderInner
@@ -914,6 +917,7 @@ export const AuthProvider = ({
       constants={constants}
       eciesConfig={eciesConfig}
       onLogout={onLogout}
+      emailDomain={emailDomain}
     >
       {children}
     </AuthProviderInner>

@@ -79,7 +79,8 @@ export class AuthService {
   constructor(
     private constants: IConstants,
     private baseUrl: string,
-    eciesConfig: IECIESConfig
+    eciesConfig: IECIESConfig,
+    private readonly siteDomain: string,
   ) {
     this.eciesService = new ECIESService(eciesConfig);
     this.cryptoCore = new EciesCryptoCore(eciesConfig);
@@ -88,7 +89,7 @@ export class AuthService {
   }
 
   getSiteDomain(): string {
-    return this.constants.AdministratorEmail.split('@')[1];
+    return this.siteDomain;
   }
 
   async register(
@@ -509,5 +510,6 @@ export class AuthService {
 export const createAuthService = (
   constants: IConstants,
   baseUrl: string,
-  eciesConfig: IECIESConfig
-) => new AuthService(constants, baseUrl, eciesConfig);
+  eciesConfig: IECIESConfig,
+  siteDomain: string,
+) => new AuthService(constants, baseUrl, eciesConfig, siteDomain);

@@ -369,9 +369,9 @@ describe('I18nProvider Constants Integration', () => {
     it('should report library as owner of non-overridden constants', () => {
       createAppSetup({ Site: 'Acme Corp' });
 
-      // SiteEmailDomain was not overridden, so suite-core should own it
+      // SiteTagline was not overridden, so suite-core should own it
       const suiteCoreComponentId = createSuiteCoreComponentPackage().config.id;
-      const owner = engine.resolveConstantOwner('SiteEmailDomain');
+      const owner = engine.resolveConstantOwner('SiteTagline');
       expect(owner).toBe(suiteCoreComponentId);
     });
   });
