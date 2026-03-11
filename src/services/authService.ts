@@ -25,6 +25,7 @@ interface ApiErrorResponse {
   message?: string;
   error?: string | { message?: string; statusCode?: number; stack?: string };
   errorType?: string;
+  field?: string;
   errors?: Array<{ path: string; msg: string }>;
 }
 
@@ -96,7 +97,8 @@ export class AuthService {
     username: string,
     email: string,
     timezone: string,
-    password?: string
+    password?: string,
+    mnemonic?: string
   ): Promise<
     | { success: boolean; message: string; mnemonic: string }
     | {
@@ -114,6 +116,7 @@ export class AuthService {
           email,
           timezone,
           ...(password ? { password } : {}),
+          ...(mnemonic ? { mnemonic } : {}),
         }
       );
       if (response.status !== 201) {
@@ -144,7 +147,11 @@ export class AuthService {
             (error as Error).message ??
             getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
           ...(errorData.errorType ? { errorType: errorData.errorType } : {}),
-          ...(errorData.error ? { field: 'general' } : {}),
+          ...(errorData.field
+            ? { field: errorData.field }
+            : errorData.error
+              ? { field: 'general' }
+              : {}),
           ...(errorData.errors ? { errors: errorData.errors } : {}),
         };
       } else {

@@ -29,10 +29,11 @@ export const RegisterFormWrapper: FC<RegisterFormWrapperProps> = ({
       values.username,
       values.email,
       values.timezone || 'UTC',
-      values.password
+      values.password,
+      values.mnemonic,
     );
     if ('error' in result) {
-      throw new Error(result.error);
+      return result;
     }
     if (onSuccess) {
       onSuccess();

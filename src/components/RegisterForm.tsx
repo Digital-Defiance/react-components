@@ -33,6 +33,7 @@ export interface RegisterFormValues {
   password?: string;
   confirmPassword?: string;
   directChallenge?: boolean;
+  mnemonic?: string;
   [key: string]: string | boolean | undefined;
 }
 
@@ -77,6 +78,7 @@ export interface RegisterFormProps {
     mnemonicSuccess?: string;
     proceedToLogin?: string;
     loginLink?: string;
+    mnemonic?: string;
   };
 }
 
@@ -100,6 +102,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
   const [usePassword, setUsePassword] = useState(true);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [registering, setRegistering] = useState(false);
+  const [showMnemonicInput, setShowMnemonicInput] = useState(false);
 
   const validation = {
     username:
@@ -202,6 +205,19 @@ export const RegisterForm: FC<RegisterFormProps> = ({
             SuiteCoreStringKey.Validation_Required
           )
         ),
+    mnemonic: Yup.string()
+      .optional()
+      .test(
+        'mnemonic-format',
+        tComponent<SuiteCoreStringKeyValue>(
+          SuiteCoreComponentId,
+          SuiteCoreStringKey.Validation_MnemonicRegex
+        ),
+        (value) => {
+          if (!value || value.trim() === '') return true;
+          return Constants.MnemonicRegex.test(value.trim());
+        }
+      ),
   };
 
   const formik = useFormik<RegisterFormValues>({
@@ -212,6 +228,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
       password: '',
       confirmPassword: '',
       directChallenge: false,
+      mnemonic: '',
       ...additionalInitialValues,
     },
     enableReinitialize: true,
@@ -225,10 +242,12 @@ export const RegisterForm: FC<RegisterFormProps> = ({
             confirmPassword: validation.confirmPassword,
           }
         : {}),
+      ...(showMnemonicInput ? { mnemonic: validation.mnemonic } : {}),
       ...additionalValidation,
     }),
     onSubmit: async (values, { setSubmitting, setFieldError, setTouched }) => {
       setRegistering(true);
+      setApiErrors({});
       const registerResult = await onSubmit(values, usePassword);
 
       if ('success' in registerResult && registerResult.success) {
@@ -268,7 +287,6 @@ export const RegisterForm: FC<RegisterFormProps> = ({
       }
       setSubmitting(false);
       setRegistering(false);
-      setApiErrors({});
     },
   });
 
@@ -470,6 +488,55 @@ export const RegisterForm: FC<RegisterFormProps> = ({
           </FormControl>
 
           {additionalFields && additionalFields(formik, usePassword)}
+
+          <Box sx={{ mt: 1 }}>
+            <Button
+              variant="text"
+              size="small"
+              onClick={() => setShowMnemonicInput(!showMnemonicInput)}
+              aria-expanded={showMnemonicInput}
+              aria-controls="mnemonic-input"
+            >
+              {showMnemonicInput
+                ? tComponent<SuiteCoreStringKeyValue>(
+                    SuiteCoreComponentId,
+                    SuiteCoreStringKey.Common_ClearMnemonic
+                  )
+                : tComponent<SuiteCoreStringKeyValue>(
+                    SuiteCoreComponentId,
+                    SuiteCoreStringKey.Common_Mnemonic
+                  )}
+            </Button>
+          </Box>
+
+          {showMnemonicInput && (
+            <TextField
+              fullWidth
+              id="mnemonic-input"
+              name="mnemonic"
+              label={
+                labels.mnemonic ||
+                tComponent<SuiteCoreStringKeyValue>(
+                  SuiteCoreComponentId,
+                  SuiteCoreStringKey.Common_Mnemonic
+                )
+              }
+              value={formik.values.mnemonic}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={Boolean(
+                formik.touched.mnemonic &&
+                  (formik.errors.mnemonic || apiErrors.mnemonic)
+              )}
+              helperText={
+                formik.touched.mnemonic &&
+                (formik.errors.mnemonic || apiErrors.mnemonic)
+              }
+              margin="normal"
+              multiline
+              minRows={2}
+            />
+          )}
 
           {apiErrors.general && (
             <Alert severity="error" sx={{ mt: 2, mb: 2 }}>

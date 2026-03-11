@@ -141,7 +141,8 @@ export interface AuthContextData {
     username: string,
     email: string,
     timezone: string,
-    password?: string
+    password?: string,
+    mnemonic?: string
   ) => Promise<
     | {
         success: boolean;
@@ -590,13 +591,15 @@ const AuthProviderInner = ({
       username: string,
       email: string,
       timezone: string,
-      password?: string
+      password?: string,
+      mnemonic?: string
     ) => {
       const registerResult = await authService.register(
         username,
         email,
         timezone,
-        password
+        password,
+        mnemonic
       );
       return registerResult as Awaited<ReturnType<AuthContextData['register']>>;
     },
