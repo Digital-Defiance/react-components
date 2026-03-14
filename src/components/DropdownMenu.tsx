@@ -78,6 +78,7 @@ export const DropdownMenu: FC<DropdownMenuProps> = ({ menuType, menuIcon }) => {
                 width: 24,
                 height: 24,
               },
+              ...option.additionalSx
             }}
           >
             {option.icon}

@@ -1,6 +1,8 @@
 import { ReactNode } from 'react';
 import { To } from 'react-router-dom';
 import { MenuType } from '../types/MenuType';
+import { SxProps } from '@mui/system';
+import { Theme } from '@mui/material';
 
 export interface IMenuOption {
   /**
@@ -52,4 +54,8 @@ export interface IMenuOption {
    * @returns boolean
    */
   filter?: (option: IMenuOption) => boolean;
+  /**
+   * Additional CSS properties
+   */
+  additionalSx?: SxProps<Theme>;
 }
