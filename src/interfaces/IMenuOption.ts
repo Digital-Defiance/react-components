@@ -58,4 +58,6 @@ export interface IMenuOption {
    * Additional CSS properties
    */
   additionalSx?: SxProps<Theme>;
+  iconSx?: SxProps<Theme>;
+  textSx?: SxProps<Theme>;
 }
