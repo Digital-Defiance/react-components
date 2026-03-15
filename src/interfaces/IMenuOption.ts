@@ -58,6 +58,16 @@ export interface IMenuOption {
    * Additional CSS properties
    */
   additionalSx?: SxProps<Theme>;
-  iconSx?: SxProps<Theme>;
-  textSx?: SxProps<Theme>;
+  /**
+   * Additional CSS properties for the side menu variant
+   */
+  sideSx?: SxProps<Theme>;
+  /**
+   * Additional CSS properties for the side menu variant Icon sub item
+   */
+  sideIconSx?: SxProps<Theme>;
+  /**
+   * Additional CSS properties for the side menu variant Text sub item
+   */
+  sideTextSx?: SxProps<Theme>;
 }

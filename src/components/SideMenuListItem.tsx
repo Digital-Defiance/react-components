@@ -45,12 +45,12 @@ export const SideMenuListItem: FC<SideMenuListItemProps> = ({
   );
 
   if (menuItem.divider) {
-    return <Divider key={menuItem.id} sx={{...menuItem.additionalSx}} />;
+    return <Divider key={menuItem.id} sx={{...menuItem.sideSx}} />;
   } else if (menuItem.link) {
     return (
-      <ListItemButton key={menuItem.id} onClick={handleMenuItemClick(menuItem)} sx={{...menuItem.additionalSx}}>
-        {menuItem.icon && <ListItemIcon sx={{...menuItem.iconSx}}>{menuItem.icon}</ListItemIcon>}
-        <ListItemText primary={menuItem.label} sx={{...menuItem.textSx}} />
+      <ListItemButton key={menuItem.id} onClick={handleMenuItemClick(menuItem)} sx={{...menuItem.sideSx}}>
+        {menuItem.icon && <ListItemIcon sx={{...menuItem.sideIconSx}}>{menuItem.icon}</ListItemIcon>}
+        <ListItemText primary={menuItem.label} sx={{...menuItem.sideTextSx}} />
       </ListItemButton>
     );
   } else if (menuItem.action) {
@@ -62,10 +62,10 @@ export const SideMenuListItem: FC<SideMenuListItemProps> = ({
           await action();
           onClose();
         }}
-        sx={{...menuItem.additionalSx}}
+        sx={{...menuItem.sideSx}}
       >
-        {menuItem.icon && <ListItemIcon sx={{...menuItem.iconSx}}>{menuItem.icon}</ListItemIcon>}
-        <ListItemText primary={menuItem.label} sx={{...menuItem.textSx}} />
+        {menuItem.icon && <ListItemIcon sx={{...menuItem.sideIconSx}}>{menuItem.icon}</ListItemIcon>}
+        <ListItemText primary={menuItem.label} sx={{...menuItem.sideTextSx}} />
       </ListItemButton>
     );
   }
