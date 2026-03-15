@@ -45,11 +45,13 @@ export interface AdditionalDropdownMenu {
 export interface TopMenuProps {
   Logo: React.ReactNode;
   additionalMenus?: Array<AdditionalDropdownMenu>;
+  /** Custom action elements rendered in the toolbar after menu dropdowns (e.g. notification bell). Only shown when authenticated. */
+  actions?: React.ReactNode;
   constants?: IConstants;
   showTitle?: boolean;
 }
 
-export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus, constants, showTitle }) => {
+export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus, actions, constants, showTitle }) => {
   const { isAuthenticated } = useContext(AuthContext);
   const { getTopMenus } = useMenu();
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
@@ -157,6 +159,7 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus, constants, sh
               </Button>
             </>
           )}
+          {isAuthenticated && actions}
           <UserLanguageSelector />
         </Box>
       </Toolbar>
