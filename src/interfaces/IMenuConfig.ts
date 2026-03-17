@@ -8,4 +8,8 @@ export interface IMenuConfig {
   priority?: number;
   options: IMenuOption[];
   isUserMenu?: boolean;
+  /** Optional callback invoked when the icon button is clicked. */
+  action?: () => void;
+  /** When true, the menu icon is hidden if there are no sub-options. Defaults to false. */
+  hideWhenEmpty?: boolean;
 }

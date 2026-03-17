@@ -40,6 +40,10 @@ export interface AdditionalDropdownMenu {
   menuType: MenuType;
   menuIcon: ReactElement;
   priority?: number;
+  /** Optional callback invoked when the icon button is clicked. */
+  action?: () => void;
+  /** When true, the menu icon is hidden if there are no sub-options. Defaults to false. */
+  hideWhenEmpty?: boolean;
 }
 
 export interface TopMenuProps {
@@ -131,6 +135,8 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus, actions, cons
                     key={`menu-${index}`}
                     menuType={menu.menuType}
                     menuIcon={menu.menuIcon as ReactElement}
+                    action={menu.action}
+                    hideWhenEmpty={menu.hideWhenEmpty}
                   />
                 )
               )}
