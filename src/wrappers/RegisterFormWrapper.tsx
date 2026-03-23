@@ -31,6 +31,7 @@ export const RegisterFormWrapper: FC<RegisterFormWrapperProps> = ({
       values.timezone || 'UTC',
       values.password,
       values.mnemonic,
+      values.displayName,
     );
     if ('error' in result) {
       return result;

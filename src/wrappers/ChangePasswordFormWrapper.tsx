@@ -22,7 +22,7 @@ export const ChangePasswordFormWrapper: FC<ChangePasswordFormWrapperProps> = ({
       values.newPassword
     );
     if ('error' in result) {
-      throw new Error(result.error);
+      return { error: result.error };
     }
     if (onSuccess) {
       onSuccess();

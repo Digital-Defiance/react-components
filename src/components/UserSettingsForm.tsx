@@ -23,6 +23,7 @@ import moment from 'moment-timezone';
 import { FC, useMemo, useState } from 'react';
 import * as Yup from 'yup';
 import { useI18n } from '../contexts';
+import { Constants } from '@digitaldefiance/suite-core-lib';
 
 export interface UserSettingsFormValues {
   email: string;
@@ -31,7 +32,8 @@ export interface UserSettingsFormValues {
   currency: string;
   darkMode: boolean;
   directChallenge: boolean;
-  [key: string]: string | boolean;
+  displayName?: string;
+  [key: string]: string | boolean | undefined;
 }
 
 export interface UserSettingsFormProps {
@@ -52,6 +54,7 @@ export interface UserSettingsFormProps {
   currencyValidation?: Yup.StringSchema;
   darkModeValidation?: Yup.BooleanSchema;
   directChallengeValidation?: Yup.BooleanSchema;
+  displayNameValidation?: Yup.StringSchema;
   additionalFields?: (
     formik: ReturnType<typeof useFormik<UserSettingsFormValues>>
   ) => React.ReactNode;
@@ -67,6 +70,7 @@ export interface UserSettingsFormProps {
     darkMode?: string;
     directChallenge?: string;
     directChallengeHelper?: string;
+    displayName?: string;
     saving?: string;
     save?: string;
     successMessage?: string;
@@ -83,6 +87,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
   currencyValidation,
   darkModeValidation,
   directChallengeValidation,
+  displayNameValidation,
   additionalFields,
   additionalInitialValues = {},
   additionalValidation = {},
@@ -177,6 +182,31 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
           SuiteCoreStringKey.Validation_Required
         )
       ),
+    ...(Constants.EnableDisplayName ? {
+      displayName: displayNameValidation ||
+        Yup.string()
+          .min(
+            Constants.DisplayNameMinLength,
+            tComponent<SuiteCoreStringKeyValue>(
+              SuiteCoreComponentId,
+              SuiteCoreStringKey.Validation_DisplayNameMinLengthTemplate
+            )
+          )
+          .max(
+            Constants.DisplayNameMaxLength,
+            tComponent<SuiteCoreStringKeyValue>(
+              SuiteCoreComponentId,
+              SuiteCoreStringKey.Validation_DisplayNameMaxLengthTemplate
+            )
+          )
+          .matches(
+            Constants.DisplayNameRegex,
+            tComponent<SuiteCoreStringKeyValue>(
+              SuiteCoreComponentId,
+              SuiteCoreStringKey.Validation_DisplayNameRegexErrorTemplate
+            )
+          ),
+    } : {}),
   };
 
   const formik = useFormik<UserSettingsFormValues>({
@@ -192,6 +222,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
       currency: validation.currency,
       darkMode: validation.darkMode,
       directChallenge: validation.directChallenge,
+      ...(Constants.EnableDisplayName && validation.displayName ? { displayName: validation.displayName } : {}),
       ...additionalValidation,
     }),
     onSubmit: async (values, { setSubmitting, setFieldError, setTouched }) => {
@@ -294,6 +325,31 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
             }
             margin="normal"
           />
+
+          {Constants.EnableDisplayName && (
+            <TextField
+              fullWidth
+              id="displayName"
+              name="displayName"
+              label={
+                labels.displayName ||
+                tComponent<SuiteCoreStringKeyValue>(
+                  SuiteCoreComponentId,
+                  SuiteCoreStringKey.Common_DisplayName
+                )
+              }
+              value={formik.values.displayName ?? ''}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={Boolean(
+                formik.touched.displayName && (formik.errors.displayName || apiErrors.displayName)
+              )}
+              helperText={
+                formik.touched.displayName && (formik.errors.displayName || apiErrors.displayName)
+              }
+              margin="normal"
+            />
+          )}
 
           <FormControl fullWidth margin="normal">
             <InputLabel id="timezone-label">

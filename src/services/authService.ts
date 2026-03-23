@@ -98,7 +98,8 @@ export class AuthService {
     email: string,
     timezone: string,
     password?: string,
-    mnemonic?: string
+    mnemonic?: string,
+    displayName?: string,
   ): Promise<
     | { success: boolean; message: string; mnemonic: string }
     | {
@@ -117,6 +118,7 @@ export class AuthService {
           timezone,
           ...(password ? { password } : {}),
           ...(mnemonic ? { mnemonic } : {}),
+          ...(displayName ? { displayName } : {}),
         }
       );
       if (response.status !== 201) {

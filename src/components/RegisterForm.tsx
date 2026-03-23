@@ -29,6 +29,7 @@ import { useI18n } from '../contexts';
 export interface RegisterFormValues {
   username: string;
   email: string;
+  displayName?: string;
   timezone: string;
   password?: string;
   confirmPassword?: string;
@@ -54,6 +55,7 @@ export interface RegisterFormProps {
   getInitialTimezone: () => string;
   usernameValidation?: Yup.StringSchema;
   emailValidation?: Yup.StringSchema;
+  displayNameValidation?: Yup.StringSchema;
   timezoneValidation?: Yup.StringSchema;
   passwordValidation?: Yup.StringSchema;
   confirmPasswordValidation?: Yup.StringSchema;
@@ -67,6 +69,7 @@ export interface RegisterFormProps {
     title?: string;
     username?: string;
     email?: string;
+    displayName?: string;
     timezone?: string;
     password?: string;
     confirmPassword?: string;
@@ -88,6 +91,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
   getInitialTimezone,
   usernameValidation,
   emailValidation,
+  displayNameValidation,
   timezoneValidation,
   passwordValidation,
   confirmPasswordValidation,
@@ -150,6 +154,38 @@ export const RegisterForm: FC<RegisterFormProps> = ({
             SuiteCoreStringKey.Validation_Required
           )
         ),
+  displayName: !Constants.EnableDisplayName
+    ? Yup.string().strip()
+    : displayNameValidation ||
+      Yup.string()
+        .min(
+          Constants.DisplayNameMinLength,
+          tComponent<SuiteCoreStringKeyValue>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_DisplayNameMinLengthTemplate
+          )
+        )
+        .max(
+          Constants.DisplayNameMaxLength,
+          tComponent<SuiteCoreStringKeyValue>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_DisplayNameMaxLengthTemplate
+          )
+        )
+        .matches(
+          Constants.DisplayNameRegex,
+          tComponent<SuiteCoreStringKeyValue>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_DisplayNameRegexErrorTemplate
+          )
+        )
+        .required(
+          tComponent<SuiteCoreStringKeyValue>(
+            SuiteCoreComponentId,
+            SuiteCoreStringKey.Validation_Required
+          )
+        ),
+    directChallenge: Yup.boolean(),
     timezone:
       timezoneValidation ||
       Yup.string()
@@ -224,6 +260,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
     initialValues: {
       username: '',
       email: '',
+      ...(Constants.EnableDisplayName ? { displayName: '' } : {}),
       timezone: getInitialTimezone(),
       password: '',
       confirmPassword: '',
@@ -235,6 +272,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
     validationSchema: Yup.object({
       username: validation.username,
       email: validation.email,
+      ...(Constants.EnableDisplayName ? { displayName: validation.displayName } : {}),
       timezone: validation.timezone,
       ...(usePassword
         ? {
@@ -359,6 +397,29 @@ export const RegisterForm: FC<RegisterFormProps> = ({
             }
             margin="normal"
           />
+          {Constants.EnableDisplayName && (
+          <TextField
+            fullWidth
+            id="displayName"
+            name="displayName"
+            label={
+              labels.displayName ||
+              tComponent<SuiteCoreStringKeyValue>(
+                SuiteCoreComponentId,
+                SuiteCoreStringKey.Common_DisplayName
+              )
+            }
+            value={formik.values.displayName}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={Boolean(
+              formik.touched.displayName && (formik.errors.displayName || apiErrors.displayName)
+            )}
+            helperText={
+              formik.touched.displayName && (formik.errors.displayName || apiErrors.displayName)
+            }
+            margin="normal"
+          />)}
           <FormControl fullWidth margin="normal">
             <InputLabel id="timezone-label">
               {labels.timezone ||

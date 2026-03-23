@@ -208,5 +208,72 @@ describe('User Management Wrapper Components', () => {
       render(<UserSettingsFormWrapper />, { wrapper });
       expect(screen.getByLabelText(/language/i)).toBeTruthy();
     });
+
+    it('renders displayName field when EnableDisplayName is true', () => {
+      mockUseUserSettingsPublic.mockReturnValue({
+        settings: {
+          email: 'test@example.com',
+          timezone: 'UTC',
+          siteLanguage: 'en-US',
+          currency: 'USD',
+          darkMode: false,
+          directChallenge: false,
+          displayName: 'Test User',
+        },
+        isLoading: false,
+        error: null,
+        updateSettings: jest.fn().mockResolvedValue({ success: true }) as any,
+        refreshSettings: jest.fn(),
+      });
+
+      render(<UserSettingsFormWrapper />, { wrapper });
+      // Constants.EnableDisplayName is true by default
+      const displayNameInput = screen.getByLabelText(/display name/i);
+      expect(displayNameInput).toBeTruthy();
+      expect((displayNameInput as HTMLInputElement).value).toBe('Test User');
+    });
+
+    it('populates displayName from settings', () => {
+      mockUseUserSettingsPublic.mockReturnValue({
+        settings: {
+          email: 'test@example.com',
+          timezone: 'UTC',
+          siteLanguage: 'en-US',
+          currency: 'USD',
+          darkMode: false,
+          directChallenge: false,
+          displayName: 'My Display Name',
+        },
+        isLoading: false,
+        error: null,
+        updateSettings: jest.fn().mockResolvedValue({ success: true }) as any,
+        refreshSettings: jest.fn(),
+      });
+
+      render(<UserSettingsFormWrapper />, { wrapper });
+      const displayNameInput = screen.getByLabelText(/display name/i) as HTMLInputElement;
+      expect(displayNameInput.value).toBe('My Display Name');
+    });
+
+    it('renders empty displayName field when displayName is not set', () => {
+      mockUseUserSettingsPublic.mockReturnValue({
+        settings: {
+          email: 'test@example.com',
+          timezone: 'UTC',
+          siteLanguage: 'en-US',
+          currency: 'USD',
+          darkMode: false,
+          directChallenge: false,
+        },
+        isLoading: false,
+        error: null,
+        updateSettings: jest.fn().mockResolvedValue({ success: true }) as any,
+        refreshSettings: jest.fn(),
+      });
+
+      render(<UserSettingsFormWrapper />, { wrapper });
+      const displayNameInput = screen.getByLabelText(/display name/i) as HTMLInputElement;
+      expect(displayNameInput.value).toBe('');
+    });
   });
 });

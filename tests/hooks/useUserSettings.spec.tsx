@@ -124,6 +124,63 @@ describe('useUserSettingsPublic', () => {
     expect(result.current.settings).toEqual(mockUserData);
   });
 
+  it('includes displayName in fallback settings when present in userData', async () => {
+    mockAuthContext.userSettings = undefined;
+    mockAuthContext.userData = {
+      ...mockUserData,
+      displayName: 'Fallback Name',
+    };
+
+    const { result } = renderHook(() => useUserSettingsPublic(), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.settings).toEqual(
+      expect.objectContaining({ displayName: 'Fallback Name' })
+    );
+  });
+
+  it('omits displayName from fallback settings when not in userData', async () => {
+    mockAuthContext.userSettings = undefined;
+    mockAuthContext.userData = { ...mockUserData };
+
+    const { result } = renderHook(() => useUserSettingsPublic(), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.settings).not.toHaveProperty('displayName');
+  });
+
+  it('passes displayName through setUserSetting on updateSettings', async () => {
+    const { result } = renderHook(() => useUserSettingsPublic(), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    const updatedSettings: UserSettingsValues = {
+      email: 'test@example.com',
+      timezone: 'America/New_York',
+      siteLanguage: 'en-US',
+      currency: 'USD',
+      darkMode: false,
+      directChallenge: false,
+      displayName: 'Updated Name',
+    };
+
+    await act(async () => {
+      await result.current.updateSettings(updatedSettings);
+    });
+
+    expect(mockSetUserSetting).toHaveBeenCalledWith(
+      expect.objectContaining({ displayName: 'Updated Name' })
+    );
+  });
+
   it('updates settings successfully', async () => {
     const { result } = renderHook(() => useUserSettingsPublic(), { wrapper });
 

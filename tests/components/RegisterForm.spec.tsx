@@ -111,6 +111,7 @@ describe('RegisterForm', () => {
     
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'testuser' } });
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'test@example.com' } });
+    fireEvent.change(screen.getByLabelText(/display name/i), { target: { value: 'Test User' } });
     fireEvent.change(screen.getByLabelText(/^password/i), { target: { value: 'Password123!' } });
     fireEvent.change(screen.getByLabelText(/confirm/i), { target: { value: 'Password123!' } });
     fireEvent.click(screen.getByRole('button', { name: /register/i }));
@@ -187,6 +188,7 @@ describe('RegisterForm mnemonic UI', () => {
     // Fill required fields
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'testuser' } });
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'test@example.com' } });
+    fireEvent.change(screen.getByLabelText(/display name/i), { target: { value: 'Test User' } });
     fireEvent.change(screen.getByLabelText(/^password/i), { target: { value: 'Password123!' } });
     fireEvent.change(screen.getByLabelText(/confirm/i), { target: { value: 'Password123!' } });
 
@@ -241,6 +243,7 @@ describe('RegisterForm mnemonic error display', () => {
     // Fill required fields
     fireEvent.change(screen.getByLabelText(/username/i), { target: { value: 'testuser' } });
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'test@example.com' } });
+    fireEvent.change(screen.getByLabelText(/display name/i), { target: { value: 'Test User' } });
     fireEvent.change(screen.getByLabelText(/^password/i), { target: { value: 'Password123!' } });
     fireEvent.change(screen.getByLabelText(/confirm/i), { target: { value: 'Password123!' } });
 

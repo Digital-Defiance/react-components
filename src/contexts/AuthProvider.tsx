@@ -142,7 +142,8 @@ export interface AuthContextData {
     email: string,
     timezone: string,
     password?: string,
-    mnemonic?: string
+    mnemonic?: string,
+    displayName?: string,
   ) => Promise<
     | {
         success: boolean;
@@ -378,6 +379,7 @@ const AuthProviderInner = ({
           siteLanguage: userDataDTO.siteLanguage as CoreLanguageCode,
           email: new EmailString(userDataDTO.email),
           directChallenge: userDataDTO.directChallenge,
+          ...(userDataDTO.displayName !== undefined ? { displayName: userDataDTO.displayName } : {}),
         });
       }
     } catch (error) {
@@ -446,6 +448,7 @@ const AuthProviderInner = ({
           siteLanguage: loginResult.user.siteLanguage as CoreLanguageCode,
           email: new EmailString(loginResult.user.email),
           directChallenge: loginResult.user.directChallenge,
+          ...(loginResult.user.displayName !== undefined ? { displayName: loginResult.user.displayName } : {}),
         });
         return loginResult;
       }
@@ -492,6 +495,7 @@ const AuthProviderInner = ({
             siteLanguage: loginResult.user.siteLanguage as CoreLanguageCode,
             email: new EmailString(loginResult.user.email),
             directChallenge: loginResult.user.directChallenge,
+            ...(loginResult.user.displayName !== undefined ? { displayName: loginResult.user.displayName } : {}),
           });
           return loginResult;
         }
@@ -553,6 +557,7 @@ const AuthProviderInner = ({
           siteLanguage: loginResult.user.siteLanguage as CoreLanguageCode,
           email: new EmailString(loginResult.user.email),
           directChallenge: loginResult.user.directChallenge,
+          ...(loginResult.user.displayName !== undefined ? { displayName: loginResult.user.displayName } : {}),
         });
       }
       return loginResult;
@@ -592,14 +597,16 @@ const AuthProviderInner = ({
       email: string,
       timezone: string,
       password?: string,
-      mnemonic?: string
+      mnemonic?: string,
+      displayName?: string,
     ) => {
       const registerResult = await authService.register(
         username,
         email,
         timezone,
         password,
-        mnemonic
+        mnemonic,
+        displayName,
       );
       return registerResult as Awaited<ReturnType<AuthContextData['register']>>;
     },
@@ -697,6 +704,7 @@ const AuthProviderInner = ({
             siteLanguage: loginResult.user.siteLanguage as CoreLanguageCode,
             email: new EmailString(loginResult.user.email),
             directChallenge: loginResult.user.directChallenge,
+            ...(loginResult.user.displayName !== undefined ? { displayName: loginResult.user.displayName } : {}),
           });
         }
         setAuthState((prev) => prev + 1);

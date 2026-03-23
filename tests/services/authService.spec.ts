@@ -158,6 +158,41 @@ describe('AuthService error handling', () => {
     service = createService();
   });
 
+  // ── register sends displayName when provided ──────────────────────────
+
+  describe('register displayName parameter', () => {
+    it('includes displayName in the POST body when provided', async () => {
+      mockPost.mockResolvedValueOnce({
+        data: { message: 'Success', mnemonic: 'test mnemonic' },
+        status: 201,
+      });
+
+      await service.register('user', 'user@test.com', 'UTC', undefined, undefined, 'My Name');
+
+      expect(mockPost).toHaveBeenCalledWith('/user/register', {
+        username: 'user',
+        email: 'user@test.com',
+        timezone: 'UTC',
+        displayName: 'My Name',
+      });
+    });
+
+    it('omits displayName from the POST body when not provided', async () => {
+      mockPost.mockResolvedValueOnce({
+        data: { message: 'Success', mnemonic: 'test mnemonic' },
+        status: 201,
+      });
+
+      await service.register('user', 'user@test.com', 'UTC');
+
+      expect(mockPost).toHaveBeenCalledWith('/user/register', {
+        username: 'user',
+        email: 'user@test.com',
+        timezone: 'UTC',
+      });
+    });
+  });
+
   // ── The core scenario: backend sends error as an object ──────────────
 
   describe('when backend sends error as { message, statusCode, stack }', () => {

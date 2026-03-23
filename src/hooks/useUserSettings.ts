@@ -142,7 +142,7 @@ export const useUserSettings = ({
 
 // Public-facing hook for components
 export interface UserSettingsValues extends IUserSettingsDTO {
-  [key: string]: string | boolean;
+  [key: string]: string | boolean | undefined;
 }
 
 export interface UseUserSettingsPublicResult {
@@ -189,6 +189,7 @@ export const useUserSettingsPublic = (): UseUserSettingsPublicResult => {
           currency: userData.currency || 'USD',
           darkMode: userData.darkMode || false,
           directChallenge: userData.directChallenge || false,
+          ...(userData.displayName !== undefined ? { displayName: userData.displayName } : {}),
         };
         setSettings(fallback);
       }
@@ -221,6 +222,7 @@ export const useUserSettingsPublic = (): UseUserSettingsPublicResult => {
           siteLanguage: values.siteLanguage,
           email: new EmailString(values.email),
           directChallenge: values.directChallenge,
+          ...(values.displayName !== undefined ? { displayName: values.displayName } : {}),
         });
 
         setSettings(values);

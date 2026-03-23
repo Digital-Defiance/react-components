@@ -309,6 +309,29 @@ describe('AuthProvider', () => {
         { timeout: 5000 }
       );
     });
+
+    it('should propagate displayName from verifyToken into user state', async () => {
+      const mockUser = { ...createMockUser(), displayName: 'Verified User' };
+      mockAuthService.verifyToken.mockResolvedValue(mockUser);
+
+      localStorageMock.getItem.mockImplementation((key) =>
+        key === 'authToken' ? 'valid-token' : null
+      );
+
+      const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
+
+      await waitFor(
+        () => {
+          expect(result.current.loading).toBe(false);
+          expect(result.current.isAuthenticated).toBe(true);
+        },
+        { timeout: 5000 }
+      );
+
+      expect(result.current.userData).toEqual(
+        expect.objectContaining({ displayName: 'Verified User' })
+      );
+    });
   });
 
   describe('directLogin', () => {
@@ -408,6 +431,34 @@ describe('AuthProvider', () => {
         await result.current.directLogin(mockMnemonic, 'testuser');
       });
       expect(result.current.isAuthenticated).toBe(false);
+    });
+
+    it('should propagate displayName from directLogin into user state', async () => {
+      const mockMnemonic = new SecureString('test mnemonic');
+      const mockWallet = Wallet.generate();
+      const mockUser = { ...createMockUser(), displayName: 'Direct User' };
+      const mockLoginResult = {
+        token: 'new-token',
+        user: mockUser,
+        wallet: mockWallet,
+        message: 'Login successful',
+      };
+
+      mockAuthService.directLogin.mockResolvedValue(mockLoginResult);
+
+      const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
+
+      await waitFor(() => {
+        expect(result.current.directLogin).toBeDefined();
+      });
+
+      await act(async () => {
+        await result.current.directLogin(mockMnemonic, 'testuser');
+      });
+
+      expect(result.current.userData).toEqual(
+        expect.objectContaining({ displayName: 'Direct User' })
+      );
     });
   });
 
@@ -552,6 +603,38 @@ describe('AuthProvider', () => {
           'password'
         );
       });
+    });
+
+    it('should pass displayName to authService.register', async () => {
+      const mockRegisterResult = {
+        success: true,
+        message: 'Registration successful',
+        mnemonic: 'test mnemonic',
+      };
+
+      mockAuthService.register.mockResolvedValue(mockRegisterResult);
+
+      const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });
+
+      await act(async () => {
+        await result.current.register(
+          'testuser',
+          'test@example.com',
+          'UTC',
+          'password',
+          undefined,
+          'My Display Name'
+        );
+      });
+
+      expect(mockAuthService.register).toHaveBeenCalledWith(
+        'testuser',
+        'test@example.com',
+        'UTC',
+        'password',
+        undefined,
+        'My Display Name'
+      );
     });
   });
 

@@ -57,4 +57,50 @@ describe('ChangePasswordForm', () => {
     
     expect(screen.getByLabelText(/old password/i)).toBeInTheDocument();
   });
+
+  it('displays error alert when onSubmit returns an error', async () => {
+    mockOnSubmit.mockResolvedValueOnce({ error: 'Password change failed' });
+
+    renderWithI18n(<ChangePasswordForm onSubmit={mockOnSubmit} />);
+
+    fireEvent.change(screen.getByLabelText(/current password/i), {
+      target: { value: 'oldPassword123' },
+    });
+    fireEvent.change(screen.getByLabelText(/^new password$/i), {
+      target: { value: 'newPassword123' },
+    });
+    fireEvent.change(screen.getByLabelText(/confirm/i), {
+      target: { value: 'newPassword123' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /change password/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Password change failed')).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+  });
+
+  it('displays success alert when onSubmit returns success', async () => {
+    mockOnSubmit.mockResolvedValueOnce({ success: true });
+
+    renderWithI18n(<ChangePasswordForm onSubmit={mockOnSubmit} />);
+
+    fireEvent.change(screen.getByLabelText(/current password/i), {
+      target: { value: 'oldPassword123' },
+    });
+    fireEvent.change(screen.getByLabelText(/^new password$/i), {
+      target: { value: 'newPassword123' },
+    });
+    fireEvent.change(screen.getByLabelText(/confirm/i), {
+      target: { value: 'newPassword123' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /change password/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+    });
+  });
 });
