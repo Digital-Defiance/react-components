@@ -1,6 +1,6 @@
 {
   "name": "@digitaldefiance/express-suite-react-components",
-  "version": "4.25.0",
+  "version": "4.25.1",
   "homepage": "https://github.com/Digital-Defiance/react-components",
   "description": "React MUI components for Digital Defiance Express Suite",
   "repository": {
@@ -31,8 +31,8 @@
     "react-router-dom": "6.29.0"
   },
   "dependencies": {
-    "@digitaldefiance/i18n-lib": "4.6.4",
-    "@digitaldefiance/suite-core-lib": "4.24.0",
+    "@digitaldefiance/i18n-lib": "4.6.5",
+    "@digitaldefiance/suite-core-lib": "4.25.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.0.2",
