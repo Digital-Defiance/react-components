@@ -80,6 +80,7 @@ export interface RegisterFormProps {
     successTitle?: string;
     mnemonicSuccess?: string;
     proceedToLogin?: string;
+    savedRecoveryPhrase?: string;
     loginLink?: string;
     mnemonic?: string;
   };
@@ -408,13 +409,14 @@ export const RegisterForm: FC<RegisterFormProps> = ({
                 variant="contained"
                 color="primary"
                 size="large"
-                href="/login"
+                href="/verify-email"
                 sx={{ borderRadius: 6, px: 4 }}
               >
-                {labels.proceedToLogin ||
+                {labels.savedRecoveryPhrase ||
+                  labels.proceedToLogin ||
                   tComponent<SuiteCoreStringKeyValue>(
                     SuiteCoreComponentId,
-                    SuiteCoreStringKey.ProceedToLogin
+                    SuiteCoreStringKey.Registration_SavedRecoveryPhrase
                   )}
               </Button>
             </Box>
