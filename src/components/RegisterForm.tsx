@@ -352,8 +352,10 @@ export const RegisterForm: FC<RegisterFormProps> = ({
             )}
         </Typography>
 
-        {mnemonic ? (
+        {(mnemonic || registrationSuccess) ? (
           <Box sx={{ mt: 2, width: '100%' }}>
+          {mnemonic ? (
+          <>
             <Box sx={{ textAlign: 'center', mb: 3 }}>
               <Typography variant="h5" component="h2" gutterBottom fontWeight="bold">
                 {labels.successTitle ||
@@ -425,6 +427,33 @@ export const RegisterForm: FC<RegisterFormProps> = ({
                   )}
               </Button>
             </Box>
+          </>
+          ) : (
+            <Alert severity="success" sx={{ mt: 2, mb: 2 }}>
+              <AlertTitle>
+                {labels.successTitle ||
+                  tComponent<SuiteCoreStringKeyValue>(
+                    SuiteCoreComponentId,
+                    SuiteCoreStringKey.Registration_SuccessTitle
+                  )}
+              </AlertTitle>
+              <Typography variant="body2" component="div">
+                {tComponent<SuiteCoreStringKeyValue>(
+                  SuiteCoreComponentId,
+                  SuiteCoreStringKey.Registration_Success
+                )}
+                <Box sx={{ textAlign: 'center', mt: 1 }}>
+                  <Link href="/login">
+                    {labels.proceedToLogin ||
+                      tComponent<SuiteCoreStringKeyValue>(
+                        SuiteCoreComponentId,
+                        SuiteCoreStringKey.ProceedToLogin
+                      )}
+                  </Link>
+                </Box>
+              </Typography>
+            </Alert>
+          )}
           </Box>
         ) : (
 
@@ -729,33 +758,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
             </Alert>
           )}
 
-          {registrationSuccess && !mnemonic && (
-            <Alert severity="success" sx={{ mt: 2, mb: 2 }}>
-              <AlertTitle>
-                {labels.successTitle ||
-                  tComponent<SuiteCoreStringKeyValue>(
-                    SuiteCoreComponentId,
-                    SuiteCoreStringKey.Registration_SuccessTitle
-                  )}
-              </AlertTitle>
-              <Typography variant="body2" component="div">
-                {tComponent<SuiteCoreStringKeyValue>(
-                  SuiteCoreComponentId,
-                  SuiteCoreStringKey.Registration_Success
-                )}
-                <Box sx={{ textAlign: 'center' }}>
-                  <Link href="/login">
-                    {labels.proceedToLogin ||
-                      tComponent<SuiteCoreStringKeyValue>(
-                        SuiteCoreComponentId,
-                        SuiteCoreStringKey.ProceedToLogin
-                      )}
-                  </Link>
-                </Box>
-              </Typography>
-            </Alert>
-          )}
-          {!mnemonic && !registrationSuccess && (
+          {!registrationSuccess && (
             <Box sx={{ textAlign: 'center' }}>
               <Link href="/login" variant="body2">
                 {labels.loginLink ||
