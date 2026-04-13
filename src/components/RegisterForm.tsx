@@ -59,6 +59,12 @@ export interface RegisterFormProps {
   timezoneValidation?: Yup.StringSchema;
   passwordValidation?: Yup.StringSchema;
   confirmPasswordValidation?: Yup.StringSchema;
+  /**
+   * List of email domains that are not allowed during registration.
+   * For example, the home system's email domain should be disallowed
+   * so users cannot register with addresses managed by the platform.
+   */
+  disallowedEmailDomains?: string[];
   additionalFields?: (
     formik: ReturnType<typeof useFormik<RegisterFormValues>>,
     usePassword: boolean
@@ -96,6 +102,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
   timezoneValidation,
   passwordValidation,
   confirmPasswordValidation,
+  disallowedEmailDomains,
   additionalFields,
   additionalInitialValues = {},
   additionalValidation = {},
@@ -148,6 +155,27 @@ export const RegisterForm: FC<RegisterFormProps> = ({
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_InvalidEmail
           )
+        )
+        .test(
+          'disallowed-domain',
+          '',
+          function (value) {
+            if (!value || !disallowedEmailDomains?.length) return true;
+            const atIndex = value.lastIndexOf('@');
+            if (atIndex <= 0) return true;
+            const domain = value.slice(atIndex + 1).toLowerCase();
+            const blocked = disallowedEmailDomains.find(
+              (d) => d.toLowerCase() === domain
+            );
+            if (!blocked) return true;
+            return this.createError({
+              message: tComponent<SuiteCoreStringKeyValue>(
+                SuiteCoreComponentId,
+                SuiteCoreStringKey.Validation_EmailDomainNotAllowedTemplate,
+                { domain: blocked }
+              ),
+            });
+          }
         )
         .required(
           tComponent<SuiteCoreStringKeyValue>(
