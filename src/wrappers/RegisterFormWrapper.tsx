@@ -39,11 +39,10 @@ export const RegisterFormWrapper: FC<RegisterFormWrapperProps> = ({
     if (onSuccess) {
       onSuccess();
     }
-    // Don't navigate away if the server returned a mnemonic — the user
-    // needs to see and save it before leaving the page.
-    if (!('mnemonic' in result) || !result.mnemonic) {
-      navigate(redirectTo || routes.verifyEmail || '/verify-email');
-    }
+    // Don't navigate away — let RegisterForm show the success message
+    // (mnemonic grid or email verification notice). The user navigates
+    // manually via the "Proceed to login" / "I Have Saved My Recovery
+    // Phrase" button.
     return result;
   };
 
