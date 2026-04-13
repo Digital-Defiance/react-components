@@ -290,7 +290,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
 
       if ('success' in registerResult && registerResult.success) {
         setRegistrationSuccess(true);
-        if (!usePassword && registerResult.mnemonic) {
+        if (registerResult.mnemonic) {
           setMnemonic(registerResult.mnemonic);
         }
       } else {
@@ -345,6 +345,81 @@ export const RegisterForm: FC<RegisterFormProps> = ({
               SuiteCoreStringKey.Common_Registration
             )}
         </Typography>
+
+        {mnemonic ? (
+          <Box sx={{ mt: 2, width: '100%' }}>
+            <Box sx={{ textAlign: 'center', mb: 3 }}>
+              <Typography variant="h5" component="h2" gutterBottom fontWeight="bold">
+                {labels.successTitle ||
+                  tComponent<SuiteCoreStringKeyValue>(
+                    SuiteCoreComponentId,
+                    SuiteCoreStringKey.Registration_SuccessTitle
+                  )}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {labels.mnemonicSuccess ||
+                  tComponent<SuiteCoreStringKeyValue>(
+                    SuiteCoreComponentId,
+                    SuiteCoreStringKey.Registration_MnemonicSuccess
+                  )}
+              </Typography>
+            </Box>
+
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: 1.5,
+                mb: 3,
+              }}
+            >
+              {mnemonic.split(/\s+/).map((word, i) => (
+                <Box
+                  key={i}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 0.5,
+                    py: 1,
+                    px: 1.5,
+                    borderRadius: 2,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    bgcolor: 'action.hover',
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ minWidth: '1.5em', textAlign: 'right' }}
+                  >
+                    {i + 1}.
+                  </Typography>
+                  <Typography variant="body2" fontWeight="bold">
+                    {word}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+
+            <Box sx={{ textAlign: 'center' }}>
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                href="/login"
+                sx={{ borderRadius: 6, px: 4 }}
+              >
+                {labels.proceedToLogin ||
+                  tComponent<SuiteCoreStringKeyValue>(
+                    SuiteCoreComponentId,
+                    SuiteCoreStringKey.ProceedToLogin
+                  )}
+              </Button>
+            </Box>
+          </Box>
+        ) : (
 
         <Box
           component="form"
@@ -647,45 +722,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
             </Alert>
           )}
 
-          {mnemonic && (
-            <Alert
-              severity="success"
-              sx={{ mt: 2, mb: 2, whiteSpace: 'pre-wrap' }}
-            >
-              <AlertTitle>
-                {labels.successTitle ||
-                  tComponent<SuiteCoreStringKeyValue>(
-                    SuiteCoreComponentId,
-                    SuiteCoreStringKey.Registration_SuccessTitle
-                  )}
-              </AlertTitle>
-              <Typography variant="body2" component="div">
-                {labels.mnemonicSuccess ||
-                  tComponent<SuiteCoreStringKeyValue>(
-                    SuiteCoreComponentId,
-                    SuiteCoreStringKey.Registration_MnemonicSuccess
-                  )}
-                <Typography
-                  variant="body1"
-                  component="div"
-                  sx={{ mt: 1, fontFamily: 'monospace' }}
-                >
-                  {mnemonic}
-                </Typography>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Link href="/login">
-                    {labels.proceedToLogin ||
-                      tComponent<SuiteCoreStringKeyValue>(
-                        SuiteCoreComponentId,
-                        SuiteCoreStringKey.ProceedToLogin
-                      )}
-                  </Link>
-                </Box>
-              </Typography>
-            </Alert>
-          )}
-
-          {registrationSuccess && (
+          {registrationSuccess && !mnemonic && (
             <Alert severity="success" sx={{ mt: 2, mb: 2 }}>
               <AlertTitle>
                 {labels.successTitle ||
@@ -723,6 +760,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
             </Box>
           )}
         </Box>
+        )}
       </Box>
     </Container>
   );

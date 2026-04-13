@@ -39,7 +39,11 @@ export const RegisterFormWrapper: FC<RegisterFormWrapperProps> = ({
     if (onSuccess) {
       onSuccess();
     }
-    navigate(redirectTo || routes.verifyEmail || '/verify-email');
+    // Don't navigate away if the server returned a mnemonic — the user
+    // needs to see and save it before leaving the page.
+    if (!('mnemonic' in result) || !result.mnemonic) {
+      navigate(redirectTo || routes.verifyEmail || '/verify-email');
+    }
     return result;
   };
 
