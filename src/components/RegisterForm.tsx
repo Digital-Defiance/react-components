@@ -287,6 +287,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
     onSubmit: async (values, { setSubmitting, setFieldError, setTouched }) => {
       setRegistering(true);
       setApiErrors({});
+      try {
       const registerResult = await onSubmit(values, usePassword);
 
       if ('success' in registerResult && registerResult.success) {
@@ -323,6 +324,10 @@ export const RegisterForm: FC<RegisterFormProps> = ({
 
         setApiErrors(newApiErrors);
         setTouched(fieldsToTouch, false);
+      }
+      } catch (err) {
+        console.error('[RegisterForm] onSubmit error:', err);
+        setApiErrors({ general: err instanceof Error ? err.message : String(err) });
       }
       setSubmitting(false);
       setRegistering(false);
