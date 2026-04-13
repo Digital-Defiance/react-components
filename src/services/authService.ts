@@ -51,6 +51,12 @@ export function extractErrorMessage(errorData: ApiErrorResponse): string | undef
 interface RegisterResponse {
   message: string;
   mnemonic?: string;
+  data?: {
+    token: string;
+    memberId: string;
+    energyBalance: number;
+    mnemonic?: string;
+  };
 }
 
 interface LoginResponse {
@@ -136,9 +142,9 @@ export class AuthService {
         message:
           response.data.message ??
           getSuiteCoreTranslation(SuiteCoreStringKey.Registration_Success, {
-            MNEMONIC: response.data.mnemonic,
+            MNEMONIC: response.data.data?.mnemonic ?? response.data.mnemonic,
           }),
-        mnemonic: response.data.mnemonic ?? '',
+        mnemonic: response.data.data?.mnemonic ?? response.data.mnemonic ?? '',
       };
     } catch (error) {
       if (isAxiosError<ApiErrorResponse>(error) && error.response) {
