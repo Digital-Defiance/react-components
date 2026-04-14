@@ -455,6 +455,21 @@ export const RegisterForm: FC<RegisterFormProps> = ({
                   )}
               </Button>
             </Box>
+
+            <Alert severity="success" sx={{ mt: 3 }}>
+              <AlertTitle>
+                {tComponent<SuiteCoreStringKeyValue>(
+                  SuiteCoreComponentId,
+                  SuiteCoreStringKey.Registration_SuccessTitle
+                )}
+              </AlertTitle>
+              <Typography variant="body2" component="div">
+                {tComponent<SuiteCoreStringKeyValue>(
+                  SuiteCoreComponentId,
+                  SuiteCoreStringKey.Registration_Success
+                )}
+              </Typography>
+            </Alert>
           </>
           ) : (
             <Alert severity="success" sx={{ mt: 2, mb: 2 }}>
