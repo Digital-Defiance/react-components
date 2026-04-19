@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useCallback } from 'react';
 import { VerifyEmailPage } from '../components/VerifyEmailPage';
 import { useEmailVerification } from '../hooks';
 
@@ -15,13 +15,13 @@ export const VerifyEmailPageWrapper: FC<VerifyEmailPageWrapperProps> = ({
   const token = searchParams.get('token');
   const { verifyEmail } = useEmailVerification();
 
-  const handleVerify = async (verificationToken: string) => {
+  const handleVerify = useCallback(async (verificationToken: string) => {
     const result = await verifyEmail(verificationToken);
     if (result.success && onSuccess) {
       onSuccess();
     }
     return result;
-  };
+  }, [verifyEmail, onSuccess]);
 
   return <VerifyEmailPage token={token} onVerify={handleVerify} {...componentProps} />;
 };

@@ -12,7 +12,7 @@ import {
   Link,
   Typography,
 } from '@mui/material';
-import { FC, useEffect, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { useI18n } from '../contexts';
 
 export interface VerifyEmailPageProps {
@@ -24,6 +24,7 @@ export interface VerifyEmailPageProps {
     success?: string;
     failed?: string;
     noToken?: string;
+    checkYourEmail?: string;
     proceedToLogin?: string;
     contactSupport?: string;
     requestNewEmail?: string;
@@ -43,7 +44,7 @@ export const VerifyEmailPage: FC<VerifyEmailPageProps> = ({
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [verificationStatus, setVerificationStatus] = useState<
-    'pending' | 'success' | 'error'
+    'pending' | 'success' | 'error' | 'info'
   >('pending');
 
   const translatedLabels = useMemo<{
@@ -51,6 +52,7 @@ export const VerifyEmailPage: FC<VerifyEmailPageProps> = ({
     success: string;
     failed: string;
     noToken: string;
+    checkYourEmail: string;
     proceedToLogin: string;
     contactSupport: string;
     requestNewEmail: string;
@@ -80,6 +82,12 @@ export const VerifyEmailPage: FC<VerifyEmailPageProps> = ({
           SuiteCoreComponentId,
           SuiteCoreStringKey.NoVerificationTokenProvided
         ),
+      checkYourEmail:
+        labels.checkYourEmail ||
+        tComponent<SuiteCoreStringKeyValue>(
+          SuiteCoreComponentId,
+          SuiteCoreStringKey.Registration_CheckYourEmail
+        ),
       proceedToLogin:
         labels.proceedToLogin ||
         tComponent<SuiteCoreStringKeyValue>(
@@ -101,33 +109,43 @@ export const VerifyEmailPage: FC<VerifyEmailPageProps> = ({
     };
   }, [labels, tComponent]);
 
+  // Use a ref to track whether verification has already been attempted,
+  // preventing infinite re-render loops from unstable onVerify references.
+  const hasVerified = useRef(false);
+
+  // Stable reference to onVerify to avoid re-triggering the effect
+  const onVerifyRef = useRef(onVerify);
+  onVerifyRef.current = onVerify;
+
   useEffect(() => {
-    const verifyEmail = async (verificationToken: string) => {
-      try {
-        const result = await onVerify(verificationToken);
-        if (result.success) {
-          setMessage(result.message || translatedLabels.success);
-          setVerificationStatus('success');
-        } else {
-          setMessage(result.message || translatedLabels.failed);
-          setVerificationStatus('error');
-        }
-      } catch {
-        setMessage(translatedLabels.failed);
-        setVerificationStatus('error');
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (hasVerified.current) return;
 
     if (token) {
-      verifyEmail(token);
+      hasVerified.current = true;
+      const verifyEmail = async () => {
+        try {
+          const result = await onVerifyRef.current(token);
+          if (result.success) {
+            setMessage(result.message || translatedLabels.success);
+            setVerificationStatus('success');
+          } else {
+            setMessage(result.message || translatedLabels.failed);
+            setVerificationStatus('error');
+          }
+        } catch {
+          setMessage(translatedLabels.failed);
+          setVerificationStatus('error');
+        } finally {
+          setLoading(false);
+        }
+      };
+      verifyEmail();
     } else {
+      hasVerified.current = true;
       setLoading(false);
-      setMessage(translatedLabels.noToken);
-      setVerificationStatus('error');
+      setVerificationStatus('info');
     }
-  }, [token, onVerify, translatedLabels]);
+  }, [token, translatedLabels]);
 
   return (
     <Container maxWidth="sm">
@@ -147,33 +165,50 @@ export const VerifyEmailPage: FC<VerifyEmailPageProps> = ({
           <CircularProgress />
         ) : (
           <Box sx={{ width: '100%', mt: 2 }}>
-            <Alert
-              severity={verificationStatus === 'success' ? 'success' : 'error'}
-              sx={{ mb: 2 }}
-            >
-              {message}
-            </Alert>
+            {verificationStatus === 'info' ? (
+              <>
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  {translatedLabels.checkYourEmail}
+                </Alert>
+                <Typography variant="body1">
+                  {translatedLabels.contactSupport}{' '}
+                  <Link href={resendLink} color="primary">
+                    {translatedLabels.requestNewEmail}
+                  </Link>
+                  .
+                </Typography>
+              </>
+            ) : (
+              <>
+                <Alert
+                  severity={verificationStatus === 'success' ? 'success' : 'error'}
+                  sx={{ mb: 2 }}
+                >
+                  {message}
+                </Alert>
 
-            {verificationStatus === 'success' && (
-              <Button
-                variant="contained"
-                color="primary"
-                component={Link}
-                href={loginLink}
-                fullWidth
-              >
-                {translatedLabels.proceedToLogin}
-              </Button>
-            )}
+                {verificationStatus === 'success' && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    component={Link}
+                    href={loginLink}
+                    fullWidth
+                  >
+                    {translatedLabels.proceedToLogin}
+                  </Button>
+                )}
 
-            {verificationStatus === 'error' && (
-              <Typography variant="body1">
-                {translatedLabels.contactSupport}{' '}
-                <Link href={resendLink} color="primary">
-                  {translatedLabels.requestNewEmail}
-                </Link>
-                .
-              </Typography>
+                {verificationStatus === 'error' && (
+                  <Typography variant="body1">
+                    {translatedLabels.contactSupport}{' '}
+                    <Link href={resendLink} color="primary">
+                      {translatedLabels.requestNewEmail}
+                    </Link>
+                    .
+                  </Typography>
+                )}
+              </>
             )}
           </Box>
         )}

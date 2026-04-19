@@ -2,7 +2,7 @@ import {
   getSuiteCoreTranslation,
   SuiteCoreStringKey,
 } from '@digitaldefiance/suite-core-lib';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useSuiteConfig } from '../contexts';
 import { createAuthenticatedApiClient } from '../services';
 
@@ -20,11 +20,11 @@ export const useEmailVerification = (): UseEmailVerificationResult => {
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const verifyEmail = async (verificationToken: string) => {
+  const verifyEmail = useCallback(async (verificationToken: string) => {
     setIsVerifying(true);
     setError(null);
     try {
-      const result = await api.post<{ message: string }>('/verify-email', {
+      const result = await api.post<{ message: string }>('/user/verify-email', {
         token: verificationToken,
       });
       return { success: true, message: result.data.message };
@@ -39,7 +39,7 @@ export const useEmailVerification = (): UseEmailVerificationResult => {
     } finally {
       setIsVerifying(false);
     }
-  };
+  }, [api]);
 
   return {
     isVerifying,
