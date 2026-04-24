@@ -217,7 +217,7 @@ const AuthProviderInner = ({
   onLogout,
   emailDomain,
 }: AuthProviderProps) => {
-  const { tComponent } = useI18n();
+  const { tComponent, changeLanguage: i18nChangeLanguage } = useI18n();
   const { setColorMode: themeSetPaletteMode, mode: colorMode } = useTheme();
 
   const authService = useMemo(
@@ -276,18 +276,13 @@ const AuthProviderInner = ({
   const setWalletExpirationSeconds = _setWalletExpirationSeconds;
 
   // Sync user language with i18n provider when the user's saved language changes.
-  // Important: do NOT depend on currentLanguage here, or we'll run when the UI
-  // language changes and inadvertently revert to the older user.siteLanguage,
-  // causing a second update request with English US.
+  // Only update the i18n engine — do NOT call setUserSettingAndUpdateSettings
+  // here because its merge with defaults can overwrite other settings (e.g.
+  // timezone) with default values when the closure captures stale userSettings.
   useEffect(() => {
     if (user?.siteLanguage) {
-      (async () => {
-        await setUserSettingAndUpdateSettings({
-          siteLanguage: user.siteLanguage,
-        });
-      })();
+      i18nChangeLanguage(user.siteLanguage);
     }
-    // We intentionally only react to changes in the user's saved language.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.siteLanguage]);
 
