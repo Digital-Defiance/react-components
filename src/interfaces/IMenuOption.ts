@@ -49,6 +49,12 @@ export interface IMenuOption {
    */
   requiresAuth: boolean | undefined;
   /**
+   * Whether the menu option requires the user to be a global admin
+   * true = only show to global admins
+   * undefined/false = no admin requirement
+   */
+  requiresAdmin?: boolean;
+  /**
    * Custom filter function to determine if the menu option should be displayed
    * @param option - The menu option to filter
    * @returns boolean

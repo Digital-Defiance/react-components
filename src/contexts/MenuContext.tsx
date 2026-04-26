@@ -67,6 +67,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({
   const {
     userData: user,
     isAuthenticated,
+    admin: isGlobalAdmin,
     mnemonic,
     clearMnemonic,
     wallet,
@@ -332,6 +333,8 @@ export const MenuProvider: FC<MenuProviderProps> = ({
 
         if (o.divider === true && !includeDividers) return false;
 
+        if (o.requiresAdmin === true && !isGlobalAdmin) return false;
+
         return (
           o.includeOnMenus.includes(menuType) &&
           (o.requiresAuth === undefined || o.requiresAuth === isAuthenticated)
@@ -340,7 +343,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({
 
       return menuOptions.filter(MenuFilter);
     },
-    [isAuthenticated, menuOptions]
+    [isAuthenticated, isGlobalAdmin, menuOptions]
   );
 
   useEffect(() => {
