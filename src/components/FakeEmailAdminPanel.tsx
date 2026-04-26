@@ -27,13 +27,12 @@ import {
   Divider,
   IconButton,
   List,
-  ListItem,
   ListItemButton,
   ListItemText,
   Paper,
   Typography,
 } from '@mui/material';
-import { FC, useCallback, useEffect, useState } from 'react';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { useI18n } from '../contexts';
 import { ConfirmationDialog } from './ConfirmationDialog';
 import {
@@ -56,6 +55,72 @@ export interface RecipientSummary {
   count: number;
 }
 
+/**
+ * Renders email HTML content in a sandboxed iframe so that links are
+ * clickable and open in a new tab. Falls back to plain text when no
+ * HTML body is available.
+ */
+const EmailBodyIframe: FC<{ html: string; text: string }> = ({
+  html,
+  text,
+}) => {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    const doc = iframe.contentDocument ?? iframe.contentWindow?.document;
+    if (!doc) return;
+
+    if (html) {
+      // Inject a <base target="_blank"> so every link opens in a new tab,
+      // then write the original HTML body.
+      doc.open();
+      doc.write(
+        `<!DOCTYPE html><html><head><base target="_blank"><style>body{font-family:sans-serif;font-size:14px;margin:8px;}</style></head><body>${html}</body></html>`
+      );
+      doc.close();
+    } else {
+      doc.open();
+      doc.write(
+        `<!DOCTYPE html><html><head><style>body{font-family:sans-serif;font-size:14px;margin:8px;white-space:pre-wrap;}</style></head><body>${text.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</body></html>`
+      );
+      doc.close();
+    }
+
+    // Auto-resize iframe height to fit content
+    const resize = () => {
+      if (doc.body) {
+        iframe.style.height = `${doc.body.scrollHeight + 16}px`;
+      }
+    };
+    // Resize after content loads (images, etc.)
+    iframe.addEventListener('load', resize);
+    resize();
+    // Small delay to catch late-rendering content
+    const timer = setTimeout(resize, 200);
+    return () => {
+      iframe.removeEventListener('load', resize);
+      clearTimeout(timer);
+    };
+  }, [html, text]);
+
+  return (
+    <iframe
+      ref={iframeRef}
+      sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin"
+      style={{
+        width: '100%',
+        minHeight: 80,
+        border: '1px solid #e0e0e0',
+        borderRadius: 4,
+        background: '#fff',
+      }}
+      title="Email body"
+    />
+  );
+};
+
 const FakeEmailAdminPanelContent: FC = () => {
   const api = useAuthenticatedApi();
   const { tComponent } = useI18n();
@@ -64,6 +129,8 @@ const FakeEmailAdminPanelContent: FC = () => {
 
   const [recipients, setRecipients] = useState<RecipientSummary[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
+  /** Tracks which individual email is expanded to show its body (address:idx) */
+  const [expandedEmail, setExpandedEmail] = useState<string | null>(null);
   const [emailsByAddress, setEmailsByAddress] = useState<
     Record<string, CapturedEmailInfo[]>
   >({});
@@ -203,16 +270,41 @@ const FakeEmailAdminPanelContent: FC = () => {
                   </Typography>
                 ) : (
                   <List dense disablePadding sx={{ pl: 2 }}>
-                    {(emailsByAddress[r.address] ?? []).map((email, idx) => (
-                      <ListItem key={idx} disablePadding sx={{ py: 0.25 }}>
-                        <ListItemText
-                          primary={email.subject || '(no subject)'}
-                          secondary={`${t(SuiteCoreStringKey.FakeEmail_Admin_Timestamp)}: ${new Date(email.timestamp).toLocaleString()}`}
-                          primaryTypographyProps={{ variant: 'body2' }}
-                          secondaryTypographyProps={{ variant: 'caption' }}
-                        />
-                      </ListItem>
-                    ))}
+                    {(emailsByAddress[r.address] ?? []).map((email, idx) => {
+                      const emailKey = `${r.address}:${idx}`;
+                      const isEmailExpanded = expandedEmail === emailKey;
+                      return (
+                        <Box key={idx} sx={{ py: 0.25 }}>
+                          <ListItemButton
+                            disableGutters
+                            onClick={() =>
+                              setExpandedEmail(isEmailExpanded ? null : emailKey)
+                            }
+                            sx={{ py: 0.25, px: 0.5, borderRadius: 1 }}
+                          >
+                            <ListItemText
+                              primary={email.subject || '(no subject)'}
+                              secondary={`${t(SuiteCoreStringKey.FakeEmail_Admin_Timestamp)}: ${new Date(email.timestamp).toLocaleString()}`}
+                              primaryTypographyProps={{ variant: 'body2' }}
+                              secondaryTypographyProps={{ variant: 'caption' }}
+                            />
+                            {isEmailExpanded ? (
+                              <ExpandLessIcon fontSize="small" />
+                            ) : (
+                              <ExpandMoreIcon fontSize="small" />
+                            )}
+                          </ListItemButton>
+                          <Collapse in={isEmailExpanded} unmountOnExit>
+                            <Box sx={{ pl: 1, pr: 1, pb: 1 }}>
+                              <EmailBodyIframe
+                                html={email.html}
+                                text={email.text}
+                              />
+                            </Box>
+                          </Collapse>
+                        </Box>
+                      );
+                    })}
                   </List>
                 )}
               </Collapse>
