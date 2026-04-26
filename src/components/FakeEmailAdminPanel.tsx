@@ -73,7 +73,7 @@ const FakeEmailAdminPanelContent: FC = () => {
     setError(null);
     try {
       const res = await api.get<{ recipients: RecipientSummary[] }>(
-        '/api/admin/emails'
+        '/admin/emails'
       );
       setRecipients(res.data.recipients);
     } catch (err) {
@@ -97,7 +97,7 @@ const FakeEmailAdminPanelContent: FC = () => {
       if (!emailsByAddress[address]) {
         try {
           const res = await api.get<CapturedEmailInfo[]>(
-            `/api/admin/emails/${encodeURIComponent(address)}`
+            `/admin/emails/${encodeURIComponent(address)}`
           );
           setEmailsByAddress((prev) => ({ ...prev, [address]: res.data }));
         } catch (err) {
@@ -111,7 +111,7 @@ const FakeEmailAdminPanelContent: FC = () => {
   const handleClearAll = useCallback(async () => {
     setClearDialogOpen(false);
     try {
-      await api.delete('/api/admin/emails');
+      await api.delete('/admin/emails');
       setRecipients([]);
       setEmailsByAddress({});
       setExpanded(null);
