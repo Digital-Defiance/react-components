@@ -9,6 +9,7 @@ export * from './CurrencyInput';
 export * from './DashboardPage';
 export * from './DropdownMenu';
 export * from './ExpirationSecondsSelector';
+export * from './FakeEmailAdminPanel';
 export * from './Flag';
 export * from './ForgotPasswordForm';
 export * from './LoginForm';
