@@ -4,7 +4,8 @@
  * Renders only in development/test environments where FakeEmailService is
  * active. Calls the AdminEmailRouter endpoints mounted at `baseUrl/api/admin/emails`.
  *
- * Usage (inside AuthenticatedApiProvider + SuiteConfigProvider):
+ * Self-contained: wraps itself with AuthenticatedApiProvider internally.
+ * Usage (inside SuiteConfigProvider):
  *   <FakeEmailAdminPanel />
  */
 import {
@@ -35,7 +36,7 @@ import {
 import { FC, useCallback, useEffect, useState } from 'react';
 import { useI18n } from '../contexts';
 import { ConfirmationDialog } from './ConfirmationDialog';
-import { useAuthenticatedApi } from '../hooks/useAuthenticatedApi';
+import { AuthenticatedApiProvider, useAuthenticatedApi } from '../hooks/useAuthenticatedApi';
 
 /** Shape of a single captured email as returned by AdminEmailRouter */
 export interface CapturedEmailInfo {
@@ -52,7 +53,7 @@ export interface RecipientSummary {
   count: number;
 }
 
-export const FakeEmailAdminPanel: FC = () => {
+const FakeEmailAdminPanelContent: FC = () => {
   const api = useAuthenticatedApi();
   const { tComponent } = useI18n();
   const t = (key: SuiteCoreStringKeyValue) =>
@@ -229,6 +230,12 @@ export const FakeEmailAdminPanel: FC = () => {
     </Paper>
   );
 };
+
+export const FakeEmailAdminPanel: FC = () => (
+  <AuthenticatedApiProvider>
+    <FakeEmailAdminPanelContent />
+  </AuthenticatedApiProvider>
+);
 
 export default FakeEmailAdminPanel;
 
