@@ -36,7 +36,10 @@ import {
 import { FC, useCallback, useEffect, useState } from 'react';
 import { useI18n } from '../contexts';
 import { ConfirmationDialog } from './ConfirmationDialog';
-import { AuthenticatedApiProvider, useAuthenticatedApi } from '../hooks/useAuthenticatedApi';
+import {
+  AuthenticatedApiProvider,
+  useAuthenticatedApi,
+} from '../hooks/useAuthenticatedApi';
 
 /** Shape of a single captured email as returned by AdminEmailRouter */
 export interface CapturedEmailInfo {
