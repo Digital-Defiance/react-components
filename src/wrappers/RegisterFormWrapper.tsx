@@ -1,5 +1,4 @@
 import { FC } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   RegisterForm,
   RegisterFormProps,
@@ -9,7 +8,6 @@ import { useAuth, useSuiteConfig } from '../contexts';
 
 export interface RegisterFormWrapperProps {
   onSuccess?: () => void;
-  redirectTo?: string;
   componentProps?: Partial<
     Omit<RegisterFormProps, 'onSubmit' | 'timezones' | 'getInitialTimezone'>
   >;
@@ -17,12 +15,10 @@ export interface RegisterFormWrapperProps {
 
 export const RegisterFormWrapper: FC<RegisterFormWrapperProps> = ({
   onSuccess,
-  redirectTo,
   componentProps = {},
 }) => {
   const { register } = useAuth();
-  const navigate = useNavigate();
-  const { routes, timezones } = useSuiteConfig();
+  const { timezones } = useSuiteConfig();
 
   const handleSubmit = async (values: RegisterFormValues) => {
     const result = await register(
