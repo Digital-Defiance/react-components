@@ -2,8 +2,12 @@ import { FC, ReactNode, useContext } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthProvider';
 import { useI18n } from '../contexts';
-import { SuiteCoreComponentId, SuiteCoreStringKey, SuiteCoreStringKeyValue } from '@digitaldefiance/suite-core-lib';
-import { useAuth } from '@digitaldefiance/express-suite-react-components';
+import {
+  SuiteCoreComponentId,
+  SuiteCoreStringKey,
+  SuiteCoreStringKeyValue,
+} from '@digitaldefiance/suite-core-lib';
+import { useAuth } from '../contexts/AuthProvider';
 
 interface AdminRouteProps {
   children: ReactNode;
@@ -17,15 +21,31 @@ export const AdminRoute: FC<AdminRouteProps> = ({ children, redirectTo }) => {
   const location = useLocation();
 
   if (isCheckingAuth) {
-    return <div>{tComponent<SuiteCoreStringKeyValue>(SuiteCoreComponentId, SuiteCoreStringKey.Common_CheckingAuthentication)}...</div>;
+    return (
+      <div>
+        {tComponent<SuiteCoreStringKeyValue>(
+          SuiteCoreComponentId,
+          SuiteCoreStringKey.Common_CheckingAuthentication
+        )}
+        ...
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
-    return <Navigate to={redirectTo ?? "/login"} state={{ from: location }} replace />;
+    return (
+      <Navigate
+        to={redirectTo ?? '/login'}
+        state={{ from: location }}
+        replace
+      />
+    );
   }
 
   if (!admin) {
-    return <Navigate to={redirectTo ?? "/"} state={{ from: location }} replace />;
+    return (
+      <Navigate to={redirectTo ?? '/'} state={{ from: location }} replace />
+    );
   }
 
   return <>{children}</>;
