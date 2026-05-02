@@ -27,7 +27,7 @@ export const LoginFormWrapper: FC<LoginFormWrapperProps> = ({
   componentProps = {},
   onVerifyTotp,
 }) => {
-  const { directLogin, passwordLogin, verifyTotpLogin } = useAuth();
+  const { directLogin, passwordLogin, verifyTotpLogin, setUser } = useAuth();
   const navigate = useNavigate();
   const { routes } = useSuiteConfig();
   const [pendingTotpToken, setPendingTotpToken] = useState<string | null>(null);
@@ -89,6 +89,8 @@ export const LoginFormWrapper: FC<LoginFormWrapperProps> = ({
     // Store the full JWT and complete the login flow
     localStorage.setItem('authToken', result.token);
     localStorage.setItem('user', JSON.stringify(result.user));
+    // Update auth context so PrivateRoute guards see the user as authenticated
+    await setUser(result.user);
     handleLoginSuccess();
     return result;
   };
