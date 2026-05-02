@@ -1,6 +1,6 @@
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { UserSettingsForm, UserSettingsFormValues, UserSettingsFormProps } from '../components/UserSettingsForm';
-import { useAuth, useSuiteConfig } from '../contexts';
+import { useSuiteConfig } from '../contexts';
 import { useUserSettingsPublic } from '../hooks';
 import { getSuiteCoreTranslation, IConstants, SuiteCoreStringKey } from '@digitaldefiance/suite-core-lib';
 import { createAuthService } from '../services/authService';
@@ -41,7 +41,6 @@ export const UserSettingsFormWrapper: FC<UserSettingsFormWrapperProps> = ({
 }) => {
   const { settings, updateSettings } = useUserSettingsPublic();
   const { languages, baseUrl } = useSuiteConfig();
-  const { isAuthenticated } = useAuth();
 
   // Fetch totpEnabled from the settings API
   const [totpEnabled, setTotpEnabled] = useState<boolean | undefined>(undefined);
@@ -56,9 +55,15 @@ export const UserSettingsFormWrapper: FC<UserSettingsFormWrapperProps> = ({
     return createAuthService(constants, baseUrl, eciesConfig, emailDomain);
   }, [constants, eciesConfig, baseUrl, emailDomain]);
 
-  // Fetch totpEnabled from GET /user/settings
+  // Fetch totpEnabled from GET /user/settings.
+  // We gate on totpAvailable (no point fetching if TOTP isn't enabled on this
+  // deployment) but NOT on isAuthenticated — isAuthenticated can be false
+  // transiently (e.g. verify 403 on page refresh with a stale token) even
+  // when the user has a valid session token in localStorage. The
+  // authenticatedApi interceptor attaches the token automatically; if the
+  // call fails we leave totpEnabled undefined so no TOTP controls are shown.
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!totpAvailable) return;
     authenticatedApi
       .get<{ settings: { totpEnabled?: boolean } }>('/user/settings')
       .then((res) => {
@@ -67,7 +72,7 @@ export const UserSettingsFormWrapper: FC<UserSettingsFormWrapperProps> = ({
       .catch(() => {
         // If the endpoint fails, leave totpEnabled undefined (no TOTP controls shown)
       });
-  }, [isAuthenticated, authenticatedApi]);
+  }, [totpAvailable, authenticatedApi]);
 
   const handleSubmit = async (values: UserSettingsFormValues) => {
     const result = await updateSettings(values);
