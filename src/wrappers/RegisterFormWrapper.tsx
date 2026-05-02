@@ -8,6 +8,12 @@ import { useAuth, useSuiteConfig } from '../contexts';
 
 export interface RegisterFormWrapperProps {
   onSuccess?: () => void;
+  /**
+   * When true, offer the TOTP setup step after successful registration.
+   * Typically sourced from window.APP_CONFIG.totpAvailable.
+   * Defaults to false.
+   */
+  enableTotpSetup?: boolean;
   componentProps?: Partial<
     Omit<RegisterFormProps, 'onSubmit' | 'timezones' | 'getInitialTimezone'>
   >;
@@ -15,9 +21,10 @@ export interface RegisterFormWrapperProps {
 
 export const RegisterFormWrapper: FC<RegisterFormWrapperProps> = ({
   onSuccess,
+  enableTotpSetup = false,
   componentProps = {},
 }) => {
-  const { register } = useAuth();
+  const { register, setupTotp, confirmTotp } = useAuth();
   const { timezones } = useSuiteConfig();
 
   const handleSubmit = async (values: RegisterFormValues) => {
@@ -49,6 +56,14 @@ export const RegisterFormWrapper: FC<RegisterFormWrapperProps> = ({
     'Europe/London',
   ];
 
+  const totpProps = enableTotpSetup
+    ? {
+        enableTotpSetup: true,
+        onTotpSetup: setupTotp,
+        onTotpConfirm: confirmTotp,
+      }
+    : {};
+
   return (
     <RegisterForm
       onSubmit={handleSubmit}
@@ -56,6 +71,7 @@ export const RegisterFormWrapper: FC<RegisterFormWrapperProps> = ({
       getInitialTimezone={() =>
         Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
       }
+      {...totpProps}
       {...componentProps}
     />
   );

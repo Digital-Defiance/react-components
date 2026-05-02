@@ -193,6 +193,19 @@ export interface AuthContextData {
   wallet?: Wallet;
   walletExpirationSeconds: number;
   verifyToken: (token: string) => Promise<boolean>;
+  /**
+   * Initiates TOTP setup for the authenticated user.
+   * Returns the provisioning URI and raw base32 secret on success.
+   */
+  setupTotp: () => Promise<{ provisioningUri: string; secret: string } | { error: string }>;
+  /**
+   * Confirms TOTP setup with a 6-digit code.
+   */
+  confirmTotp: (code: string) => Promise<{ success: boolean } | { error: string }>;
+  /**
+   * Completes TOTP login by verifying a 6-digit code against a pending TOTP token.
+   */
+  verifyTotpLogin: (pendingTotpToken: string, code: string) => Promise<{ token: string; user: IRequestUserDTO } | { error: string }>;
 }
 
 export type AuthProviderProps = {
@@ -857,6 +870,9 @@ const AuthProviderInner = ({
       setUserSetting: setUserSettingAndUpdateSettings,
       setWallet,
       setWalletExpirationSeconds,
+      setupTotp: () => authService.setupTotp(),
+      confirmTotp: (code: string) => authService.confirmTotp(code),
+      verifyTotpLogin: (pendingTotpToken: string, code: string) => authService.verifyTotpLogin(pendingTotpToken, code),
       token,
       user: frontendUser,
       userData: user,

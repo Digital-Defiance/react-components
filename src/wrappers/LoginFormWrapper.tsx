@@ -27,7 +27,7 @@ export const LoginFormWrapper: FC<LoginFormWrapperProps> = ({
   componentProps = {},
   onVerifyTotp,
 }) => {
-  const { directLogin, passwordLogin } = useAuth();
+  const { directLogin, passwordLogin, verifyTotpLogin } = useAuth();
   const navigate = useNavigate();
   const { routes } = useSuiteConfig();
   const [pendingTotpToken, setPendingTotpToken] = useState<string | null>(null);
@@ -80,10 +80,9 @@ export const LoginFormWrapper: FC<LoginFormWrapperProps> = ({
     code: string,
     token: string,
   ): Promise<{ token: string; user: IRequestUserDTO } | { error: string }> => {
-    if (!onVerifyTotp) {
-      return { error: 'TOTP verification is not configured' };
-    }
-    const result = await onVerifyTotp(code, token);
+    // Use the explicitly provided callback, or fall back to verifyTotpLogin from AuthContext
+    const verifyFn = onVerifyTotp ?? ((c: string, t: string) => verifyTotpLogin(t, c));
+    const result = await verifyFn(code, token);
     if ('error' in result) {
       return result;
     }
