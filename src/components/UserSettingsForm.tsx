@@ -687,8 +687,44 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
 
           {additionalFields && additionalFields(formik)}
 
-          {/* TOTP Two-Factor Authentication Management Section */}
-          {totpStatus !== undefined && (
+          {apiErrors.general && (
+            <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
+              {apiErrors.general}
+            </Alert>
+          )}
+
+          {successMessage && (
+            <Alert severity="success" sx={{ mt: 2, mb: 2 }}>
+              {successMessage}
+            </Alert>
+          )}
+
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            sx={{ mt: 3, mb: 2 }}
+            disabled={formik.isSubmitting}
+          >
+            {saving
+              ? labels.saving ||
+                tComponent<SuiteCoreStringKeyValue>(
+                  SuiteCoreComponentId,
+                  SuiteCoreStringKey.Settings_Saving
+                )
+              : labels.save ||
+                tComponent<SuiteCoreStringKeyValue>(
+                  SuiteCoreComponentId,
+                  SuiteCoreStringKey.Settings_Save
+                )}
+          </Button>
+        </Box>
+
+        {/* TOTP Two-Factor Authentication Management Section — outside the form
+            to prevent TotpSetupForm's nested <form> from being swallowed by the
+            outer form (nested <form> elements are invalid HTML). */}
+        {totpStatus !== undefined && (
             <>
               <Divider sx={{ mt: 3, mb: 2 }} />
               <Typography variant="h6" component="h2" gutterBottom>
@@ -860,40 +896,6 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
               )}
             </>
           )}
-
-          {apiErrors.general && (
-            <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
-              {apiErrors.general}
-            </Alert>
-          )}
-
-          {successMessage && (
-            <Alert severity="success" sx={{ mt: 2, mb: 2 }}>
-              {successMessage}
-            </Alert>
-          )}
-
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            sx={{ mt: 3, mb: 2 }}
-            disabled={formik.isSubmitting}
-          >
-            {saving
-              ? labels.saving ||
-                tComponent<SuiteCoreStringKeyValue>(
-                  SuiteCoreComponentId,
-                  SuiteCoreStringKey.Settings_Saving
-                )
-              : labels.save ||
-                tComponent<SuiteCoreStringKeyValue>(
-                  SuiteCoreComponentId,
-                  SuiteCoreStringKey.Settings_Save
-                )}
-          </Button>
-        </Box>
       </Box>
     </Container>
   );
