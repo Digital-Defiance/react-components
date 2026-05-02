@@ -21,7 +21,7 @@ import {
 } from '@mui/material';
 import { useFormik } from 'formik';
 import moment from 'moment-timezone';
-import { FC, useCallback, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import * as Yup from 'yup';
 import { useI18n } from '../contexts';
 import { Constants } from '@digitaldefiance/suite-core-lib';
@@ -154,6 +154,14 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
 
   // TOTP management state
   const [totpStatus, setTotpStatus] = useState<boolean | undefined>(totpEnabled);
+
+  // Sync totpStatus when the totpEnabled prop transitions from undefined to a
+  // concrete value (i.e. after the wrapper fetches it asynchronously).
+  useEffect(() => {
+    if (totpEnabled !== undefined) {
+      setTotpStatus(totpEnabled);
+    }
+  }, [totpEnabled]);
   const [showTotpSetup, setShowTotpSetup] = useState(false);
   const [totpProvisioningUri, setTotpProvisioningUri] = useState<string | null>(null);
   const [totpSecret, setTotpSecret] = useState<string | null>(null);
