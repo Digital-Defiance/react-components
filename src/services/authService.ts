@@ -60,9 +60,10 @@ interface RegisterResponse {
 }
 
 interface LoginResponse {
-  token: string;
-  user: IRequestUserDTO;
+  token?: string;
+  user?: IRequestUserDTO;
   message?: string;
+  pendingTotpToken?: string;
 }
 
 interface ChallengeResponse {
@@ -178,6 +179,7 @@ export class AuthService {
     email?: EmailString
   ): Promise<
     | { token: string; user: IRequestUserDTO; wallet: Wallet; message: string }
+    | { pendingTotpToken: string }
     | { error: string; errorType?: string }
   > {
     if (!username && !email) {
@@ -209,6 +211,11 @@ export class AuthService {
             signature: signatureHex,
           }
         );
+        if (loginResponse.data.pendingTotpToken) {
+          return {
+            pendingTotpToken: loginResponse.data.pendingTotpToken,
+          };
+        }
         if (loginResponse.data.token && loginResponse.data.user) {
           return {
             message: loginResponse.data.message ?? '',
@@ -307,6 +314,7 @@ export class AuthService {
     email?: EmailString
   ): Promise<
     | { token: string; user: IRequestUserDTO; wallet: Wallet; message: string }
+    | { pendingTotpToken: string }
     | { error: string; errorType?: string }
   > {
     if (!username && !email) {
@@ -334,6 +342,11 @@ export class AuthService {
           email: email ?? null,
         }
       );
+      if (response.data.pendingTotpToken) {
+        return {
+          pendingTotpToken: response.data.pendingTotpToken,
+        };
+      }
       if (response.data.token && response.data.user) {
         return {
           message: response.data.message ?? '',
@@ -511,6 +524,154 @@ export class AuthService {
             getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
           ...(errorData.errorType ? { errorType: errorData.errorType } : {}),
           status: error.response.status,
+        };
+      }
+      return {
+        error: getSuiteCoreTranslation(
+          SuiteCoreStringKey.Common_UnexpectedError
+        ),
+      };
+    }
+  }
+
+  async setupTotp(): Promise<
+    | { provisioningUri: string; secret: string }
+    | { error: string }
+  > {
+    try {
+      const response = await this.authenticatedApiClient.post<{
+        provisioningUri: string;
+        secret: string;
+      }>('/user/totp/setup');
+      return {
+        provisioningUri: response.data.provisioningUri,
+        secret: response.data.secret,
+      };
+    } catch (error) {
+      if (isAxiosError<ApiErrorResponse>(error) && error.response) {
+        const errorData = error.response.data;
+        return {
+          error:
+            extractErrorMessage(errorData) ??
+            (error as Error).message ??
+            getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
+        };
+      }
+      return {
+        error: getSuiteCoreTranslation(
+          SuiteCoreStringKey.Common_UnexpectedError
+        ),
+      };
+    }
+  }
+
+  async confirmTotp(
+    code: string
+  ): Promise<{ success: boolean } | { error: string }> {
+    try {
+      await this.authenticatedApiClient.post('/user/totp/confirm', { code });
+      return { success: true };
+    } catch (error) {
+      if (isAxiosError<ApiErrorResponse>(error) && error.response) {
+        const errorData = error.response.data;
+        return {
+          error:
+            extractErrorMessage(errorData) ??
+            (error as Error).message ??
+            getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
+        };
+      }
+      return {
+        error: getSuiteCoreTranslation(
+          SuiteCoreStringKey.Common_UnexpectedError
+        ),
+      };
+    }
+  }
+
+  async disableTotp(
+    code: string
+  ): Promise<{ success: boolean } | { error: string }> {
+    try {
+      await this.authenticatedApiClient.post('/user/totp/disable', { code });
+      return { success: true };
+    } catch (error) {
+      if (isAxiosError<ApiErrorResponse>(error) && error.response) {
+        const errorData = error.response.data;
+        return {
+          error:
+            extractErrorMessage(errorData) ??
+            (error as Error).message ??
+            getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
+        };
+      }
+      return {
+        error: getSuiteCoreTranslation(
+          SuiteCoreStringKey.Common_UnexpectedError
+        ),
+      };
+    }
+  }
+
+  async resetTotp(
+    code: string
+  ): Promise<
+    | { provisioningUri: string; secret: string }
+    | { error: string }
+  > {
+    try {
+      const response = await this.authenticatedApiClient.post<{
+        provisioningUri: string;
+        secret: string;
+      }>('/user/totp/reset', { code });
+      return {
+        provisioningUri: response.data.provisioningUri,
+        secret: response.data.secret,
+      };
+    } catch (error) {
+      if (isAxiosError<ApiErrorResponse>(error) && error.response) {
+        const errorData = error.response.data;
+        return {
+          error:
+            extractErrorMessage(errorData) ??
+            (error as Error).message ??
+            getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
+        };
+      }
+      return {
+        error: getSuiteCoreTranslation(
+          SuiteCoreStringKey.Common_UnexpectedError
+        ),
+      };
+    }
+  }
+
+  async verifyTotpLogin(
+    pendingTotpToken: string,
+    code: string
+  ): Promise<
+    | { token: string; user: IRequestUserDTO }
+    | { error: string }
+  > {
+    try {
+      const response = await this.apiClient.post<{
+        token: string;
+        user: IRequestUserDTO;
+      }>('/user/totp/verify', { code }, {
+        headers: { Authorization: `Bearer ${pendingTotpToken}` },
+      });
+      return {
+        token: response.data.token,
+        user: response.data.user,
+      };
+    } catch (error) {
+      if (isAxiosError<ApiErrorResponse>(error) && error.response) {
+        const errorData = error.response.data;
+        return {
+          error:
+            extractErrorMessage(errorData) ??
+            (error as Error).message ??
+            getSuiteCoreTranslation(SuiteCoreStringKey.Common_UnexpectedError),
         };
       }
       return {

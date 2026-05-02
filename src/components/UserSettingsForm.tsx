@@ -9,6 +9,7 @@ import {
   Box,
   Button,
   Container,
+  Divider,
   FormControl,
   FormControlLabel,
   InputLabel,
@@ -20,10 +21,11 @@ import {
 } from '@mui/material';
 import { useFormik } from 'formik';
 import moment from 'moment-timezone';
-import { FC, useMemo, useState } from 'react';
+import { FC, useCallback, useMemo, useState } from 'react';
 import * as Yup from 'yup';
 import { useI18n } from '../contexts';
 import { Constants } from '@digitaldefiance/suite-core-lib';
+import { TotpSetupForm } from './TotpSetupForm';
 
 export interface UserSettingsFormValues {
   email: string;
@@ -60,6 +62,41 @@ export interface UserSettingsFormProps {
   ) => React.ReactNode;
   additionalInitialValues?: Record<string, string | boolean>;
   additionalValidation?: Record<string, Yup.Schema>;
+  /**
+   * Current TOTP 2FA status. When undefined (not passed), no TOTP controls are rendered.
+   * When false, an "Enable 2FA" button is shown. When true, "Disable 2FA" and "Reset 2FA" buttons are shown.
+   */
+  totpEnabled?: boolean;
+  /**
+   * Called to initiate TOTP setup (e.g. AuthService.setupTotp()).
+   * Must return provisioning URI and secret on success, or an error.
+   */
+  onTotpSetup?: () => Promise<
+    | { provisioningUri: string; secret: string }
+    | { error: string }
+  >;
+  /**
+   * Called to confirm TOTP setup with a 6-digit code (e.g. AuthService.confirmTotp()).
+   */
+  onTotpConfirm?: (
+    code: string
+  ) => Promise<{ success: boolean } | { error: string }>;
+  /**
+   * Called to disable TOTP with a 6-digit code (e.g. AuthService.disableTotp()).
+   */
+  onTotpDisable?: (
+    code: string
+  ) => Promise<{ success: boolean } | { error: string }>;
+  /**
+   * Called to reset TOTP with a 6-digit code (e.g. AuthService.resetTotp()).
+   * Returns new provisioning URI and secret on success.
+   */
+  onTotpReset?: (
+    code: string
+  ) => Promise<
+    | { provisioningUri: string; secret: string }
+    | { error: string }
+  >;
   labels?: {
     title?: string;
     email?: string;
@@ -74,6 +111,18 @@ export interface UserSettingsFormProps {
     saving?: string;
     save?: string;
     successMessage?: string;
+    totpSectionTitle?: string;
+    totpStatusEnabled?: string;
+    totpStatusDisabled?: string;
+    totpEnableButton?: string;
+    totpDisableButton?: string;
+    totpResetButton?: string;
+    totpDisableCodeLabel?: string;
+    totpDisableSubmitButton?: string;
+    totpResetCodeLabel?: string;
+    totpResetSubmitButton?: string;
+    totpCancelButton?: string;
+    totpError?: string;
   };
 }
 
@@ -91,12 +140,121 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
   additionalFields,
   additionalInitialValues = {},
   additionalValidation = {},
+  totpEnabled,
+  onTotpSetup,
+  onTotpConfirm,
+  onTotpDisable,
+  onTotpReset,
   labels = {},
 }) => {
   const { tComponent } = useI18n();
   const [apiErrors, setApiErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // TOTP management state
+  const [totpStatus, setTotpStatus] = useState<boolean | undefined>(totpEnabled);
+  const [showTotpSetup, setShowTotpSetup] = useState(false);
+  const [totpProvisioningUri, setTotpProvisioningUri] = useState<string | null>(null);
+  const [totpSecret, setTotpSecret] = useState<string | null>(null);
+  const [totpSetupLoading, setTotpSetupLoading] = useState(false);
+  const [totpError, setTotpError] = useState<string | null>(null);
+  const [showDisablePrompt, setShowDisablePrompt] = useState(false);
+  const [disableCode, setDisableCode] = useState('');
+  const [disableSubmitting, setDisableSubmitting] = useState(false);
+  const [showResetPrompt, setShowResetPrompt] = useState(false);
+  const [resetCode, setResetCode] = useState('');
+  const [resetSubmitting, setResetSubmitting] = useState(false);
+
+  const handleEnableTotp = useCallback(async () => {
+    if (!onTotpSetup) return;
+    setTotpSetupLoading(true);
+    setTotpError(null);
+    try {
+      const result = await onTotpSetup();
+      if ('error' in result) {
+        setTotpError(result.error);
+      } else {
+        setTotpProvisioningUri(result.provisioningUri);
+        setTotpSecret(result.secret);
+        setShowTotpSetup(true);
+      }
+    } catch {
+      setTotpError(labels.totpError || 'Failed to set up two-factor authentication');
+    } finally {
+      setTotpSetupLoading(false);
+    }
+  }, [onTotpSetup, labels.totpError]);
+
+  const handleTotpConfirm = useCallback(
+    async (code: string): Promise<{ success: boolean } | { error: string }> => {
+      if (!onTotpConfirm) {
+        return { error: 'TOTP confirmation is not available' };
+      }
+      const result = await onTotpConfirm(code);
+      if ('success' in result && result.success) {
+        setTotpStatus(true);
+        setShowTotpSetup(false);
+        setTotpProvisioningUri(null);
+        setTotpSecret(null);
+      }
+      return result;
+    },
+    [onTotpConfirm]
+  );
+
+  const handleDisableTotp = useCallback(async () => {
+    if (!onTotpDisable || !disableCode) return;
+    setDisableSubmitting(true);
+    setTotpError(null);
+    try {
+      const result = await onTotpDisable(disableCode);
+      if ('error' in result) {
+        setTotpError(result.error);
+      } else {
+        setTotpStatus(false);
+        setShowDisablePrompt(false);
+        setDisableCode('');
+      }
+    } catch {
+      setTotpError(labels.totpError || 'Failed to disable two-factor authentication');
+    } finally {
+      setDisableSubmitting(false);
+    }
+  }, [onTotpDisable, disableCode, labels.totpError]);
+
+  const handleResetTotp = useCallback(async () => {
+    if (!onTotpReset || !resetCode) return;
+    setResetSubmitting(true);
+    setTotpError(null);
+    try {
+      const result = await onTotpReset(resetCode);
+      if ('error' in result) {
+        setTotpError(result.error);
+      } else {
+        setTotpProvisioningUri(result.provisioningUri);
+        setTotpSecret(result.secret);
+        setShowResetPrompt(false);
+        setResetCode('');
+        setShowTotpSetup(true);
+      }
+    } catch {
+      setTotpError(labels.totpError || 'Failed to reset two-factor authentication');
+    } finally {
+      setResetSubmitting(false);
+    }
+  }, [onTotpReset, resetCode, labels.totpError]);
+
+  const handleCancelTotpAction = useCallback(() => {
+    setShowTotpSetup(false);
+    setShowDisablePrompt(false);
+    setShowResetPrompt(false);
+    setTotpProvisioningUri(null);
+    setTotpSecret(null);
+    setDisableCode('');
+    setResetCode('');
+    setTotpError(null);
+  }, []);
 
   const timezones = useMemo(() => moment.tz.names(), []);
   const currencies = useMemo(
@@ -520,6 +678,172 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
           </FormControl>
 
           {additionalFields && additionalFields(formik)}
+
+          {/* TOTP Two-Factor Authentication Management Section */}
+          {totpStatus !== undefined && (
+            <>
+              <Divider sx={{ mt: 3, mb: 2 }} />
+              <Typography variant="h6" component="h2" gutterBottom>
+                {labels.totpSectionTitle || 'Two-Factor Authentication'}
+              </Typography>
+
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                {totpStatus
+                  ? (labels.totpStatusEnabled || '2FA is currently enabled')
+                  : (labels.totpStatusDisabled || '2FA is currently disabled')}
+              </Typography>
+
+              {totpError && (
+                <Alert severity="error" sx={{ mb: 2 }} role="alert">
+                  {totpError}
+                </Alert>
+              )}
+
+              {/* Enable 2FA flow */}
+              {!totpStatus && !showTotpSetup && (
+                <Button
+                  variant="outlined"
+                  onClick={handleEnableTotp}
+                  disabled={totpSetupLoading}
+                  data-testid="enable-totp-button"
+                >
+                  {totpSetupLoading
+                    ? 'Setting up...'
+                    : (labels.totpEnableButton || 'Enable 2FA')}
+                </Button>
+              )}
+
+              {/* TotpSetupForm inline (for enable or reset flows) */}
+              {showTotpSetup && totpProvisioningUri && totpSecret && (
+                <Box sx={{ mt: 2 }}>
+                  <TotpSetupForm
+                    provisioningUri={totpProvisioningUri}
+                    secret={totpSecret}
+                    onConfirm={handleTotpConfirm}
+                  />
+                  <Box sx={{ textAlign: 'center', mt: 1 }}>
+                    <Button
+                      variant="text"
+                      onClick={handleCancelTotpAction}
+                      data-testid="cancel-totp-setup-button"
+                    >
+                      {labels.totpCancelButton || 'Cancel'}
+                    </Button>
+                  </Box>
+                </Box>
+              )}
+
+              {/* Disable 2FA and Reset 2FA buttons */}
+              {totpStatus && !showTotpSetup && !showDisablePrompt && !showResetPrompt && (
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => { setShowDisablePrompt(true); setTotpError(null); }}
+                    data-testid="disable-totp-button"
+                  >
+                    {labels.totpDisableButton || 'Disable 2FA'}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={() => { setShowResetPrompt(true); setTotpError(null); }}
+                    data-testid="reset-totp-button"
+                  >
+                    {labels.totpResetButton || 'Reset 2FA'}
+                  </Button>
+                </Box>
+              )}
+
+              {/* Disable 2FA code prompt */}
+              {showDisablePrompt && (
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    Enter your current 2FA code to disable two-factor authentication:
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    id="totp-disable-code"
+                    name="totp-disable-code"
+                    label={labels.totpDisableCodeLabel || 'TOTP Code'}
+                    value={disableCode}
+                    onChange={(e) => setDisableCode(e.target.value)}
+                    inputProps={{
+                      'aria-label': labels.totpDisableCodeLabel || 'TOTP Code',
+                      inputMode: 'numeric',
+                      maxLength: 6,
+                      pattern: '\\d{6}',
+                    }}
+                    autoComplete="one-time-code"
+                    margin="normal"
+                  />
+                  <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
+                    <Button
+                      variant="contained"
+                      color="error"
+                      onClick={handleDisableTotp}
+                      disabled={disableSubmitting || !/^\d{6}$/.test(disableCode)}
+                      data-testid="disable-totp-submit-button"
+                    >
+                      {disableSubmitting
+                        ? 'Disabling...'
+                        : (labels.totpDisableSubmitButton || 'Confirm Disable')}
+                    </Button>
+                    <Button
+                      variant="text"
+                      onClick={handleCancelTotpAction}
+                      data-testid="cancel-disable-totp-button"
+                    >
+                      {labels.totpCancelButton || 'Cancel'}
+                    </Button>
+                  </Box>
+                </Box>
+              )}
+
+              {/* Reset 2FA code prompt */}
+              {showResetPrompt && (
+                <Box sx={{ mt: 2 }}>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    Enter your current 2FA code to reset two-factor authentication:
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    id="totp-reset-code"
+                    name="totp-reset-code"
+                    label={labels.totpResetCodeLabel || 'TOTP Code'}
+                    value={resetCode}
+                    onChange={(e) => setResetCode(e.target.value)}
+                    inputProps={{
+                      'aria-label': labels.totpResetCodeLabel || 'TOTP Code',
+                      inputMode: 'numeric',
+                      maxLength: 6,
+                      pattern: '\\d{6}',
+                    }}
+                    autoComplete="one-time-code"
+                    margin="normal"
+                  />
+                  <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
+                    <Button
+                      variant="contained"
+                      onClick={handleResetTotp}
+                      disabled={resetSubmitting || !/^\d{6}$/.test(resetCode)}
+                      data-testid="reset-totp-submit-button"
+                    >
+                      {resetSubmitting
+                        ? 'Resetting...'
+                        : (labels.totpResetSubmitButton || 'Confirm Reset')}
+                    </Button>
+                    <Button
+                      variant="text"
+                      onClick={handleCancelTotpAction}
+                      data-testid="cancel-reset-totp-button"
+                    >
+                      {labels.totpCancelButton || 'Cancel'}
+                    </Button>
+                  </Box>
+                </Box>
+              )}
+            </>
+          )}
 
           {apiErrors.general && (
             <Alert severity="error" sx={{ mt: 2, mb: 2 }}>

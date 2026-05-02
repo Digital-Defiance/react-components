@@ -1,6 +1,6 @@
 {
   "name": "@digitaldefiance/express-suite-react-components",
-  "version": "4.26.26",
+  "version": "4.27.0",
   "homepage": "https://github.com/Digital-Defiance/react-components",
   "description": "React MUI components for Digital Defiance Express Suite",
   "repository": {
@@ -43,6 +43,7 @@
     "currency-codes": "^2.2.0",
     "formik": "^2.4.6",
     "moment-timezone": "^0.6.0",
+    "qrcode.react": "^4.2.0",
     "react-number-format": "^5.4.4",
     "yup": "^1.6.1"
   },

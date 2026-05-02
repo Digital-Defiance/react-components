@@ -103,6 +103,7 @@ export interface AuthContextData {
     expireWalletSeconds?: number
   ) => Promise<
     | { token: string; user: IRequestUserDTO; wallet: Wallet }
+    | { pendingTotpToken: string }
     | { error: string; errorType?: string }
   >;
   emailChallengeLogin: (
@@ -114,6 +115,7 @@ export interface AuthContextData {
     expireWalletSeconds?: number
   ) => Promise<
     | { token: string; user: IRequestUserDTO; wallet: Wallet; message: string }
+    | { pendingTotpToken: string }
     | { error: string; errorType?: string }
   >;
   isAuthenticated: boolean;
@@ -130,6 +132,7 @@ export interface AuthContextData {
     email?: EmailString
   ) => Promise<
     | { token: string; user: IRequestUserDTO; wallet: Wallet }
+    | { pendingTotpToken: string }
     | { error: string; errorType?: string }
   >;
   requestEmailLogin: (

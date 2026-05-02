@@ -1,24 +1,43 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SecureString, EmailString } from '@digitaldefiance/ecies-lib';
+import { IRequestUserDTO, SuiteCoreStringKey, TranslatableSuiteError } from '@digitaldefiance/suite-core-lib';
 import { LoginForm, LoginFormValues, LoginFormProps } from '../components/LoginForm';
+import { TotpVerificationForm } from '../components/TotpVerificationForm';
 import { useAuth, useSuiteConfig } from '../contexts';
-import { SuiteCoreStringKey, TranslatableSuiteError } from '@digitaldefiance/suite-core-lib';
 
 export interface LoginFormWrapperProps {
   onSuccess?: () => void;
   redirectTo?: string;
   componentProps?: Partial<Omit<LoginFormProps, 'onSubmit'>>;
+  /**
+   * Called when the user submits a TOTP verification code during login.
+   * Typically wired to `AuthService.verifyTotpLogin(pendingTotpToken, code)`.
+   * When not provided, the wrapper cannot complete TOTP-protected logins.
+   */
+  onVerifyTotp?: (
+    code: string,
+    pendingTotpToken: string,
+  ) => Promise<{ token: string; user: IRequestUserDTO } | { error: string }>;
 }
 
 export const LoginFormWrapper: FC<LoginFormWrapperProps> = ({ 
   onSuccess,
   redirectTo,
   componentProps = {},
+  onVerifyTotp,
 }) => {
   const { directLogin, passwordLogin } = useAuth();
   const navigate = useNavigate();
   const { routes } = useSuiteConfig();
+  const [pendingTotpToken, setPendingTotpToken] = useState<string | null>(null);
+
+  const handleLoginSuccess = () => {
+    if (onSuccess) {
+      onSuccess();
+    }
+    navigate(redirectTo || routes.dashboard || '/dashboard');
+  };
 
   const handleSubmit = async (values: LoginFormValues) => {
     const email = values.email && values.email.trim().length > 0 ? new EmailString(values.email) : undefined;
@@ -33,10 +52,11 @@ export const LoginFormWrapper: FC<LoginFormWrapperProps> = ({
       if ('error' in result) {
         throw new Error(result.error);
       }
-      if (onSuccess) {
-        onSuccess();
+      if ('pendingTotpToken' in result) {
+        setPendingTotpToken(result.pendingTotpToken);
+        return;
       }
-      navigate(redirectTo || routes.dashboard || '/dashboard');
+      handleLoginSuccess();
     } else if (values.mnemonic) {
       const result = await directLogin(
         new SecureString(values.mnemonic),
@@ -46,14 +66,42 @@ export const LoginFormWrapper: FC<LoginFormWrapperProps> = ({
       if ('error' in result) {
         throw new Error(result.error);
       }
-      if (onSuccess) {
-        onSuccess();
+      if ('pendingTotpToken' in result) {
+        setPendingTotpToken(result.pendingTotpToken);
+        return;
       }
-      navigate(redirectTo || routes.dashboard || '/dashboard');
+      handleLoginSuccess();
     } else {
       throw new TranslatableSuiteError(SuiteCoreStringKey.Error_NoPasswordOrMnemonicProvided);
     }
   };
+
+  const handleTotpSubmit = async (
+    code: string,
+    token: string,
+  ): Promise<{ token: string; user: IRequestUserDTO } | { error: string }> => {
+    if (!onVerifyTotp) {
+      return { error: 'TOTP verification is not configured' };
+    }
+    const result = await onVerifyTotp(code, token);
+    if ('error' in result) {
+      return result;
+    }
+    // Store the full JWT and complete the login flow
+    localStorage.setItem('authToken', result.token);
+    localStorage.setItem('user', JSON.stringify(result.user));
+    handleLoginSuccess();
+    return result;
+  };
+
+  if (pendingTotpToken) {
+    return (
+      <TotpVerificationForm
+        pendingTotpToken={pendingTotpToken}
+        onSubmit={handleTotpSubmit}
+      />
+    );
+  }
 
   return <LoginForm onSubmit={handleSubmit} {...componentProps} />;
 };

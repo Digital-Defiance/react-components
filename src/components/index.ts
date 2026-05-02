@@ -27,3 +27,5 @@ export * from './VerifyEmailPage';
 export * from './T';
 export * from './TDiv';
 export * from './TImgAlt';
+export * from './TotpSetupForm';
+export * from './TotpVerificationForm';

@@ -22,9 +22,10 @@ import {
   Typography,
 } from '@mui/material';
 import { useFormik } from 'formik';
-import { FC, useState } from 'react';
+import { FC, useCallback, useState } from 'react';
 import * as Yup from 'yup';
 import { useI18n } from '../contexts';
+import { TotpSetupForm } from './TotpSetupForm';
 
 export interface RegisterFormValues {
   username: string;
@@ -60,6 +61,29 @@ export interface RegisterFormProps {
   passwordValidation?: Yup.StringSchema;
   confirmPasswordValidation?: Yup.StringSchema;
   /**
+   * When true, display a TOTP setup step after successful registration.
+   * Defaults to false. When false or not provided, existing flow is unchanged.
+   */
+  enableTotpSetup?: boolean;
+  /**
+   * Called to initiate TOTP setup (e.g. AuthService.setupTotp()).
+   * Must return provisioning URI and secret on success, or an error.
+   */
+  onTotpSetup?: () => Promise<
+    | { provisioningUri: string; secret: string }
+    | { error: string }
+  >;
+  /**
+   * Called to confirm TOTP setup with a 6-digit code (e.g. AuthService.confirmTotp()).
+   */
+  onTotpConfirm?: (
+    code: string
+  ) => Promise<{ success: boolean } | { error: string }>;
+  /**
+   * Called after the user successfully confirms TOTP during the registration flow.
+   */
+  onTotpSetupComplete?: () => void;
+  /**
    * List of email domains that are not allowed during registration.
    * For example, the home system's email domain should be disallowed
    * so users cannot register with addresses managed by the platform.
@@ -89,6 +113,10 @@ export interface RegisterFormProps {
     savedRecoveryPhrase?: string;
     loginLink?: string;
     mnemonic?: string;
+    totpSetupTitle?: string;
+    totpSkipButton?: string;
+    totpSetupError?: string;
+    totpSetupSuccess?: string;
   };
 }
 
@@ -102,6 +130,10 @@ export const RegisterForm: FC<RegisterFormProps> = ({
   timezoneValidation,
   passwordValidation,
   confirmPasswordValidation,
+  enableTotpSetup = false,
+  onTotpSetup,
+  onTotpConfirm,
+  onTotpSetupComplete,
   disallowedEmailDomains,
   additionalFields,
   additionalInitialValues = {},
@@ -115,6 +147,55 @@ export const RegisterForm: FC<RegisterFormProps> = ({
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [registering, setRegistering] = useState(false);
   const [showMnemonicInput, setShowMnemonicInput] = useState(false);
+  const [showTotpSetup, setShowTotpSetup] = useState(false);
+  const [totpProvisioningUri, setTotpProvisioningUri] = useState<string | null>(null);
+  const [totpSecret, setTotpSecret] = useState<string | null>(null);
+  const [totpSetupError, setTotpSetupError] = useState<string | null>(null);
+  const [totpSetupComplete, setTotpSetupComplete] = useState(false);
+  const [totpSetupLoading, setTotpSetupLoading] = useState(false);
+
+  const initiateTotpSetup = useCallback(async () => {
+    if (!onTotpSetup) return;
+    setTotpSetupLoading(true);
+    setTotpSetupError(null);
+    try {
+      const result = await onTotpSetup();
+      if ('error' in result) {
+        setTotpSetupError(result.error);
+      } else {
+        setTotpProvisioningUri(result.provisioningUri);
+        setTotpSecret(result.secret);
+      }
+    } catch {
+      setTotpSetupError(
+        labels.totpSetupError || 'Failed to set up two-factor authentication'
+      );
+    } finally {
+      setTotpSetupLoading(false);
+    }
+  }, [onTotpSetup, labels.totpSetupError]);
+
+  const handleTotpConfirm = useCallback(
+    async (code: string): Promise<{ success: boolean } | { error: string }> => {
+      if (!onTotpConfirm) {
+        return { error: 'TOTP confirmation is not available' };
+      }
+      const result = await onTotpConfirm(code);
+      if ('success' in result && result.success) {
+        setTotpSetupComplete(true);
+        setShowTotpSetup(false);
+        if (onTotpSetupComplete) {
+          onTotpSetupComplete();
+        }
+      }
+      return result;
+    },
+    [onTotpConfirm, onTotpSetupComplete]
+  );
+
+  const handleSkipTotp = useCallback(() => {
+    setShowTotpSetup(false);
+  }, []);
 
   const validation = {
     username:
@@ -323,6 +404,12 @@ export const RegisterForm: FC<RegisterFormProps> = ({
         if (registerResult.mnemonic) {
           setMnemonic(registerResult.mnemonic);
         }
+        if (enableTotpSetup && onTotpSetup) {
+          setShowTotpSetup(true);
+          // Fire-and-forget: initiate TOTP setup in background
+          // The setup state is managed by initiateTotpSetup
+          initiateTotpSetup();
+        }
       } else {
         setRegistrationSuccess(false);
         const newApiErrors: Record<string, string> = {};
@@ -382,6 +469,165 @@ export const RegisterForm: FC<RegisterFormProps> = ({
 
         {(mnemonic || registrationSuccess) ? (
           <Box sx={{ mt: 2, width: '100%' }}>
+          {showTotpSetup && !totpSetupComplete ? (
+            <Box>
+              <Typography variant="h5" component="h2" gutterBottom fontWeight="bold" sx={{ textAlign: 'center' }}>
+                {labels.totpSetupTitle || 'Set Up Two-Factor Authentication'}
+              </Typography>
+
+              {totpSetupLoading && (
+                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mt: 2 }}>
+                  Loading TOTP setup...
+                </Typography>
+              )}
+
+              {totpSetupError && (
+                <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
+                  {totpSetupError}
+                </Alert>
+              )}
+
+              {totpProvisioningUri && totpSecret && (
+                <TotpSetupForm
+                  provisioningUri={totpProvisioningUri}
+                  secret={totpSecret}
+                  onConfirm={handleTotpConfirm}
+                />
+              )}
+
+              <Box sx={{ textAlign: 'center', mt: 2 }}>
+                <Button
+                  variant="text"
+                  onClick={handleSkipTotp}
+                  data-testid="skip-totp-button"
+                >
+                  {labels.totpSkipButton || 'Skip'}
+                </Button>
+              </Box>
+            </Box>
+          ) : totpSetupComplete ? (
+            <Box>
+              <Alert severity="success" sx={{ mt: 2, mb: 2 }}>
+                {labels.totpSetupSuccess || 'Two-factor authentication has been enabled successfully.'}
+              </Alert>
+              {mnemonic ? (
+              <>
+                <Box sx={{ textAlign: 'center', mb: 3 }}>
+                  <Typography variant="h5" component="h2" gutterBottom fontWeight="bold">
+                    {labels.successTitle ||
+                      tComponent<SuiteCoreStringKeyValue>(
+                        SuiteCoreComponentId,
+                        SuiteCoreStringKey.Registration_SuccessTitle
+                      )}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {labels.mnemonicSuccess ||
+                      tComponent<SuiteCoreStringKeyValue>(
+                        SuiteCoreComponentId,
+                        SuiteCoreStringKey.Registration_MnemonicSuccess
+                      )}
+                  </Typography>
+                </Box>
+
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: 1.5,
+                    mb: 3,
+                  }}
+                >
+                  {mnemonic.split(/\s+/).map((word, i) => (
+                    <Box
+                      key={i}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 0.5,
+                        py: 1,
+                        px: 1.5,
+                        borderRadius: 2,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        bgcolor: 'action.hover',
+                      }}
+                    >
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ minWidth: '1.5em', textAlign: 'right' }}
+                      >
+                        {i + 1}.
+                      </Typography>
+                      <Typography variant="body2" fontWeight="bold">
+                        {word}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+
+                <Box sx={{ textAlign: 'center' }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    href="/verify-email"
+                    sx={{ borderRadius: 6, px: 4 }}
+                  >
+                    {labels.savedRecoveryPhrase ||
+                      labels.proceedToLogin ||
+                      tComponent<SuiteCoreStringKeyValue>(
+                        SuiteCoreComponentId,
+                        SuiteCoreStringKey.Registration_SavedRecoveryPhrase
+                      )}
+                  </Button>
+                </Box>
+
+                <Alert severity="success" sx={{ mt: 3 }}>
+                  <AlertTitle>
+                    {tComponent<SuiteCoreStringKeyValue>(
+                      SuiteCoreComponentId,
+                      SuiteCoreStringKey.Registration_SuccessTitle
+                    )}
+                  </AlertTitle>
+                  <Typography variant="body2" component="div">
+                    {tComponent<SuiteCoreStringKeyValue>(
+                      SuiteCoreComponentId,
+                      SuiteCoreStringKey.Registration_Success
+                    )}
+                  </Typography>
+                </Alert>
+              </>
+              ) : (
+                <Alert severity="success" sx={{ mt: 2, mb: 2 }}>
+                  <AlertTitle>
+                    {labels.successTitle ||
+                      tComponent<SuiteCoreStringKeyValue>(
+                        SuiteCoreComponentId,
+                        SuiteCoreStringKey.Registration_SuccessTitle
+                      )}
+                  </AlertTitle>
+                  <Typography variant="body2" component="div">
+                    {tComponent<SuiteCoreStringKeyValue>(
+                      SuiteCoreComponentId,
+                      SuiteCoreStringKey.Registration_Success
+                    )}
+                    <Box sx={{ textAlign: 'center', mt: 1 }}>
+                      <Link href="/login">
+                        {labels.proceedToLogin ||
+                          tComponent<SuiteCoreStringKeyValue>(
+                            SuiteCoreComponentId,
+                            SuiteCoreStringKey.ProceedToLogin
+                          )}
+                      </Link>
+                    </Box>
+                  </Typography>
+                </Alert>
+              )}
+            </Box>
+          ) : (
+          <>
           {mnemonic ? (
           <>
             <Box sx={{ textAlign: 'center', mb: 3 }}>
@@ -496,6 +742,8 @@ export const RegisterForm: FC<RegisterFormProps> = ({
                 </Box>
               </Typography>
             </Alert>
+          )}
+          </>
           )}
           </Box>
         ) : (
