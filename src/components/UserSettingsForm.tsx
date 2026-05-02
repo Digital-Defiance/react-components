@@ -710,6 +710,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
               {/* Enable 2FA flow */}
               {!totpStatus && !showTotpSetup && (
                 <Button
+                  type="button"
                   variant="outlined"
                   onClick={handleEnableTotp}
                   disabled={totpSetupLoading}
@@ -731,6 +732,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
                   />
                   <Box sx={{ textAlign: 'center', mt: 1 }}>
                     <Button
+                      type="button"
                       variant="text"
                       onClick={handleCancelTotpAction}
                       data-testid="cancel-totp-setup-button"
@@ -745,6 +747,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
               {totpStatus && !showTotpSetup && !showDisablePrompt && !showResetPrompt && (
                 <Box sx={{ display: 'flex', gap: 2 }}>
                   <Button
+                    type="button"
                     variant="outlined"
                     color="error"
                     onClick={() => { setShowDisablePrompt(true); setTotpError(null); }}
@@ -753,6 +756,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
                     {labels.totpDisableButton || 'Disable 2FA'}
                   </Button>
                   <Button
+                    type="button"
                     variant="outlined"
                     onClick={() => { setShowResetPrompt(true); setTotpError(null); }}
                     data-testid="reset-totp-button"
@@ -786,6 +790,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
                   />
                   <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
                     <Button
+                      type="button"
                       variant="contained"
                       color="error"
                       onClick={handleDisableTotp}
@@ -797,6 +802,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
                         : (labels.totpDisableSubmitButton || 'Confirm Disable')}
                     </Button>
                     <Button
+                      type="button"
                       variant="text"
                       onClick={handleCancelTotpAction}
                       data-testid="cancel-disable-totp-button"
@@ -831,6 +837,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
                   />
                   <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
                     <Button
+                      type="button"
                       variant="contained"
                       onClick={handleResetTotp}
                       disabled={resetSubmitting || !/^\d{6}$/.test(resetCode)}
@@ -841,6 +848,7 @@ export const UserSettingsForm: FC<UserSettingsFormProps> = ({
                         : (labels.totpResetSubmitButton || 'Confirm Reset')}
                     </Button>
                     <Button
+                      type="button"
                       variant="text"
                       onClick={handleCancelTotpAction}
                       data-testid="cancel-reset-totp-button"
