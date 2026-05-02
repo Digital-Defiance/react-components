@@ -12,6 +12,12 @@ export interface RegisterFormWrapperProps {
    * When true, offer the TOTP setup step after successful registration.
    * Typically sourced from window.APP_CONFIG.totpAvailable.
    * Defaults to false.
+   *
+   * NOTE: This requires the registration endpoint to return a session token
+   * so the user is authenticated when the TOTP setup call is made. If
+   * registration does not issue a token (the default in this suite), leave
+   * this false and direct users to enable TOTP from their settings page
+   * after logging in.
    */
   enableTotpSetup?: boolean;
   componentProps?: Partial<
