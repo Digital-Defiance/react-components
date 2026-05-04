@@ -367,6 +367,7 @@ export const LoginForm: FC<LoginFormProps> = ({
               id="mnemonic"
               multiline
               rows={3}
+              autoComplete="section-mnemonic current-password"
               value={formik.values.mnemonic}
               onChange={formik.handleChange}
               error={formik.touched.mnemonic && Boolean(formik.errors.mnemonic)}
