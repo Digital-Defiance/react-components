@@ -35,7 +35,7 @@ describe('RegisterForm', () => {
   it('renders with translated labels', () => {
     renderWithI18n(<RegisterForm {...mockRegisterFormProps} onSubmit={mockOnSubmit} />);
     
-    expect(screen.getByRole('heading')).toHaveTextContent(/register/i);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(/register/i);
     expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
   });
@@ -81,7 +81,7 @@ describe('RegisterForm', () => {
       />
     );
     
-    expect(screen.getByRole('heading')).toHaveTextContent('Custom Register');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Custom Register');
   });
 
   it('renders additional fields when provided', () => {

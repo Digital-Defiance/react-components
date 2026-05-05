@@ -24,6 +24,7 @@ import {
 import { useFormik } from 'formik';
 import { FC, useCallback, useState } from 'react';
 import * as Yup from 'yup';
+import { generateMnemonic } from 'bip39';
 import { useI18n } from '../contexts';
 import { TotpSetupForm } from './TotpSetupForm';
 
@@ -147,6 +148,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [registering, setRegistering] = useState(false);
   const [showMnemonicInput, setShowMnemonicInput] = useState(false);
+  const [autoMnemonic, setAutoMnemonic] = useState(() => generateMnemonic());
   const [showTotpSetup, setShowTotpSetup] = useState(false);
   const [totpProvisioningUri, setTotpProvisioningUri] = useState<string | null>(
     null
@@ -397,7 +399,13 @@ export const RegisterForm: FC<RegisterFormProps> = ({
       setRegistering(true);
       setApiErrors({});
       try {
-        const registerResult = await onSubmit(values, usePassword);
+        const effectiveMnemonic = !showMnemonicInput
+          ? autoMnemonic
+          : (values.mnemonic?.trim() || autoMnemonic);
+        const registerResult = await onSubmit(
+          { ...values, mnemonic: effectiveMnemonic },
+          usePassword
+        );
 
         if ('success' in registerResult && registerResult.success) {
           setRegistrationSuccess(true);
@@ -988,6 +996,60 @@ export const RegisterForm: FC<RegisterFormProps> = ({
             </FormControl>
 
             {additionalFields && additionalFields(formik, usePassword)}
+
+            {!showMnemonicInput && (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="subtitle2" gutterBottom>
+                  {labels.mnemonic || 'Your Recovery Phrase — save this before registering'}
+                </Typography>
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: 1,
+                    mb: 1,
+                  }}
+                >
+                  {autoMnemonic.split(/\s+/).map((word, i) => (
+                    <Box
+                      key={i}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.5,
+                        py: 0.5,
+                        px: 1,
+                        borderRadius: 1,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        bgcolor: 'action.hover',
+                      }}
+                    >
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ minWidth: '1.5em', textAlign: 'right' }}
+                      >
+                        {i + 1}.
+                      </Typography>
+                      <Typography variant="body2" fontWeight="bold">
+                        {word}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+                <Alert severity="warning" sx={{ mb: 1 }}>
+                  Write down these words in order. You will need them to recover your account.
+                </Alert>
+                <Button
+                  variant="text"
+                  size="small"
+                  onClick={() => setAutoMnemonic(generateMnemonic())}
+                >
+                  Regenerate
+                </Button>
+              </Box>
+            )}
 
             <Box sx={{ mt: 1 }}>
               <Button
