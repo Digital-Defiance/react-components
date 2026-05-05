@@ -70,8 +70,7 @@ export interface RegisterFormProps {
    * Must return provisioning URI and secret on success, or an error.
    */
   onTotpSetup?: () => Promise<
-    | { provisioningUri: string; secret: string }
-    | { error: string }
+    { provisioningUri: string; secret: string } | { error: string }
   >;
   /**
    * Called to confirm TOTP setup with a 6-digit code (e.g. AuthService.confirmTotp()).
@@ -117,6 +116,7 @@ export interface RegisterFormProps {
     totpSkipButton?: string;
     totpSetupError?: string;
     totpSetupSuccess?: string;
+    passwordAuthInfo?: string;
   };
 }
 
@@ -148,7 +148,9 @@ export const RegisterForm: FC<RegisterFormProps> = ({
   const [registering, setRegistering] = useState(false);
   const [showMnemonicInput, setShowMnemonicInput] = useState(false);
   const [showTotpSetup, setShowTotpSetup] = useState(false);
-  const [totpProvisioningUri, setTotpProvisioningUri] = useState<string | null>(null);
+  const [totpProvisioningUri, setTotpProvisioningUri] = useState<string | null>(
+    null
+  );
   const [totpSecret, setTotpSecret] = useState<string | null>(null);
   const [totpSetupError, setTotpSetupError] = useState<string | null>(null);
   const [totpSetupComplete, setTotpSetupComplete] = useState(false);
@@ -237,64 +239,60 @@ export const RegisterForm: FC<RegisterFormProps> = ({
             SuiteCoreStringKey.Validation_InvalidEmail
           )
         )
-        .test(
-          'disallowed-domain',
-          '',
-          function (value) {
-            if (!value || !disallowedEmailDomains?.length) return true;
-            const atIndex = value.lastIndexOf('@');
-            if (atIndex <= 0) return true;
-            const domain = value.slice(atIndex + 1).toLowerCase();
-            const blocked = disallowedEmailDomains.find(
-              (d) => d.toLowerCase() === domain
-            );
-            if (!blocked) return true;
-            return this.createError({
-              message: tComponent<SuiteCoreStringKeyValue>(
-                SuiteCoreComponentId,
-                SuiteCoreStringKey.Validation_EmailDomainNotAllowedTemplate,
-                { domain: blocked }
-              ),
-            });
-          }
-        )
+        .test('disallowed-domain', '', function (value) {
+          if (!value || !disallowedEmailDomains?.length) return true;
+          const atIndex = value.lastIndexOf('@');
+          if (atIndex <= 0) return true;
+          const domain = value.slice(atIndex + 1).toLowerCase();
+          const blocked = disallowedEmailDomains.find(
+            (d) => d.toLowerCase() === domain
+          );
+          if (!blocked) return true;
+          return this.createError({
+            message: tComponent<SuiteCoreStringKeyValue>(
+              SuiteCoreComponentId,
+              SuiteCoreStringKey.Validation_EmailDomainNotAllowedTemplate,
+              { domain: blocked }
+            ),
+          });
+        })
         .required(
           tComponent<SuiteCoreStringKeyValue>(
             SuiteCoreComponentId,
             SuiteCoreStringKey.Validation_Required
           )
         ),
-  displayName: !Constants.EnableDisplayName
-    ? Yup.string().strip()
-    : displayNameValidation ||
-      Yup.string()
-        .min(
-          Constants.DisplayNameMinLength,
-          tComponent<SuiteCoreStringKeyValue>(
-            SuiteCoreComponentId,
-            SuiteCoreStringKey.Validation_DisplayNameMinLengthTemplate
+    displayName: !Constants.EnableDisplayName
+      ? Yup.string().strip()
+      : displayNameValidation ||
+        Yup.string()
+          .min(
+            Constants.DisplayNameMinLength,
+            tComponent<SuiteCoreStringKeyValue>(
+              SuiteCoreComponentId,
+              SuiteCoreStringKey.Validation_DisplayNameMinLengthTemplate
+            )
           )
-        )
-        .max(
-          Constants.DisplayNameMaxLength,
-          tComponent<SuiteCoreStringKeyValue>(
-            SuiteCoreComponentId,
-            SuiteCoreStringKey.Validation_DisplayNameMaxLengthTemplate
+          .max(
+            Constants.DisplayNameMaxLength,
+            tComponent<SuiteCoreStringKeyValue>(
+              SuiteCoreComponentId,
+              SuiteCoreStringKey.Validation_DisplayNameMaxLengthTemplate
+            )
           )
-        )
-        .matches(
-          Constants.DisplayNameRegex,
-          tComponent<SuiteCoreStringKeyValue>(
-            SuiteCoreComponentId,
-            SuiteCoreStringKey.Validation_DisplayNameRegexErrorTemplate
+          .matches(
+            Constants.DisplayNameRegex,
+            tComponent<SuiteCoreStringKeyValue>(
+              SuiteCoreComponentId,
+              SuiteCoreStringKey.Validation_DisplayNameRegexErrorTemplate
+            )
           )
-        )
-        .required(
-          tComponent<SuiteCoreStringKeyValue>(
-            SuiteCoreComponentId,
-            SuiteCoreStringKey.Validation_Required
-          )
-        ),
+          .required(
+            tComponent<SuiteCoreStringKeyValue>(
+              SuiteCoreComponentId,
+              SuiteCoreStringKey.Validation_Required
+            )
+          ),
     directChallenge: Yup.boolean(),
     timezone:
       timezoneValidation ||
@@ -382,7 +380,9 @@ export const RegisterForm: FC<RegisterFormProps> = ({
     validationSchema: Yup.object({
       username: validation.username,
       email: validation.email,
-      ...(Constants.EnableDisplayName ? { displayName: validation.displayName } : {}),
+      ...(Constants.EnableDisplayName
+        ? { displayName: validation.displayName }
+        : {}),
       timezone: validation.timezone,
       ...(usePassword
         ? {
@@ -397,52 +397,54 @@ export const RegisterForm: FC<RegisterFormProps> = ({
       setRegistering(true);
       setApiErrors({});
       try {
-      const registerResult = await onSubmit(values, usePassword);
+        const registerResult = await onSubmit(values, usePassword);
 
-      if ('success' in registerResult && registerResult.success) {
-        setRegistrationSuccess(true);
-        if (registerResult.mnemonic) {
-          setMnemonic(registerResult.mnemonic);
-        }
-        if (enableTotpSetup && onTotpSetup) {
-          setShowTotpSetup(true);
-          // Fire-and-forget: initiate TOTP setup in background
-          // The setup state is managed by initiateTotpSetup
-          initiateTotpSetup();
-        }
-      } else {
-        setRegistrationSuccess(false);
-        const newApiErrors: Record<string, string> = {};
-        const fieldsToTouch: Record<string, boolean> = {};
+        if ('success' in registerResult && registerResult.success) {
+          setRegistrationSuccess(true);
+          if (registerResult.mnemonic) {
+            setMnemonic(registerResult.mnemonic);
+          }
+          if (enableTotpSetup && onTotpSetup) {
+            setShowTotpSetup(true);
+            // Fire-and-forget: initiate TOTP setup in background
+            // The setup state is managed by initiateTotpSetup
+            initiateTotpSetup();
+          }
+        } else {
+          setRegistrationSuccess(false);
+          const newApiErrors: Record<string, string> = {};
+          const fieldsToTouch: Record<string, boolean> = {};
 
-        if ('field' in registerResult && registerResult.field) {
-          setFieldError(registerResult.field, registerResult.error);
-          fieldsToTouch[registerResult.field] = true;
-        }
+          if ('field' in registerResult && registerResult.field) {
+            setFieldError(registerResult.field, registerResult.error);
+            fieldsToTouch[registerResult.field] = true;
+          }
 
-        if ('errors' in registerResult && registerResult.errors) {
-          registerResult.errors.forEach((err) => {
-            if (err.path && err.msg) {
-              setFieldError(err.path, err.msg);
-              fieldsToTouch[err.path] = true;
-            }
-          });
-        }
+          if ('errors' in registerResult && registerResult.errors) {
+            registerResult.errors.forEach((err) => {
+              if (err.path && err.msg) {
+                setFieldError(err.path, err.msg);
+                fieldsToTouch[err.path] = true;
+              }
+            });
+          }
 
-        if (
-          'error' in registerResult &&
-          registerResult.error &&
-          !Object.keys(newApiErrors).length
-        ) {
-          newApiErrors.general = registerResult.error;
-        }
+          if (
+            'error' in registerResult &&
+            registerResult.error &&
+            !Object.keys(newApiErrors).length
+          ) {
+            newApiErrors.general = registerResult.error;
+          }
 
-        setApiErrors(newApiErrors);
-        setTouched(fieldsToTouch, false);
-      }
+          setApiErrors(newApiErrors);
+          setTouched(fieldsToTouch, false);
+        }
       } catch (err) {
         console.error('[RegisterForm] onSubmit error:', err);
-        setApiErrors({ general: err instanceof Error ? err.message : String(err) });
+        setApiErrors({
+          general: err instanceof Error ? err.message : String(err),
+        });
       }
       setSubmitting(false);
       setRegistering(false);
@@ -467,600 +469,635 @@ export const RegisterForm: FC<RegisterFormProps> = ({
             )}
         </Typography>
 
-        {(mnemonic || registrationSuccess) ? (
+        {mnemonic || registrationSuccess ? (
           <Box sx={{ mt: 2, width: '100%' }}>
-          {showTotpSetup && !totpSetupComplete ? (
-            <Box>
-              <Typography variant="h5" component="h2" gutterBottom fontWeight="bold" sx={{ textAlign: 'center' }}>
-                {labels.totpSetupTitle || 'Set Up Two-Factor Authentication'}
-              </Typography>
-
-              {totpSetupLoading && (
-                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mt: 2 }}>
-                  Loading TOTP setup...
+            {showTotpSetup && !totpSetupComplete ? (
+              <Box>
+                <Typography
+                  variant="h5"
+                  component="h2"
+                  gutterBottom
+                  fontWeight="bold"
+                  sx={{ textAlign: 'center' }}
+                >
+                  {labels.totpSetupTitle || 'Set Up Two-Factor Authentication'}
                 </Typography>
-              )}
 
-              {totpSetupError && (
-                <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
-                  {totpSetupError}
-                </Alert>
-              )}
-
-              {totpProvisioningUri && totpSecret && (
-                <TotpSetupForm
-                  provisioningUri={totpProvisioningUri}
-                  secret={totpSecret}
-                  onConfirm={handleTotpConfirm}
-                />
-              )}
-
-              <Box sx={{ textAlign: 'center', mt: 2 }}>
-                <Button
-                  variant="text"
-                  onClick={handleSkipTotp}
-                  data-testid="skip-totp-button"
-                >
-                  {labels.totpSkipButton || 'Skip'}
-                </Button>
-              </Box>
-            </Box>
-          ) : totpSetupComplete ? (
-            <Box>
-              <Alert severity="success" sx={{ mt: 2, mb: 2 }}>
-                {labels.totpSetupSuccess || 'Two-factor authentication has been enabled successfully.'}
-              </Alert>
-              {mnemonic ? (
-              <>
-                <Box sx={{ textAlign: 'center', mb: 3 }}>
-                  <Typography variant="h5" component="h2" gutterBottom fontWeight="bold">
-                    {labels.successTitle ||
-                      tComponent<SuiteCoreStringKeyValue>(
-                        SuiteCoreComponentId,
-                        SuiteCoreStringKey.Registration_SuccessTitle
-                      )}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {labels.mnemonicSuccess ||
-                      tComponent<SuiteCoreStringKeyValue>(
-                        SuiteCoreComponentId,
-                        SuiteCoreStringKey.Registration_MnemonicSuccess
-                      )}
-                  </Typography>
-                </Box>
-
-                <Box
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: 1.5,
-                    mb: 3,
-                  }}
-                >
-                  {mnemonic.split(/\s+/).map((word, i) => (
-                    <Box
-                      key={i}
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 0.5,
-                        py: 1,
-                        px: 1.5,
-                        borderRadius: 2,
-                        border: '1px solid',
-                        borderColor: 'divider',
-                        bgcolor: 'action.hover',
-                      }}
-                    >
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{ minWidth: '1.5em', textAlign: 'right' }}
-                      >
-                        {i + 1}.
-                      </Typography>
-                      <Typography variant="body2" fontWeight="bold">
-                        {word}
-                      </Typography>
-                    </Box>
-                  ))}
-                </Box>
-
-                <Box sx={{ textAlign: 'center' }}>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    size="large"
-                    href="/verify-email"
-                    sx={{ borderRadius: 6, px: 4 }}
+                {totpSetupLoading && (
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ textAlign: 'center', mt: 2 }}
                   >
-                    {labels.savedRecoveryPhrase ||
-                      labels.proceedToLogin ||
-                      tComponent<SuiteCoreStringKeyValue>(
-                        SuiteCoreComponentId,
-                        SuiteCoreStringKey.Registration_SavedRecoveryPhrase
-                      )}
+                    Loading TOTP setup...
+                  </Typography>
+                )}
+
+                {totpSetupError && (
+                  <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
+                    {totpSetupError}
+                  </Alert>
+                )}
+
+                {totpProvisioningUri && totpSecret && (
+                  <TotpSetupForm
+                    provisioningUri={totpProvisioningUri}
+                    secret={totpSecret}
+                    onConfirm={handleTotpConfirm}
+                  />
+                )}
+
+                <Box sx={{ textAlign: 'center', mt: 2 }}>
+                  <Button
+                    variant="text"
+                    onClick={handleSkipTotp}
+                    data-testid="skip-totp-button"
+                  >
+                    {labels.totpSkipButton || 'Skip'}
                   </Button>
                 </Box>
-
-                <Alert severity="success" sx={{ mt: 3 }}>
-                  <AlertTitle>
-                    {tComponent<SuiteCoreStringKeyValue>(
-                      SuiteCoreComponentId,
-                      SuiteCoreStringKey.Registration_SuccessTitle
-                    )}
-                  </AlertTitle>
-                  <Typography variant="body2" component="div">
-                    {tComponent<SuiteCoreStringKeyValue>(
-                      SuiteCoreComponentId,
-                      SuiteCoreStringKey.Registration_Success
-                    )}
-                  </Typography>
-                </Alert>
-              </>
-              ) : (
+              </Box>
+            ) : totpSetupComplete ? (
+              <Box>
                 <Alert severity="success" sx={{ mt: 2, mb: 2 }}>
-                  <AlertTitle>
-                    {labels.successTitle ||
-                      tComponent<SuiteCoreStringKeyValue>(
-                        SuiteCoreComponentId,
-                        SuiteCoreStringKey.Registration_SuccessTitle
-                      )}
-                  </AlertTitle>
-                  <Typography variant="body2" component="div">
-                    {tComponent<SuiteCoreStringKeyValue>(
-                      SuiteCoreComponentId,
-                      SuiteCoreStringKey.Registration_Success
-                    )}
-                    <Box sx={{ textAlign: 'center', mt: 1 }}>
-                      <Link href="/login">
-                        {labels.proceedToLogin ||
+                  {labels.totpSetupSuccess ||
+                    'Two-factor authentication has been enabled successfully.'}
+                </Alert>
+                {mnemonic ? (
+                  <>
+                    <Box sx={{ textAlign: 'center', mb: 3 }}>
+                      <Typography
+                        variant="h5"
+                        component="h2"
+                        gutterBottom
+                        fontWeight="bold"
+                      >
+                        {labels.successTitle ||
                           tComponent<SuiteCoreStringKeyValue>(
                             SuiteCoreComponentId,
-                            SuiteCoreStringKey.ProceedToLogin
+                            SuiteCoreStringKey.Registration_SuccessTitle
                           )}
-                      </Link>
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {labels.mnemonicSuccess ||
+                          tComponent<SuiteCoreStringKeyValue>(
+                            SuiteCoreComponentId,
+                            SuiteCoreStringKey.Registration_MnemonicSuccess
+                          )}
+                      </Typography>
                     </Box>
-                  </Typography>
-                </Alert>
-              )}
-            </Box>
-          ) : (
-          <>
-          {mnemonic ? (
-          <>
-            <Box sx={{ textAlign: 'center', mb: 3 }}>
-              <Typography variant="h5" component="h2" gutterBottom fontWeight="bold">
-                {labels.successTitle ||
-                  tComponent<SuiteCoreStringKeyValue>(
-                    SuiteCoreComponentId,
-                    SuiteCoreStringKey.Registration_SuccessTitle
-                  )}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {labels.mnemonicSuccess ||
-                  tComponent<SuiteCoreStringKeyValue>(
-                    SuiteCoreComponentId,
-                    SuiteCoreStringKey.Registration_MnemonicSuccess
-                  )}
-              </Typography>
-            </Box>
 
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                gap: 1.5,
-                mb: 3,
-              }}
-            >
-              {mnemonic.split(/\s+/).map((word, i) => (
-                <Box
-                  key={i}
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 0.5,
-                    py: 1,
-                    px: 1.5,
-                    borderRadius: 2,
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    bgcolor: 'action.hover',
-                  }}
-                >
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ minWidth: '1.5em', textAlign: 'right' }}
-                  >
-                    {i + 1}.
-                  </Typography>
-                  <Typography variant="body2" fontWeight="bold">
-                    {word}
-                  </Typography>
-                </Box>
-              ))}
-            </Box>
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gap: 1.5,
+                        mb: 3,
+                      }}
+                    >
+                      {mnemonic.split(/\s+/).map((word, i) => (
+                        <Box
+                          key={i}
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 0.5,
+                            py: 1,
+                            px: 1.5,
+                            borderRadius: 2,
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            bgcolor: 'action.hover',
+                          }}
+                        >
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{ minWidth: '1.5em', textAlign: 'right' }}
+                          >
+                            {i + 1}.
+                          </Typography>
+                          <Typography variant="body2" fontWeight="bold">
+                            {word}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
 
-            <Box sx={{ textAlign: 'center' }}>
-              <Button
-                variant="contained"
-                color="primary"
-                size="large"
-                href="/verify-email"
-                sx={{ borderRadius: 6, px: 4 }}
-              >
-                {labels.savedRecoveryPhrase ||
-                  labels.proceedToLogin ||
-                  tComponent<SuiteCoreStringKeyValue>(
-                    SuiteCoreComponentId,
-                    SuiteCoreStringKey.Registration_SavedRecoveryPhrase
-                  )}
-              </Button>
-            </Box>
+                    <Box sx={{ textAlign: 'center' }}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        size="large"
+                        href="/verify-email"
+                        sx={{ borderRadius: 6, px: 4 }}
+                      >
+                        {labels.savedRecoveryPhrase ||
+                          labels.proceedToLogin ||
+                          tComponent<SuiteCoreStringKeyValue>(
+                            SuiteCoreComponentId,
+                            SuiteCoreStringKey.Registration_SavedRecoveryPhrase
+                          )}
+                      </Button>
+                    </Box>
 
-            <Alert severity="success" sx={{ mt: 3 }}>
-              <AlertTitle>
-                {tComponent<SuiteCoreStringKeyValue>(
-                  SuiteCoreComponentId,
-                  SuiteCoreStringKey.Registration_SuccessTitle
-                )}
-              </AlertTitle>
-              <Typography variant="body2" component="div">
-                {tComponent<SuiteCoreStringKeyValue>(
-                  SuiteCoreComponentId,
-                  SuiteCoreStringKey.Registration_Success
-                )}
-              </Typography>
-            </Alert>
-          </>
-          ) : (
-            <Alert severity="success" sx={{ mt: 2, mb: 2 }}>
-              <AlertTitle>
-                {labels.successTitle ||
-                  tComponent<SuiteCoreStringKeyValue>(
-                    SuiteCoreComponentId,
-                    SuiteCoreStringKey.Registration_SuccessTitle
-                  )}
-              </AlertTitle>
-              <Typography variant="body2" component="div">
-                {tComponent<SuiteCoreStringKeyValue>(
-                  SuiteCoreComponentId,
-                  SuiteCoreStringKey.Registration_Success
-                )}
-                <Box sx={{ textAlign: 'center', mt: 1 }}>
-                  <Link href="/login">
-                    {labels.proceedToLogin ||
-                      tComponent<SuiteCoreStringKeyValue>(
+                    <Alert severity="success" sx={{ mt: 3 }}>
+                      <AlertTitle>
+                        {tComponent<SuiteCoreStringKeyValue>(
+                          SuiteCoreComponentId,
+                          SuiteCoreStringKey.Registration_SuccessTitle
+                        )}
+                      </AlertTitle>
+                      <Typography variant="body2" component="div">
+                        {tComponent<SuiteCoreStringKeyValue>(
+                          SuiteCoreComponentId,
+                          SuiteCoreStringKey.Registration_Success
+                        )}
+                      </Typography>
+                    </Alert>
+                  </>
+                ) : (
+                  <Alert severity="success" sx={{ mt: 2, mb: 2 }}>
+                    <AlertTitle>
+                      {labels.successTitle ||
+                        tComponent<SuiteCoreStringKeyValue>(
+                          SuiteCoreComponentId,
+                          SuiteCoreStringKey.Registration_SuccessTitle
+                        )}
+                    </AlertTitle>
+                    <Typography variant="body2" component="div">
+                      {tComponent<SuiteCoreStringKeyValue>(
                         SuiteCoreComponentId,
-                        SuiteCoreStringKey.ProceedToLogin
+                        SuiteCoreStringKey.Registration_Success
                       )}
-                  </Link>
-                </Box>
-              </Typography>
-            </Alert>
-          )}
-          </>
-          )}
+                      <Box sx={{ textAlign: 'center', mt: 1 }}>
+                        <Link href="/login">
+                          {labels.proceedToLogin ||
+                            tComponent<SuiteCoreStringKeyValue>(
+                              SuiteCoreComponentId,
+                              SuiteCoreStringKey.ProceedToLogin
+                            )}
+                        </Link>
+                      </Box>
+                    </Typography>
+                  </Alert>
+                )}
+              </Box>
+            ) : (
+              <>
+                {mnemonic ? (
+                  <>
+                    <Box sx={{ textAlign: 'center', mb: 3 }}>
+                      <Typography
+                        variant="h5"
+                        component="h2"
+                        gutterBottom
+                        fontWeight="bold"
+                      >
+                        {labels.successTitle ||
+                          tComponent<SuiteCoreStringKeyValue>(
+                            SuiteCoreComponentId,
+                            SuiteCoreStringKey.Registration_SuccessTitle
+                          )}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {labels.mnemonicSuccess ||
+                          tComponent<SuiteCoreStringKeyValue>(
+                            SuiteCoreComponentId,
+                            SuiteCoreStringKey.Registration_MnemonicSuccess
+                          )}
+                      </Typography>
+                    </Box>
+
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gap: 1.5,
+                        mb: 3,
+                      }}
+                    >
+                      {mnemonic.split(/\s+/).map((word, i) => (
+                        <Box
+                          key={i}
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 0.5,
+                            py: 1,
+                            px: 1.5,
+                            borderRadius: 2,
+                            border: '1px solid',
+                            borderColor: 'divider',
+                            bgcolor: 'action.hover',
+                          }}
+                        >
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            sx={{ minWidth: '1.5em', textAlign: 'right' }}
+                          >
+                            {i + 1}.
+                          </Typography>
+                          <Typography variant="body2" fontWeight="bold">
+                            {word}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
+
+                    <Box sx={{ textAlign: 'center' }}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        size="large"
+                        href="/verify-email"
+                        sx={{ borderRadius: 6, px: 4 }}
+                      >
+                        {labels.savedRecoveryPhrase ||
+                          labels.proceedToLogin ||
+                          tComponent<SuiteCoreStringKeyValue>(
+                            SuiteCoreComponentId,
+                            SuiteCoreStringKey.Registration_SavedRecoveryPhrase
+                          )}
+                      </Button>
+                    </Box>
+
+                    <Alert severity="success" sx={{ mt: 3 }}>
+                      <AlertTitle>
+                        {tComponent<SuiteCoreStringKeyValue>(
+                          SuiteCoreComponentId,
+                          SuiteCoreStringKey.Registration_SuccessTitle
+                        )}
+                      </AlertTitle>
+                      <Typography variant="body2" component="div">
+                        {tComponent<SuiteCoreStringKeyValue>(
+                          SuiteCoreComponentId,
+                          SuiteCoreStringKey.Registration_Success
+                        )}
+                      </Typography>
+                    </Alert>
+                  </>
+                ) : (
+                  <Alert severity="success" sx={{ mt: 2, mb: 2 }}>
+                    <AlertTitle>
+                      {labels.successTitle ||
+                        tComponent<SuiteCoreStringKeyValue>(
+                          SuiteCoreComponentId,
+                          SuiteCoreStringKey.Registration_SuccessTitle
+                        )}
+                    </AlertTitle>
+                    <Typography variant="body2" component="div">
+                      {tComponent<SuiteCoreStringKeyValue>(
+                        SuiteCoreComponentId,
+                        SuiteCoreStringKey.Registration_Success
+                      )}
+                      <Box sx={{ textAlign: 'center', mt: 1 }}>
+                        <Link href="/login">
+                          {labels.proceedToLogin ||
+                            tComponent<SuiteCoreStringKeyValue>(
+                              SuiteCoreComponentId,
+                              SuiteCoreStringKey.ProceedToLogin
+                            )}
+                        </Link>
+                      </Box>
+                    </Typography>
+                  </Alert>
+                )}
+              </>
+            )}
           </Box>
         ) : (
-
-        <Box
-          component="form"
-          onSubmit={formik.handleSubmit}
-          sx={{ mt: 1, width: '100%' }}
-        >
-          <TextField
-            fullWidth
-            id="username"
-            name="username"
-            label={
-              labels.username ||
-              tComponent<SuiteCoreStringKeyValue>(
-                SuiteCoreComponentId,
-                SuiteCoreStringKey.Common_Username
-              )
-            }
-            value={formik.values.username}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            error={Boolean(
-              formik.touched.username &&
-                (formik.errors.username || apiErrors.username)
-            )}
-            helperText={
-              formik.touched.username &&
-              (formik.errors.username || apiErrors.username)
-            }
-            margin="normal"
-          />
-          <TextField
-            fullWidth
-            id="email"
-            name="email"
-            label={
-              labels.email ||
-              tComponent<SuiteCoreStringKeyValue>(
-                SuiteCoreComponentId,
-                SuiteCoreStringKey.Common_Email
-              )
-            }
-            value={formik.values.email}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            error={Boolean(
-              formik.touched.email && (formik.errors.email || apiErrors.email)
-            )}
-            helperText={
-              formik.touched.email && (formik.errors.email || apiErrors.email)
-            }
-            margin="normal"
-          />
-          {Constants.EnableDisplayName && (
-          <TextField
-            fullWidth
-            id="displayName"
-            name="displayName"
-            label={
-              labels.displayName ||
-              tComponent<SuiteCoreStringKeyValue>(
-                SuiteCoreComponentId,
-                SuiteCoreStringKey.Common_DisplayName
-              )
-            }
-            value={formik.values.displayName}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            error={Boolean(
-              formik.touched.displayName && (formik.errors.displayName || apiErrors.displayName)
-            )}
-            helperText={
-              formik.touched.displayName && (formik.errors.displayName || apiErrors.displayName)
-            }
-            margin="normal"
-          />)}
-          <FormControl fullWidth margin="normal">
-            <InputLabel id="timezone-label">
-              {labels.timezone ||
-                tComponent<SuiteCoreStringKeyValue>(
-                  SuiteCoreComponentId,
-                  SuiteCoreStringKey.Common_Timezone
-                )}
-            </InputLabel>
-            <Select
-              labelId="timezone-label"
-              id="timezone"
-              name="timezone"
-              value={formik.values.timezone}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              error={formik.touched.timezone && Boolean(formik.errors.timezone)}
-              label={
-                labels.timezone ||
-                tComponent<SuiteCoreStringKeyValue>(
-                  SuiteCoreComponentId,
-                  SuiteCoreStringKey.Common_Timezone
-                )
-              }
-            >
-              {timezones.map((tz) => (
-                <MenuItem key={tz} value={tz}>
-                  {tz}
-                </MenuItem>
-              ))}
-            </Select>
-            {formik.touched.timezone &&
-              (formik.errors.timezone || apiErrors.timezone) && (
-                <Typography color="error" variant="caption">
-                  {formik.errors.timezone || apiErrors.timezone}
-                </Typography>
-              )}
-          </FormControl>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
-            <Button variant="text" onClick={() => setUsePassword(!usePassword)}>
-              {usePassword
-                ? labels.useMnemonic ||
-                  tComponent<SuiteCoreStringKeyValue>(
-                    SuiteCoreComponentId,
-                    SuiteCoreStringKey.Common_UseMnemonic
-                  )
-                : labels.usePassword ||
-                  tComponent<SuiteCoreStringKeyValue>(
-                    SuiteCoreComponentId,
-                    SuiteCoreStringKey.Common_UsePassword
-                  )}
-            </Button>
-          </Box>
-
-          {usePassword && (
-            <>
-              <TextField
-                fullWidth
-                id="password"
-                name="password"
-                label={
-                  labels.password ||
-                  tComponent<SuiteCoreStringKeyValue>(
-                    SuiteCoreComponentId,
-                    SuiteCoreStringKey.Common_Password
-                  )
-                }
-                type="password"
-                value={formik.values.password}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={Boolean(
-                  formik.touched.password && formik.errors.password
-                )}
-                helperText={formik.touched.password && formik.errors.password}
-                margin="normal"
-              />
-              <TextField
-                fullWidth
-                id="confirmPassword"
-                name="confirmPassword"
-                label={
-                  labels.confirmPassword ||
-                  tComponent<SuiteCoreStringKeyValue>(
-                    SuiteCoreComponentId,
-                    SuiteCoreStringKey.Common_ConfirmNewPassword
-                  )
-                }
-                type="password"
-                value={formik.values.confirmPassword}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={Boolean(
-                  formik.touched.confirmPassword &&
-                    formik.errors.confirmPassword
-                )}
-                helperText={
-                  formik.touched.confirmPassword &&
-                  formik.errors.confirmPassword
-                }
-                margin="normal"
-              />
-            </>
-          )}
-
-          <FormControl fullWidth margin="normal">
-            <FormControlLabel
-              control={
-                <Checkbox
-                  id="directChallenge"
-                  name="directChallenge"
-                  checked={formik.values.directChallenge || false}
-                  onChange={formik.handleChange}
-                />
-              }
-              label={tComponent<SuiteCoreStringKeyValue>(
-                SuiteCoreComponentId,
-                SuiteCoreStringKey.Registration_DirectChallengeLabel
-              )}
-            />
-            <FormHelperText>
-              {tComponent<SuiteCoreStringKeyValue>(
-                SuiteCoreComponentId,
-                SuiteCoreStringKey.Registration_DirectChallengeHelper
-              )}
-            </FormHelperText>
-          </FormControl>
-
-          {additionalFields && additionalFields(formik, usePassword)}
-
-          <Box sx={{ mt: 1 }}>
-            <Button
-              variant="text"
-              size="small"
-              onClick={() => setShowMnemonicInput(!showMnemonicInput)}
-              aria-expanded={showMnemonicInput}
-              aria-controls="mnemonic-input"
-            >
-              {showMnemonicInput
-                ? tComponent<SuiteCoreStringKeyValue>(
-                    SuiteCoreComponentId,
-                    SuiteCoreStringKey.Common_ClearMnemonic
-                  )
-                : tComponent<SuiteCoreStringKeyValue>(
-                    SuiteCoreComponentId,
-                    SuiteCoreStringKey.Common_Mnemonic
-                  )}
-            </Button>
-          </Box>
-
-          {showMnemonicInput && (
+          <Box
+            component="form"
+            onSubmit={formik.handleSubmit}
+            sx={{ mt: 1, width: '100%' }}
+          >
             <TextField
               fullWidth
-              id="mnemonic-input"
-              name="mnemonic"
+              id="username"
+              name="username"
               label={
-                labels.mnemonic ||
+                labels.username ||
                 tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
-                  SuiteCoreStringKey.Common_Mnemonic
+                  SuiteCoreStringKey.Common_Username
                 )
               }
-              value={formik.values.mnemonic}
+              value={formik.values.username}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               error={Boolean(
-                formik.touched.mnemonic &&
-                  (formik.errors.mnemonic || apiErrors.mnemonic)
+                formik.touched.username &&
+                (formik.errors.username || apiErrors.username)
               )}
               helperText={
-                formik.touched.mnemonic &&
-                (formik.errors.mnemonic || apiErrors.mnemonic)
+                formik.touched.username &&
+                (formik.errors.username || apiErrors.username)
               }
               margin="normal"
-              multiline
-              minRows={2}
             />
-          )}
-
-          {apiErrors.general && (
-            <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
-              {apiErrors.general}
-            </Alert>
-          )}
-
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            sx={{ mt: 3, mb: 2 }}
-            disabled={formik.isSubmitting}
-          >
-            {registering
-              ? labels.registering ||
+            <TextField
+              fullWidth
+              id="email"
+              name="email"
+              label={
+                labels.email ||
                 tComponent<SuiteCoreStringKeyValue>(
                   SuiteCoreComponentId,
-                  SuiteCoreStringKey.Registration_Registering
+                  SuiteCoreStringKey.Common_Email
                 )
-              : labels.register ||
-                tComponent<SuiteCoreStringKeyValue>(
-                  SuiteCoreComponentId,
-                  SuiteCoreStringKey.Registration_RegisterButton
+              }
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              error={Boolean(
+                formik.touched.email && (formik.errors.email || apiErrors.email)
+              )}
+              helperText={
+                formik.touched.email && (formik.errors.email || apiErrors.email)
+              }
+              margin="normal"
+            />
+            {Constants.EnableDisplayName && (
+              <TextField
+                fullWidth
+                id="displayName"
+                name="displayName"
+                label={
+                  labels.displayName ||
+                  tComponent<SuiteCoreStringKeyValue>(
+                    SuiteCoreComponentId,
+                    SuiteCoreStringKey.Common_DisplayName
+                  )
+                }
+                value={formik.values.displayName}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={Boolean(
+                  formik.touched.displayName &&
+                  (formik.errors.displayName || apiErrors.displayName)
                 )}
-          </Button>
+                helperText={
+                  formik.touched.displayName &&
+                  (formik.errors.displayName || apiErrors.displayName)
+                }
+                margin="normal"
+              />
+            )}
+            <FormControl fullWidth margin="normal">
+              <InputLabel id="timezone-label">
+                {labels.timezone ||
+                  tComponent<SuiteCoreStringKeyValue>(
+                    SuiteCoreComponentId,
+                    SuiteCoreStringKey.Common_Timezone
+                  )}
+              </InputLabel>
+              <Select
+                labelId="timezone-label"
+                id="timezone"
+                name="timezone"
+                value={formik.values.timezone}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={
+                  formik.touched.timezone && Boolean(formik.errors.timezone)
+                }
+                label={
+                  labels.timezone ||
+                  tComponent<SuiteCoreStringKeyValue>(
+                    SuiteCoreComponentId,
+                    SuiteCoreStringKey.Common_Timezone
+                  )
+                }
+              >
+                {timezones.map((tz) => (
+                  <MenuItem key={tz} value={tz}>
+                    {tz}
+                  </MenuItem>
+                ))}
+              </Select>
+              {formik.touched.timezone &&
+                (formik.errors.timezone || apiErrors.timezone) && (
+                  <Typography color="error" variant="caption">
+                    {formik.errors.timezone || apiErrors.timezone}
+                  </Typography>
+                )}
+            </FormControl>
 
-          {registering && (
-            <Alert
-              severity="success"
-              sx={{ mt: 2, mb: 2, whiteSpace: 'pre-wrap' }}
+            <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+              <Button
+                variant="text"
+                onClick={() => setUsePassword(!usePassword)}
+              >
+                {usePassword
+                  ? labels.useMnemonic ||
+                    tComponent<SuiteCoreStringKeyValue>(
+                      SuiteCoreComponentId,
+                      SuiteCoreStringKey.Common_UseMnemonic
+                    )
+                  : labels.usePassword ||
+                    tComponent<SuiteCoreStringKeyValue>(
+                      SuiteCoreComponentId,
+                      SuiteCoreStringKey.Common_UsePassword
+                    )}
+              </Button>
+            </Box>
+
+            {usePassword && (
+              <>
+                <TextField
+                  fullWidth
+                  id="password"
+                  name="password"
+                  label={
+                    labels.password ||
+                    tComponent<SuiteCoreStringKeyValue>(
+                      SuiteCoreComponentId,
+                      SuiteCoreStringKey.Common_Password
+                    )
+                  }
+                  type="password"
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={Boolean(
+                    formik.touched.password && formik.errors.password
+                  )}
+                  helperText={formik.touched.password && formik.errors.password}
+                  margin="normal"
+                />
+                <TextField
+                  fullWidth
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  label={
+                    labels.confirmPassword ||
+                    tComponent<SuiteCoreStringKeyValue>(
+                      SuiteCoreComponentId,
+                      SuiteCoreStringKey.Common_ConfirmNewPassword
+                    )
+                  }
+                  type="password"
+                  value={formik.values.confirmPassword}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  error={Boolean(
+                    formik.touched.confirmPassword &&
+                    formik.errors.confirmPassword
+                  )}
+                  helperText={
+                    formik.touched.confirmPassword &&
+                    formik.errors.confirmPassword
+                  }
+                  margin="normal"
+                />
+                <Alert severity="info" sx={{ mt: 1 }}>
+                  {labels?.passwordAuthInfo ||
+                    tComponent<SuiteCoreStringKeyValue>(
+                      SuiteCoreComponentId,
+                      SuiteCoreStringKey.Registration_PasswordAuthInfo
+                    )}
+                </Alert>
+              </>
+            )}
+
+            <FormControl fullWidth margin="normal">
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    id="directChallenge"
+                    name="directChallenge"
+                    checked={formik.values.directChallenge || false}
+                    onChange={formik.handleChange}
+                  />
+                }
+                label={tComponent<SuiteCoreStringKeyValue>(
+                  SuiteCoreComponentId,
+                  SuiteCoreStringKey.Registration_DirectChallengeLabel
+                )}
+              />
+              <FormHelperText>
+                {tComponent<SuiteCoreStringKeyValue>(
+                  SuiteCoreComponentId,
+                  SuiteCoreStringKey.Registration_DirectChallengeHelper
+                )}
+              </FormHelperText>
+            </FormControl>
+
+            {additionalFields && additionalFields(formik, usePassword)}
+
+            <Box sx={{ mt: 1 }}>
+              <Button
+                variant="text"
+                size="small"
+                onClick={() => setShowMnemonicInput(!showMnemonicInput)}
+                aria-expanded={showMnemonicInput}
+                aria-controls="mnemonic-input"
+              >
+                {showMnemonicInput
+                  ? tComponent<SuiteCoreStringKeyValue>(
+                      SuiteCoreComponentId,
+                      SuiteCoreStringKey.Common_ClearMnemonic
+                    )
+                  : tComponent<SuiteCoreStringKeyValue>(
+                      SuiteCoreComponentId,
+                      SuiteCoreStringKey.Common_Mnemonic
+                    )}
+              </Button>
+            </Box>
+
+            {showMnemonicInput && (
+              <TextField
+                fullWidth
+                id="mnemonic-input"
+                name="mnemonic"
+                label={
+                  labels.mnemonic ||
+                  tComponent<SuiteCoreStringKeyValue>(
+                    SuiteCoreComponentId,
+                    SuiteCoreStringKey.Common_Mnemonic
+                  )
+                }
+                value={formik.values.mnemonic}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={Boolean(
+                  formik.touched.mnemonic &&
+                  (formik.errors.mnemonic || apiErrors.mnemonic)
+                )}
+                helperText={
+                  formik.touched.mnemonic &&
+                  (formik.errors.mnemonic || apiErrors.mnemonic)
+                }
+                margin="normal"
+                multiline
+                minRows={2}
+              />
+            )}
+
+            {apiErrors.general && (
+              <Alert severity="error" sx={{ mt: 2, mb: 2 }}>
+                {apiErrors.general}
+              </Alert>
+            )}
+
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              sx={{ mt: 3, mb: 2 }}
+              disabled={formik.isSubmitting}
             >
-              <AlertTitle>
-                {labels.registering ||
+              {registering
+                ? labels.registering ||
                   tComponent<SuiteCoreStringKeyValue>(
                     SuiteCoreComponentId,
                     SuiteCoreStringKey.Registration_Registering
-                  )}
-              </AlertTitle>
-              <Typography variant="body2" component="div">
-                {tComponent<SuiteCoreStringKeyValue>(
-                  SuiteCoreComponentId,
-                  SuiteCoreStringKey.Registration_RegisteringMessage
-                )}
-              </Typography>
-            </Alert>
-          )}
-
-          {!registrationSuccess && (
-            <Box sx={{ textAlign: 'center' }}>
-              <Link href="/login" variant="body2">
-                {labels.loginLink ||
+                  )
+                : labels.register ||
                   tComponent<SuiteCoreStringKeyValue>(
                     SuiteCoreComponentId,
-                    SuiteCoreStringKey.Registration_LoginLink
+                    SuiteCoreStringKey.Registration_RegisterButton
                   )}
-              </Link>
-            </Box>
-          )}
-        </Box>
+            </Button>
+
+            {registering && (
+              <Alert
+                severity="success"
+                sx={{ mt: 2, mb: 2, whiteSpace: 'pre-wrap' }}
+              >
+                <AlertTitle>
+                  {labels.registering ||
+                    tComponent<SuiteCoreStringKeyValue>(
+                      SuiteCoreComponentId,
+                      SuiteCoreStringKey.Registration_Registering
+                    )}
+                </AlertTitle>
+                <Typography variant="body2" component="div">
+                  {tComponent<SuiteCoreStringKeyValue>(
+                    SuiteCoreComponentId,
+                    SuiteCoreStringKey.Registration_RegisteringMessage
+                  )}
+                </Typography>
+              </Alert>
+            )}
+
+            {!registrationSuccess && (
+              <Box sx={{ textAlign: 'center' }}>
+                <Link href="/login" variant="body2">
+                  {labels.loginLink ||
+                    tComponent<SuiteCoreStringKeyValue>(
+                      SuiteCoreComponentId,
+                      SuiteCoreStringKey.Registration_LoginLink
+                    )}
+                </Link>
+              </Box>
+            )}
+          </Box>
         )}
       </Box>
     </Container>

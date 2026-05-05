@@ -183,6 +183,10 @@ export const LoginForm: FC<LoginFormProps> = ({
         SuiteCoreComponentId,
         SuiteCoreStringKey.TogglePasswordVisibility
       ),
+    passwordAuthInfo: tComponent<SuiteCoreStringKeyValue>(
+      SuiteCoreComponentId,
+      SuiteCoreStringKey.Login_PasswordAuthInfo
+    ),
   };
 
   const validation = {
@@ -329,34 +333,41 @@ export const LoginForm: FC<LoginFormProps> = ({
             helperText={formik.touched[loginType] && formik.errors[loginType]}
           />
           {authType === 'password' ? (
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label={labels.password}
-              id="password"
-              type={showSecret ? 'text' : 'password'}
-              value={formik.values.password}
-              onChange={formik.handleChange}
-              error={formik.touched.password && Boolean(formik.errors.password)}
-              helperText={formik.touched.password && formik.errors.password}
-              slotProps={{
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label={labels.toggleVisibility}
-                        onClick={() => setShowSecret(!showSecret)}
-                        edge="end"
-                      >
-                        {showSecret ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
+            <>
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label={labels.password}
+                id="password"
+                type={showSecret ? 'text' : 'password'}
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                error={
+                  formik.touched.password && Boolean(formik.errors.password)
+                }
+                helperText={formik.touched.password && formik.errors.password}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label={labels.toggleVisibility}
+                          onClick={() => setShowSecret(!showSecret)}
+                          edge="end"
+                        >
+                          {showSecret ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
+              <Alert severity="info" sx={{ mt: 1 }}>
+                {labels.passwordAuthInfo}
+              </Alert>
+            </>
           ) : (
             <TextField
               margin="normal"
