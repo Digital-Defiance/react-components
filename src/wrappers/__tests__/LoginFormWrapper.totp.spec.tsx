@@ -10,10 +10,14 @@ jest.mock('react-router-dom', () => ({
 
 const mockDirectLogin = jest.fn();
 const mockPasswordLogin = jest.fn();
+const mockSetUser = jest.fn();
+const mockVerifyTotpLogin = jest.fn();
 jest.mock('../../contexts', () => ({
   useAuth: () => ({
     directLogin: mockDirectLogin,
     passwordLogin: mockPasswordLogin,
+    setUser: mockSetUser,
+    verifyTotpLogin: mockVerifyTotpLogin,
   }),
   useSuiteConfig: () => ({
     routes: {
