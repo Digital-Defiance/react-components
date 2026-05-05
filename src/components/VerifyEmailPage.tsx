@@ -168,7 +168,7 @@ export const VerifyEmailPage: FC<VerifyEmailPageProps> = ({
             {verificationStatus === 'info' ? (
               <>
                 <Alert severity="info" sx={{ mb: 2 }}>
-                  {translatedLabels.checkYourEmail}
+                  {translatedLabels.noToken}
                 </Alert>
                 <Typography variant="body1">
                   {translatedLabels.contactSupport}{' '}
@@ -181,7 +181,9 @@ export const VerifyEmailPage: FC<VerifyEmailPageProps> = ({
             ) : (
               <>
                 <Alert
-                  severity={verificationStatus === 'success' ? 'success' : 'error'}
+                  severity={
+                    verificationStatus === 'success' ? 'success' : 'error'
+                  }
                   sx={{ mb: 2 }}
                 >
                   {message}

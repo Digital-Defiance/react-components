@@ -29,7 +29,9 @@ jest.mock('../../contexts', () => ({
 
 // Minimal LoginForm mock that exposes the onSubmit prop
 jest.mock('../../components/LoginForm', () => ({
-  LoginForm: (props: { onSubmit: (values: Record<string, string>) => Promise<void> }) => (
+  LoginForm: (props: {
+    onSubmit: (values: Record<string, string>) => Promise<void>;
+  }) => (
     <div data-testid="login-form">
       <button
         data-testid="login-password-btn"
@@ -42,7 +44,10 @@ jest.mock('../../components/LoginForm', () => ({
       <button
         data-testid="login-mnemonic-btn"
         onClick={() =>
-          props.onSubmit({ username: 'testuser', mnemonic: 'word1 word2 word3' })
+          props.onSubmit({
+            username: 'testuser',
+            mnemonic: 'word1 word2 word3',
+          })
         }
       >
         Login with mnemonic
@@ -55,7 +60,10 @@ jest.mock('../../components/LoginForm', () => ({
 jest.mock('../../components/TotpVerificationForm', () => ({
   TotpVerificationForm: (props: {
     pendingTotpToken: string;
-    onSubmit: (code: string, token: string) => Promise<{ token: string; user: object } | { error: string }>;
+    onSubmit: (
+      code: string,
+      token: string
+    ) => Promise<{ token: string; user: object } | { error: string }>;
   }) => (
     <div data-testid="totp-verification-form">
       <span data-testid="pending-token">{props.pendingTotpToken}</span>
@@ -110,7 +118,9 @@ describe('LoginFormWrapper TOTP integration', () => {
 
     // LoginForm should be rendered
     expect(screen.getByTestId('login-form')).toBeInTheDocument();
-    expect(screen.queryByTestId('totp-verification-form')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('totp-verification-form')
+    ).not.toBeInTheDocument();
 
     // Trigger a password login
     fireEvent.click(screen.getByTestId('login-password-btn'));
@@ -203,7 +213,10 @@ describe('LoginFormWrapper TOTP integration', () => {
     fireEvent.click(screen.getByTestId('totp-submit-btn'));
 
     await waitFor(() => {
-      expect(mockVerifyTotp).toHaveBeenCalledWith('123456', 'pending-jwt-token');
+      expect(mockVerifyTotp).toHaveBeenCalledWith(
+        '123456',
+        'pending-jwt-token'
+      );
     });
 
     await waitFor(() => {
@@ -279,9 +292,7 @@ describe('LoginFormWrapper TOTP integration', () => {
 
     const mockOnSuccess = jest.fn();
 
-    render(
-      <LoginFormWrapper {...defaultProps} onSuccess={mockOnSuccess} />
-    );
+    render(<LoginFormWrapper {...defaultProps} onSuccess={mockOnSuccess} />);
 
     fireEvent.click(screen.getByTestId('login-password-btn'));
 
