@@ -25,7 +25,7 @@ export const useEmailVerification = (): UseEmailVerificationResult => {
       setIsVerifying(true);
       setError(null);
       try {
-        const result = await api.post<{ message: string }>('/verify-email', {
+        const result = await api.post<{ message: string }>('/user/verify-email', {
           token: verificationToken,
         });
         return { success: true, message: result.data.message };
