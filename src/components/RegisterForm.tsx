@@ -148,7 +148,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [registering, setRegistering] = useState(false);
   const [showMnemonicInput, setShowMnemonicInput] = useState(false);
-  const [autoMnemonic, setAutoMnemonic] = useState(() => generateMnemonic());
+  const [autoMnemonic, setAutoMnemonic] = useState(() => generateMnemonic(256));
   const [showTotpSetup, setShowTotpSetup] = useState(false);
   const [totpProvisioningUri, setTotpProvisioningUri] = useState<string | null>(
     null
@@ -1044,7 +1044,7 @@ export const RegisterForm: FC<RegisterFormProps> = ({
                 <Button
                   variant="text"
                   size="small"
-                  onClick={() => setAutoMnemonic(generateMnemonic())}
+                  onClick={() => setAutoMnemonic(generateMnemonic(256))}
                 >
                   Regenerate
                 </Button>
