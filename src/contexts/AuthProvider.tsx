@@ -529,8 +529,10 @@ const AuthProviderInner = ({
   }, [eciesConfig]);
 
   const isBrowserPasswordLoginAvailable = useCallback(() => {
-    const storedEncryptedPassword = localStorage.getItem('encryptedPassword');
-    return !!storedEncryptedPassword;
+    const storedEncryptedPrivateKey = localStorage.getItem(
+      PasswordLoginService.privateKeyStorageKey
+    );
+    return !!storedEncryptedPrivateKey;
   }, []);
 
   const passwordLogin: AuthContextData['passwordLogin'] = useCallback(
