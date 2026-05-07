@@ -81,9 +81,15 @@ jest.mock('@digitaldefiance/ecies-lib', () => {
   return {
     ...actual,
     ECIESService: mockECIESService,
-    PasswordLoginService: jest
-      .fn()
-      .mockImplementation(() => mockPasswordLoginService),
+    PasswordLoginService: Object.assign(
+      jest.fn().mockImplementation(() => mockPasswordLoginService),
+      {
+        privateKeyStorageKey: 'encryptedPrivateKey',
+        saltStorageKey: 'passwordLoginSalt',
+        encryptedMnemonicStorageKey: 'encryptedMnemonic',
+        profileStorageKey: 'pbkdf2Profile',
+      }
+    ),
   };
 });
 
@@ -1047,7 +1053,6 @@ describe('AuthProvider', () => {
       };
 
       localStorageMock.getItem.mockImplementation((key) => {
-        if (key === 'encryptedPassword') return 'mock-encrypted-password';
         if (key === 'passwordLoginSalt') return '0'.repeat(64);
         if (key === 'encryptedPrivateKey') return '0'.repeat(128);
         if (key === 'encryptedMnemonic') return '0'.repeat(128);
@@ -1151,7 +1156,7 @@ describe('AuthProvider', () => {
   describe('isBrowserPasswordLoginAvailable', () => {
     it('should return true when encrypted password exists', async () => {
       localStorageMock.getItem.mockImplementation((key) =>
-        key === 'encryptedPassword' ? 'mock-encrypted-password' : null
+        key === 'encryptedPrivateKey' ? 'mock-encrypted-private-key' : null
       );
 
       const { result } = renderHook(() => useAuth(), { wrapper: TestWrapper });

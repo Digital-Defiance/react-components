@@ -46,7 +46,7 @@ describe('useEmailVerification', () => {
 
     expect(response.success).toBe(true);
     expect(response.message).toBe('Email verified successfully');
-    expect(mockPost).toHaveBeenCalledWith('/verify-email', { token: 'test-token-123' });
+    expect(mockPost).toHaveBeenCalledWith('/user/verify-email', { token: 'test-token-123' });
     expect(result.current.error).toBeNull();
   });
 
@@ -142,7 +142,7 @@ describe('useEmailVerification', () => {
       await result.current.verifyEmail('');
     });
 
-    expect(mockPost).toHaveBeenCalledWith('/verify-email', { token: '' });
+    expect(mockPost).toHaveBeenCalledWith('/user/verify-email', { token: '' });
   });
 
   it('handles response without message', async () => {
