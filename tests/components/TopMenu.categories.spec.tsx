@@ -4,13 +4,22 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { TopMenu } from '../../src/components/TopMenu';
 import { ICategoryConfig } from '../../src/interfaces/ICategoryConfig';
-import { MenuProvider, AuthContext, I18nProvider, AppThemeProvider, SuiteConfigProvider } from '../../src/contexts';
+import {
+  MenuProvider,
+  AuthContext,
+  I18nProvider,
+  AppThemeProvider,
+  SuiteConfigProvider,
+} from '../../src/contexts';
 import { I18nEngine } from '@digitaldefiance/i18n-lib';
 import { MenuTypes } from '../../src/types/MenuType';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
-const TestWrapper: React.FC<{ isAuthenticated: boolean; children: React.ReactNode }> = ({ isAuthenticated, children }) => {
+const TestWrapper: React.FC<{
+  isAuthenticated: boolean;
+  children: React.ReactNode;
+}> = ({ isAuthenticated, children }) => {
   const engine = I18nEngine.getInstance('default');
   const authValue = {
     isAuthenticated,
@@ -29,7 +38,12 @@ const TestWrapper: React.FC<{ isAuthenticated: boolean; children: React.ReactNod
         <AppThemeProvider>
           <AuthContext.Provider value={authValue}>
             <MenuProvider>
-              <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+              <MemoryRouter
+                future={{
+                  v7_startTransition: true,
+                  v7_relativeSplatPath: true,
+                }}
+              >
                 {children}
               </MemoryRouter>
             </MenuProvider>
@@ -73,7 +87,11 @@ describe('TopMenu with categories', () => {
   it('renders category icon in AppBar', () => {
     render(
       <TestWrapper isAuthenticated={true}>
-        <TopMenu Logo={Logo} categories={categories} additionalMenus={additionalMenus} />
+        <TopMenu
+          Logo={Logo}
+          categories={categories}
+          additionalMenus={additionalMenus}
+        />
       </TestWrapper>
     );
     expect(screen.getByTestId('apps-category-icon')).toBeDefined();
@@ -82,7 +100,11 @@ describe('TopMenu with categories', () => {
   it('shows menu tiles in popover when category icon clicked', () => {
     render(
       <TestWrapper isAuthenticated={true}>
-        <TopMenu Logo={Logo} categories={categories} additionalMenus={additionalMenus} />
+        <TopMenu
+          Logo={Logo}
+          categories={categories}
+          additionalMenus={additionalMenus}
+        />
       </TestWrapper>
     );
     fireEvent.click(screen.getByTestId('apps-category-icon').parentElement!);

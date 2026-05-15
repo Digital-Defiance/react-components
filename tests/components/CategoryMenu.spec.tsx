@@ -8,22 +8,32 @@ import { IMenuConfig } from '../../src/interfaces/IMenuConfig';
 import { createMenuType } from '../../src/types/MenuType';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import { MenuProvider, AuthContext, I18nProvider, AppThemeProvider, SuiteConfigProvider } from '../../src/contexts';
+import {
+  MenuProvider,
+  AuthContext,
+  I18nProvider,
+  AppThemeProvider,
+  SuiteConfigProvider,
+} from '../../src/contexts';
 import { I18nEngine } from '@digitaldefiance/i18n-lib';
 
-const mockAuthContext = (isAuthenticated: boolean) => ({
-  isAuthenticated,
-  isCheckingAuth: false,
-  userData: null,
-  mnemonic: null,
-  wallet: null,
-  language: 'en-US',
-  setLanguage: jest.fn(),
-  clearMnemonic: jest.fn(),
-  clearWallet: jest.fn(),
-} as any);
+const mockAuthContext = (isAuthenticated: boolean) =>
+  ({
+    isAuthenticated,
+    isCheckingAuth: false,
+    userData: null,
+    mnemonic: null,
+    wallet: null,
+    language: 'en-US',
+    setLanguage: jest.fn(),
+    clearMnemonic: jest.fn(),
+    clearWallet: jest.fn(),
+  }) as any;
 
-const TestWrapper: React.FC<{ isAuthenticated: boolean; children: React.ReactNode }> = ({ isAuthenticated, children }) => {
+const TestWrapper: React.FC<{
+  isAuthenticated: boolean;
+  children: React.ReactNode;
+}> = ({ isAuthenticated, children }) => {
   const engine = I18nEngine.getInstance('default');
   return (
     <SuiteConfigProvider baseUrl="http://localhost:3000">
@@ -31,7 +41,12 @@ const TestWrapper: React.FC<{ isAuthenticated: boolean; children: React.ReactNod
         <AppThemeProvider>
           <AuthContext.Provider value={mockAuthContext(isAuthenticated)}>
             <MenuProvider>
-              <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+              <MemoryRouter
+                future={{
+                  v7_startTransition: true,
+                  v7_relativeSplatPath: true,
+                }}
+              >
                 {children}
               </MemoryRouter>
             </MenuProvider>
@@ -94,7 +109,10 @@ describe('CategoryMenu', () => {
   it('hides when no menus and hideWhenEmpty is true', () => {
     render(
       <TestWrapper isAuthenticated={true}>
-        <CategoryMenu category={{ ...category, hideWhenEmpty: true }} menus={[]} />
+        <CategoryMenu
+          category={{ ...category, hideWhenEmpty: true }}
+          menus={[]}
+        />
       </TestWrapper>
     );
     expect(screen.queryByTestId('category-icon')).toBeNull();
@@ -103,7 +121,10 @@ describe('CategoryMenu', () => {
   it('renders category icon when hideWhenEmpty is false and menus are empty', () => {
     render(
       <TestWrapper isAuthenticated={true}>
-        <CategoryMenu category={{ ...category, hideWhenEmpty: false }} menus={[]} />
+        <CategoryMenu
+          category={{ ...category, hideWhenEmpty: false }}
+          menus={[]}
+        />
       </TestWrapper>
     );
     expect(screen.getByTestId('category-icon')).toBeDefined();
@@ -112,7 +133,10 @@ describe('CategoryMenu', () => {
   it('shows header label when showHeader is true and popover is open', () => {
     render(
       <TestWrapper isAuthenticated={true}>
-        <CategoryMenu category={{ ...category, showHeader: true }} menus={menus} />
+        <CategoryMenu
+          category={{ ...category, showHeader: true }}
+          menus={menus}
+        />
       </TestWrapper>
     );
     fireEvent.click(screen.getByTestId('category-icon').parentElement!);
@@ -122,7 +146,10 @@ describe('CategoryMenu', () => {
   it('does not show header label when showHeader is false', () => {
     render(
       <TestWrapper isAuthenticated={true}>
-        <CategoryMenu category={{ ...category, showHeader: false }} menus={menus} />
+        <CategoryMenu
+          category={{ ...category, showHeader: false }}
+          menus={menus}
+        />
       </TestWrapper>
     );
     fireEvent.click(screen.getByTestId('category-icon').parentElement!);
@@ -132,7 +159,10 @@ describe('CategoryMenu', () => {
   it('hides tile labels when showLabels is false', () => {
     render(
       <TestWrapper isAuthenticated={true}>
-        <CategoryMenu category={{ ...category, showLabels: false }} menus={menus} />
+        <CategoryMenu
+          category={{ ...category, showLabels: false }}
+          menus={menus}
+        />
       </TestWrapper>
     );
     fireEvent.click(screen.getByTestId('category-icon').parentElement!);

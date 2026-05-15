@@ -147,6 +147,7 @@ export interface AuthContextData {
     password?: string,
     mnemonic?: string,
     displayName?: string,
+    directChallenge?: boolean
   ) => Promise<
     | {
         success: boolean;
@@ -197,15 +198,22 @@ export interface AuthContextData {
    * Initiates TOTP setup for the authenticated user.
    * Returns the provisioning URI and raw base32 secret on success.
    */
-  setupTotp: () => Promise<{ provisioningUri: string; secret: string } | { error: string }>;
+  setupTotp: () => Promise<
+    { provisioningUri: string; secret: string } | { error: string }
+  >;
   /**
    * Confirms TOTP setup with a 6-digit code.
    */
-  confirmTotp: (code: string) => Promise<{ success: boolean } | { error: string }>;
+  confirmTotp: (
+    code: string
+  ) => Promise<{ success: boolean } | { error: string }>;
   /**
    * Completes TOTP login by verifying a 6-digit code against a pending TOTP token.
    */
-  verifyTotpLogin: (pendingTotpToken: string, code: string) => Promise<{ token: string; user: IRequestUserDTO } | { error: string }>;
+  verifyTotpLogin: (
+    pendingTotpToken: string,
+    code: string
+  ) => Promise<{ token: string; user: IRequestUserDTO } | { error: string }>;
 }
 
 export type AuthProviderProps = {
@@ -390,7 +398,9 @@ const AuthProviderInner = ({
           siteLanguage: userDataDTO.siteLanguage as CoreLanguageCode,
           email: new EmailString(userDataDTO.email),
           directChallenge: userDataDTO.directChallenge,
-          ...(userDataDTO.displayName !== undefined ? { displayName: userDataDTO.displayName } : {}),
+          ...(userDataDTO.displayName !== undefined
+            ? { displayName: userDataDTO.displayName }
+            : {}),
         });
       }
     } catch (error) {
@@ -459,7 +469,9 @@ const AuthProviderInner = ({
           siteLanguage: loginResult.user.siteLanguage as CoreLanguageCode,
           email: new EmailString(loginResult.user.email),
           directChallenge: loginResult.user.directChallenge,
-          ...(loginResult.user.displayName !== undefined ? { displayName: loginResult.user.displayName } : {}),
+          ...(loginResult.user.displayName !== undefined
+            ? { displayName: loginResult.user.displayName }
+            : {}),
         });
         return loginResult;
       }
@@ -506,7 +518,9 @@ const AuthProviderInner = ({
             siteLanguage: loginResult.user.siteLanguage as CoreLanguageCode,
             email: new EmailString(loginResult.user.email),
             directChallenge: loginResult.user.directChallenge,
-            ...(loginResult.user.displayName !== undefined ? { displayName: loginResult.user.displayName } : {}),
+            ...(loginResult.user.displayName !== undefined
+              ? { displayName: loginResult.user.displayName }
+              : {}),
           });
           return loginResult;
         }
@@ -570,7 +584,9 @@ const AuthProviderInner = ({
           siteLanguage: loginResult.user.siteLanguage as CoreLanguageCode,
           email: new EmailString(loginResult.user.email),
           directChallenge: loginResult.user.directChallenge,
-          ...(loginResult.user.displayName !== undefined ? { displayName: loginResult.user.displayName } : {}),
+          ...(loginResult.user.displayName !== undefined
+            ? { displayName: loginResult.user.displayName }
+            : {}),
         });
       }
       return loginResult;
@@ -612,6 +628,7 @@ const AuthProviderInner = ({
       password?: string,
       mnemonic?: string,
       displayName?: string,
+      directChallenge?: boolean
     ) => {
       const registerResult = await authService.register(
         username,
@@ -620,6 +637,7 @@ const AuthProviderInner = ({
         password,
         mnemonic,
         displayName,
+        directChallenge
       );
       return registerResult as Awaited<ReturnType<AuthContextData['register']>>;
     },
@@ -717,7 +735,9 @@ const AuthProviderInner = ({
             siteLanguage: loginResult.user.siteLanguage as CoreLanguageCode,
             email: new EmailString(loginResult.user.email),
             directChallenge: loginResult.user.directChallenge,
-            ...(loginResult.user.displayName !== undefined ? { displayName: loginResult.user.displayName } : {}),
+            ...(loginResult.user.displayName !== undefined
+              ? { displayName: loginResult.user.displayName }
+              : {}),
           });
         }
         setAuthState((prev) => prev + 1);
@@ -874,7 +894,8 @@ const AuthProviderInner = ({
       setWalletExpirationSeconds,
       setupTotp: () => authService.setupTotp(),
       confirmTotp: (code: string) => authService.confirmTotp(code),
-      verifyTotpLogin: (pendingTotpToken: string, code: string) => authService.verifyTotpLogin(pendingTotpToken, code),
+      verifyTotpLogin: (pendingTotpToken: string, code: string) =>
+        authService.verifyTotpLogin(pendingTotpToken, code),
       token,
       user: frontendUser,
       userData: user,

@@ -31,10 +31,14 @@ export const RegisterFormWrapper: FC<RegisterFormWrapperProps> = ({
   enableTotpSetup = false,
   componentProps = {},
 }) => {
-  const { register, setUpBrowserPasswordLogin, setupTotp, confirmTotp } = useAuth();
+  const { register, setUpBrowserPasswordLogin, setupTotp, confirmTotp } =
+    useAuth();
   const { timezones } = useSuiteConfig();
 
-  const handleSubmit = async (values: RegisterFormValues, usePassword: boolean) => {
+  const handleSubmit = async (
+    values: RegisterFormValues,
+    usePassword: boolean
+  ) => {
     const result = await register(
       values.username,
       values.email,
@@ -42,6 +46,7 @@ export const RegisterFormWrapper: FC<RegisterFormWrapperProps> = ({
       values.password,
       values.mnemonic,
       values.displayName,
+      values.directChallenge
     );
     if ('error' in result) {
       return result;
@@ -53,14 +58,14 @@ export const RegisterFormWrapper: FC<RegisterFormWrapperProps> = ({
     if (usePassword && values.password && result.mnemonic) {
       const setupResult = await setUpBrowserPasswordLogin(
         new SecureString(result.mnemonic),
-        new SecureString(values.password),
+        new SecureString(values.password)
       );
       if ('error' in setupResult) {
         // Password login setup failed — still return success for registration
         // but log the issue. The user can set up password login later.
         console.warn(
           'Registration succeeded but browser password login setup failed:',
-          setupResult.error,
+          setupResult.error
         );
       }
     }

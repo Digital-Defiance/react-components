@@ -34,7 +34,9 @@ interface ApiErrorResponse {
  * The backend may send `error` as either a plain string or an object
  * with `{ message, statusCode, stack }`.
  */
-export function extractErrorMessage(errorData: ApiErrorResponse): string | undefined {
+export function extractErrorMessage(
+  errorData: ApiErrorResponse
+): string | undefined {
   if (typeof errorData.error === 'string') {
     return errorData.error;
   }
@@ -88,7 +90,7 @@ export class AuthService {
     private constants: IConstants,
     private baseUrl: string,
     eciesConfig: IECIESConfig,
-    private readonly siteDomain: string,
+    private readonly siteDomain: string
   ) {
     this.eciesService = new ECIESService(eciesConfig);
     this.cryptoCore = new EciesCryptoCore(eciesConfig);
@@ -107,6 +109,7 @@ export class AuthService {
     password?: string,
     mnemonic?: string,
     displayName?: string,
+    directChallenge?: boolean
   ): Promise<
     | { success: boolean; message: string; mnemonic: string }
     | {
@@ -126,6 +129,7 @@ export class AuthService {
           ...(password ? { password } : {}),
           ...(mnemonic ? { mnemonic } : {}),
           ...(displayName ? { displayName } : {}),
+          ...(directChallenge ? { directChallenge } : {}),
         }
       );
       if (response.status !== 201) {
@@ -390,10 +394,10 @@ export class AuthService {
           error: errorData.message
             ? errorData.message
             : (error as Error).message
-            ? (error as Error).message
-            : getSuiteCoreTranslation(
-                SuiteCoreStringKey.Common_UnexpectedError
-              ),
+              ? (error as Error).message
+              : getSuiteCoreTranslation(
+                  SuiteCoreStringKey.Common_UnexpectedError
+                ),
           ...(errorData.errorType ? { errorType: errorData.errorType } : {}),
         };
       } else {
@@ -535,8 +539,7 @@ export class AuthService {
   }
 
   async setupTotp(): Promise<
-    | { provisioningUri: string; secret: string }
-    | { error: string }
+    { provisioningUri: string; secret: string } | { error: string }
   > {
     try {
       const response = await this.authenticatedApiClient.post<{
@@ -615,10 +618,7 @@ export class AuthService {
 
   async resetTotp(
     code: string
-  ): Promise<
-    | { provisioningUri: string; secret: string }
-    | { error: string }
-  > {
+  ): Promise<{ provisioningUri: string; secret: string } | { error: string }> {
     try {
       const response = await this.authenticatedApiClient.post<{
         provisioningUri: string;
@@ -649,17 +649,18 @@ export class AuthService {
   async verifyTotpLogin(
     pendingTotpToken: string,
     code: string
-  ): Promise<
-    | { token: string; user: IRequestUserDTO }
-    | { error: string }
-  > {
+  ): Promise<{ token: string; user: IRequestUserDTO } | { error: string }> {
     try {
       const response = await this.apiClient.post<{
         token: string;
         user: IRequestUserDTO;
-      }>('/user/totp/verify', { code }, {
-        headers: { Authorization: `Bearer ${pendingTotpToken}` },
-      });
+      }>(
+        '/user/totp/verify',
+        { code },
+        {
+          headers: { Authorization: `Bearer ${pendingTotpToken}` },
+        }
+      );
       return {
         token: response.data.token,
         user: response.data.user,
@@ -687,5 +688,5 @@ export const createAuthService = (
   constants: IConstants,
   baseUrl: string,
   eciesConfig: IECIESConfig,
-  siteDomain: string,
+  siteDomain: string
 ) => new AuthService(constants, baseUrl, eciesConfig, siteDomain);

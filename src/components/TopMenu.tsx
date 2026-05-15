@@ -13,7 +13,14 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import React, { ElementType, FC, ReactElement, useContext, useMemo, useState } from 'react';
+import React, {
+  ElementType,
+  FC,
+  ReactElement,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthProvider';
 import { useI18n } from '../contexts/I18nProvider';
@@ -74,7 +81,14 @@ export interface TopMenuProps {
   showTitle?: boolean;
 }
 
-export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus, categories, actions, constants, showTitle }) => {
+export const TopMenu: FC<TopMenuProps> = ({
+  Logo,
+  additionalMenus,
+  categories,
+  actions,
+  constants,
+  showTitle,
+}) => {
   const { isAuthenticated } = useContext(AuthContext);
   const { getTopMenus } = useMenu();
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
@@ -166,7 +180,7 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus, categories, a
           {Logo}
         </Box>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            {(showTitle !== false) ? siteTitle : '\u00A0' }
+          {showTitle !== false ? siteTitle : '\u00A0'}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {isAuthenticated ? (
