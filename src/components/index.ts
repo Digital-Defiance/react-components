@@ -2,6 +2,7 @@
 export * from './ApiAccess';
 export * from './BackupCodeLoginForm';
 export * from './BackupCodesForm';
+export * from './CategoryMenu';
 export * from './ChangePasswordForm';
 export * from './ConfirmationDialog';
 export * from './CurrencyCodeSelector';

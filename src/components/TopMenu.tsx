@@ -18,7 +18,10 @@ import { Link } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthProvider';
 import { useI18n } from '../contexts/I18nProvider';
 import { useMenu } from '../contexts/MenuContext';
+import { ICategoryConfig } from '../interfaces/ICategoryConfig';
+import { IMenuConfig } from '../interfaces/IMenuConfig';
 import { MenuType } from '../types/MenuType';
+import { CategoryMenu } from './CategoryMenu';
 import { DropdownMenu } from './DropdownMenu';
 import { SideMenu } from './SideMenu';
 import { UserLanguageSelector } from './UserLanguageSelector';
@@ -44,18 +47,34 @@ export interface AdditionalDropdownMenu {
   action?: () => void;
   /** When true, the menu icon is hidden if there are no sub-options. Defaults to false. */
   hideWhenEmpty?: boolean;
+  /**
+   * Optional category id. When the TopMenu is given matching `categories`,
+   * this menu is rendered inside that category's popover instead of inline.
+   */
+  category?: string;
+  /** Optional label used for tile captions and tooltips. */
+  label?: string;
 }
 
 export interface TopMenuProps {
   Logo: React.ReactNode;
   additionalMenus?: Array<AdditionalDropdownMenu>;
+  /**
+   * Optional category configurations. When provided, any menu (whether
+   * registered via `MenuContext` or passed in `additionalMenus`) whose
+   * `category` matches a category `id` is rendered as a tile inside that
+   * category's mega-menu popover. Menus without a matching category render
+   * inline in the AppBar exactly as before, so this is backwards compatible:
+   * omit `categories` (or use empty array) for the original layout.
+   */
+  categories?: ICategoryConfig[];
   /** Custom action elements rendered in the toolbar after menu dropdowns (e.g. notification bell). Only shown when authenticated. */
   actions?: React.ReactNode;
   constants?: IConstants;
   showTitle?: boolean;
 }
 
-export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus, actions, constants, showTitle }) => {
+export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus, categories, actions, constants, showTitle }) => {
   const { isAuthenticated } = useContext(AuthContext);
   const { getTopMenus } = useMenu();
   const [isSideMenuOpen, setIsSideMenuOpen] = useState(false);
@@ -86,6 +105,41 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus, actions, cons
       (a, b) => (b.priority ?? 0) - (a.priority ?? 0)
     );
   }, [getTopMenus, additionalMenus]);
+
+  // Split menus into those that belong to a configured category vs. those
+  // that should render inline in the AppBar (default, backwards-compatible
+  // behaviour). The user menu is always inline.
+  const { inlineMenus, menusByCategory, orderedCategories } = useMemo(() => {
+    const hasCategories = !!categories && categories.length > 0;
+    const categoryIds = new Set(
+      hasCategories ? (categories as ICategoryConfig[]).map((c) => c.id) : []
+    );
+    const byCategory = new Map<string, IMenuConfig[]>();
+    const inline: typeof allMenus = [];
+
+    for (const menu of allMenus) {
+      const cat = (menu as IMenuConfig).category;
+      if (!menu.isUserMenu && hasCategories && cat && categoryIds.has(cat)) {
+        const list = byCategory.get(cat) ?? [];
+        list.push(menu as IMenuConfig);
+        byCategory.set(cat, list);
+      } else {
+        inline.push(menu);
+      }
+    }
+
+    const ordered = hasCategories
+      ? [...(categories as ICategoryConfig[])].sort(
+          (a, b) => (b.priority ?? 0) - (a.priority ?? 0)
+        )
+      : [];
+
+    return {
+      inlineMenus: inline,
+      menusByCategory: byCategory,
+      orderedCategories: ordered,
+    };
+  }, [allMenus, categories]);
 
   return (
     <AppBar position="fixed" sx={{ top: 10 }}>
@@ -127,7 +181,7 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus, actions, cons
                   SuiteCoreStringKey.Common_Dashboard
                 )}
               </Button>
-              {allMenus.map((menu, index) =>
+              {inlineMenus.map((menu, index) =>
                 menu.isUserMenu ? (
                   <UserMenu key={`user-menu`} />
                 ) : (
@@ -140,6 +194,13 @@ export const TopMenu: FC<TopMenuProps> = ({ Logo, additionalMenus, actions, cons
                   />
                 )
               )}
+              {orderedCategories.map((category) => (
+                <CategoryMenu
+                  key={`category-${category.id}`}
+                  category={category}
+                  menus={menusByCategory.get(category.id) ?? []}
+                />
+              ))}
             </>
           ) : (
             <>
