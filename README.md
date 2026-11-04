@@ -364,6 +364,13 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 5.0.0
+
+- **BREAKING**: Replaced the `react-router-dom` peer dependency with `react-router` (`>=7`). Install `react-router` in your app instead of `react-router-dom`.
+- All router imports (`useNavigate`, `useLocation`, `useSearchParams`, `Navigate`, `Link`, `To`) now come from `react-router`
+- Updated `react` / `react-dom` dev dependencies to `^19.3.1` and `@types/react` / `@types/react-dom` to `^19.3.0`
+- Showcase: updated `react` / `react-dom` to `^19.3.1`
+
 ### Version 4.19.11
 
 - Version sync release; re-applies all changes from v2.14.x line (see below)
