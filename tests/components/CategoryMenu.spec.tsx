@@ -1,7 +1,7 @@
 import { describe, it, expect } from '@jest/globals';
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 import { CategoryMenu } from '../../src/components/CategoryMenu';
 import { ICategoryConfig } from '../../src/interfaces/ICategoryConfig';
 import { IMenuConfig } from '../../src/interfaces/IMenuConfig';
