@@ -4,7 +4,7 @@ import { LoginFormWrapper, LoginFormWrapperProps } from '../LoginFormWrapper';
 // --- Mocks ---
 
 const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
+jest.mock('react-router', () => ({
   useNavigate: () => mockNavigate,
 }));
 

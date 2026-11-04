@@ -1,7 +1,7 @@
 import { describe, it, expect, jest, beforeEach, beforeAll } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import { ReactNode } from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 import { LocalStorageMock } from '@digitaldefiance/express-suite-test-utils/src/lib/localStorage-mock';
 import {
   BackupCodesWrapper,

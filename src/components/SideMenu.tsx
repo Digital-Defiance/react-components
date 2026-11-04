@@ -1,6 +1,6 @@
 import { Drawer, List } from '@mui/material';
 import { FC } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useMenu } from '../contexts/MenuContext';
 import { IMenuOption } from '../interfaces/IMenuOption';
 import { MenuTypes } from '../types/MenuType';

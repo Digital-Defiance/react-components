@@ -1,5 +1,5 @@
 import { FC, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { SecureString, EmailString } from '@digitaldefiance/ecies-lib';
 import { IRequestUserDTO, SuiteCoreStringKey, TranslatableSuiteError } from '@digitaldefiance/suite-core-lib';
 import { LoginForm, LoginFormValues, LoginFormProps } from '../components/LoginForm';

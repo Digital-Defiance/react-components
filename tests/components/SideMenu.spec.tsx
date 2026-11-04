@@ -1,7 +1,7 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 import { useTheme as useMuiTheme } from '@mui/material';
 import { SideMenu } from '../../src/components/SideMenu';
 import { MenuProvider, AuthContext, I18nProvider, AppThemeProvider, SuiteConfigProvider } from '../../src/contexts';

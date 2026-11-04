@@ -21,7 +21,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { AuthContext } from '../contexts/AuthProvider';
 import { useI18n } from '../contexts/I18nProvider';
 import { useMenu } from '../contexts/MenuContext';

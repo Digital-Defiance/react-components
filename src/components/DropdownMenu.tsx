@@ -1,6 +1,6 @@
 import { Box, Fade, IconButton, Menu, MenuItem } from '@mui/material';
 import { FC, MouseEvent, ReactElement, useCallback, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { MenuType } from '../types/MenuType';
 import { IMenuOption } from '../interfaces/IMenuOption';
 import { useMenu } from '../contexts/MenuContext';

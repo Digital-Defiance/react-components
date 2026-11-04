@@ -1,7 +1,7 @@
 import { I18nEngine } from '@digitaldefiance/i18n-lib';
 import { describe, expect, it } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router';
 import PrivateRoute from '../../src/auth/PrivateRoute';
 import { I18nProvider } from '../../src/contexts';
 import { AuthContext } from '../../src/contexts/AuthProvider';

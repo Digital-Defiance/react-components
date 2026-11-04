@@ -1,7 +1,7 @@
 import { describe, it, expect } from '@jest/globals';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 import { UserMenu } from '../../src/components/UserMenu';
 import { MenuProvider, AuthContext, I18nProvider, AppThemeProvider, SuiteConfigProvider } from '../../src/contexts';
 import { I18nEngine } from '@digitaldefiance/i18n-lib';

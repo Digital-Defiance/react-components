@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { BackupCodesForm } from '../components/BackupCodesForm';
 import { useBackupCodes } from '../hooks';
 

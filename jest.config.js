@@ -9,7 +9,7 @@ module.exports = {
     customExportConditions: [''],
   },
   maxWorkers: 4,
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'mjs'],
   coverageDirectory:
     '../../coverage/packages/digitaldefiance-express-suite-react-components',
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
@@ -24,16 +24,12 @@ module.exports = {
         },
       },
     ],
-    '^.+\\.jsx?$': [
-      'ts-jest',
-      {
-        tsconfig: {
-          jsx: 'react-jsx',
-          esModuleInterop: true,
-          allowSyntheticDefaultImports: true,
-        },
-      },
-    ],
+    // react-router v8+ (and its ESM deps @remix-run/cookie-es) ship ESM-only
+    // with a dead `import.meta.hot` HMR guard that ts-jest cannot transpile to
+    // CommonJS. A small custom transformer neutralizes `import.meta` and
+    // downlevels the ESM for the allowlisted node_modules (the project itself
+    // has no first-party .js/.jsx/.mjs files).
+    '^.+\\.(jsx?|mjs)$': '<rootDir>/tests/esm-js-transformer.js',
   },
   moduleNameMapper: {
     '^@digitaldefiance/ecies-lib$':
@@ -50,6 +46,6 @@ module.exports = {
     '^react-dom$': require.resolve('react-dom'),
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(@noble|@scure|ethereum-cryptography|@ethereumjs|uuid|@digitaldefiance/express-suite-test-utils|paillier-bigint|bigint-crypto-utils)/)',
+    'node_modules/(?!(@noble|@scure|ethereum-cryptography|@ethereumjs|uuid|@digitaldefiance/express-suite-test-utils|paillier-bigint|bigint-crypto-utils|react-router|@remix-run|cookie-es)/)',
   ],
 };

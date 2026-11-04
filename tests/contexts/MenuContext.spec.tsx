@@ -2,7 +2,7 @@ import { I18nEngine } from '@digitaldefiance/i18n-lib';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
 import {
   AppThemeProvider,
   AuthContext,

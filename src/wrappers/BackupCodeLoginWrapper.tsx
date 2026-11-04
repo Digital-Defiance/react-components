@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { BackupCodeLoginForm } from '../components/BackupCodeLoginForm';
 import { useAuth } from '../contexts';
 

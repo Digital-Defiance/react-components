@@ -1,5 +1,5 @@
 import { FC, ReactNode, useContext } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router';
 import { AuthContext } from '../contexts/AuthProvider';
 import { useI18n } from '../contexts';
 import { SuiteCoreComponentId, SuiteCoreStringKey, SuiteCoreStringKeyValue } from '@digitaldefiance/suite-core-lib';
