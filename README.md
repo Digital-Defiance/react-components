@@ -364,6 +364,10 @@ MIT © Digital Defiance
 
 ## ChangeLog
 
+### Version 5.0.1
+
+- Added `data-testid="qr-code-svg"` to the `TotpSetupForm` QR code so the TOTP setup QR can be targeted in end-to-end tests (the form already exposed test ids for its other controls).
+
 ### Version 5.0.0
 
 - **BREAKING**: Replaced the `react-router-dom` peer dependency with `react-router` (`>=7`). Install `react-router` in your app instead of `react-router-dom`.

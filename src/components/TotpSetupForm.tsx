@@ -98,6 +98,7 @@ export const TotpSetupForm: FC<TotpSetupFormProps> = ({
             size={200}
             role="img"
             aria-label={resolvedLabels.qrCodeAlt}
+            data-testid="qr-code-svg"
           />
         </Box>
 
