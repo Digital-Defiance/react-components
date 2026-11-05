@@ -370,6 +370,7 @@ MIT © Digital Defiance
 - All router imports (`useNavigate`, `useLocation`, `useSearchParams`, `Navigate`, `Link`, `To`) now come from `react-router`
 - Updated `react` / `react-dom` dev dependencies to `^19.3.1` and `@types/react` / `@types/react-dom` to `^19.3.0`
 - Showcase: updated `react` / `react-dom` to `^19.3.1`
+- Updated `@digitaldefiance/suite-core-lib` to 5.0.0 (Express Suite 5.0.0 version sync)
 
 ### Version 4.19.11
 
