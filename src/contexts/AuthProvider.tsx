@@ -18,23 +18,19 @@ import {
   IConstants,
   IRequestUserDTO,
   ISuccessMessage,
-  IUserSettings,
   SuiteCoreComponentId,
   SuiteCoreStringKey,
   SuiteCoreStringKeyValue,
 } from '@digitaldefiance/suite-core-lib';
 import { Wallet } from '@ethereumjs/wallet';
-import { PaletteMode } from '@mui/material';
 import {
-  createContext,
   ReactNode,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
 } from 'react';
-import { AuthContext, useAuth } from './auth-context';
+import { AuthContext } from './auth-context';
 import type { AuthContextData } from './auth-context';
 export { AuthContext, useAuth } from './auth-context';
 export type { AuthContextData } from './auth-context';

@@ -4,6 +4,7 @@ import {
   SuiteCoreComponentId,
   SuiteCoreStringKey,
   SuiteCoreStringKeyValue,
+  dehydrateUserSettings,
 } from '@digitaldefiance/suite-core-lib';
 import {
   AccountCircle,
@@ -96,10 +97,9 @@ export const MenuProvider: FC<MenuProviderProps> = ({
     if (!isAuthenticated) return;
     void (async () => {
       try {
-        const [{ createAuthenticatedApiClient }, { dehydrateUserSettings }] = await Promise.all([
-          import('../services/index.js'),
-          import('@digitaldefiance/suite-core-lib'),
-        ]);
+        const { createAuthenticatedApiClient } = await import(
+          '../services/index.js'
+        );
         const api = createAuthenticatedApiClient(baseUrl);
         await api.post('/user/settings', dehydrateUserSettings({ darkMode: next === 'dark' } as never));
       } catch {
