@@ -30,12 +30,10 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useUserSettings } from '../hooks';
 import { IMenuConfig } from '../interfaces/IMenuConfig';
 import { IMenuOption } from '../interfaces/IMenuOption';
-import { createAuthenticatedApiClient } from '../services';
 import { MenuType, MenuTypes } from '../types/MenuType';
-import { useAuth } from './AuthProvider';
+import { useAuth } from './auth-context';
 import { useI18n } from './I18nProvider';
 import { useSuiteConfig } from './SuiteConfigProvider';
 import { useTheme } from './ThemeProvider';
@@ -82,21 +80,33 @@ export const MenuProvider: FC<MenuProviderProps> = ({
     wallet,
     clearWallet,
   } = useAuth();
-  const { mode: colorMode } = useTheme();
+  const { mode: colorMode, toggleColorMode: themeToggle } = useTheme();
   const registeredMenuOptions = useRef(new Set<() => void>());
   const [registeredOptions, setRegisteredOptions] = useState<
     Map<string, IMenuOption>
   >(new Map<string, IMenuOption>());
   const { tComponent } = useI18n();
   const { baseUrl } = useSuiteConfig();
-  const authenticatedApi = useMemo(
-    () => createAuthenticatedApiClient(baseUrl),
-    [baseUrl]
-  );
-  const { toggleColorMode } = useUserSettings({
-    authenticatedApi,
-    isAuthenticated,
-  });
+  // Flip the theme immediately with the crypto-free ThemeProvider toggle, then persist the choice to the server as a
+  // best-effort side effect. The persistence path (which pulls ecies-lib + axios) is loaded lazily via dynamic import
+  // ONLY when an authenticated user toggles, so it stays out of the static bundle for consumers that only use the menu.
+  const toggleColorMode = useCallback(() => {
+    const next = colorMode === 'dark' ? 'light' : 'dark';
+    themeToggle();
+    if (!isAuthenticated) return;
+    void (async () => {
+      try {
+        const [{ createAuthenticatedApiClient }, { dehydrateUserSettings }] = await Promise.all([
+          import('../services/index.js'),
+          import('@digitaldefiance/suite-core-lib'),
+        ]);
+        const api = createAuthenticatedApiClient(baseUrl);
+        await api.post('/user/settings', dehydrateUserSettings({ darkMode: next === 'dark' } as never));
+      } catch {
+        // Best-effort: the theme already flipped; a failed persist just means it is not remembered server-side.
+      }
+    })();
+  }, [colorMode, themeToggle, isAuthenticated, baseUrl]);
 
   const registerMenuOption = useCallback((option: IMenuOption) => {
     const unregister = () => {
