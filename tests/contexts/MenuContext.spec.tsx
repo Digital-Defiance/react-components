@@ -230,6 +230,64 @@ describe('MenuContext', () => {
     expect(screen.getByTestId('menu-register')).toBeDefined();
   });
 
+  it('should suppress options listed in hiddenMenuIds', () => {
+    render(
+      <TestWrapper isAuthenticated={true}>
+        <MenuProvider hiddenMenuIds={['change-password', 'user-settings']}>
+          <TestMenuComponent />
+        </MenuProvider>
+      </TestWrapper>
+    );
+
+    // Hidden ids are gone...
+    expect(screen.queryByTestId('menu-change-password')).toBeNull();
+    expect(screen.queryByTestId('menu-user-settings')).toBeNull();
+    // ...while unlisted built-ins remain.
+    expect(screen.getByTestId('menu-dashboard')).toBeDefined();
+    expect(screen.getByTestId('menu-logout')).toBeDefined();
+  });
+
+  it('defaults to hiding nothing when hiddenMenuIds is omitted', () => {
+    render(
+      <TestWrapper isAuthenticated={true}>
+        <MenuProvider>
+          <TestMenuComponent />
+        </MenuProvider>
+      </TestWrapper>
+    );
+
+    expect(screen.getByTestId('menu-change-password')).toBeDefined();
+    expect(screen.getByTestId('menu-user-settings')).toBeDefined();
+  });
+
+  it('does not leave orphaned adjacent dividers when hiding items', () => {
+    render(
+      <TestWrapper isAuthenticated={true}>
+        <MenuProvider
+          hiddenMenuIds={[
+            'logout',
+            'change-password',
+            'user-settings',
+            'theme-toggle',
+          ]}
+        >
+          <TestMenuComponent />
+        </MenuProvider>
+      </TestWrapper>
+    );
+
+    const sideMenuCount = parseInt(
+      screen.getByTestId('side-menu-count').textContent || '0'
+    );
+    const dividerCount = Array.from(
+      document.querySelectorAll('[data-testid^="menu-"]')
+    ).filter((el) => el.getAttribute('data-testid')?.includes('divider')).length;
+    // No two dividers should be adjacent and the list should not start/end with one.
+    // With most authed items hidden, at most one meaningful divider can remain.
+    expect(dividerCount).toBeLessThanOrEqual(1);
+    expect(sideMenuCount).toBeGreaterThan(0);
+  });
+
   it('should filter menu options by menu type', () => {
     render(
       <TestWrapper isAuthenticated={true}>

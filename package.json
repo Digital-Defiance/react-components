@@ -1,6 +1,6 @@
 {
   "name": "@digitaldefiance/express-suite-react-components",
-  "version": "5.0.1",
+  "version": "5.0.3",
   "homepage": "https://github.com/Digital-Defiance/react-components",
   "description": "React MUI components for Digital Defiance Express Suite",
   "repository": {
@@ -24,7 +24,7 @@
     "prettier:fix": "prettier --write 'src/**/*.{ts,tsx}'",
     "format": "npx nx format:write --projects=digitaldefiance-express-suite-react-components",
     "format:check": "npx nx format:check --projects=digitaldefiance-express-suite-react-components",
-    "prepublishOnly": "npx nx build digitaldefiance-express-suite-react-components",
+    "prepublishOnly": "node -e \"if(!require('fs').existsSync('src/index.js')){console.error('Do not publish from the source package. Run: nx build digitaldefiance-express-suite-react-components, then npm publish from dist/packages/digitaldefiance-express-suite-react-components');process.exit(1)}\"",
     "publish:public": "npm publish --access public"
   },
   "peerDependencies": {

@@ -44,6 +44,14 @@ interface MenuProviderProps {
   children: ReactNode;
   menuConfigs?: IMenuConfig[];
   enableBackupCodes?: boolean;
+  /**
+   * IDs of menu options to suppress from every menu. Matches both the built-in
+   * options (e.g. 'change-password', 'user-settings', 'logout') and any option
+   * registered via `menuConfigs`. Dividers left orphaned by the removal are
+   * cleaned up automatically. Defaults to none hidden, so existing consumers are
+   * unaffected.
+   */
+  hiddenMenuIds?: readonly string[];
 }
 
 interface MenuContextType {
@@ -63,6 +71,7 @@ export const MenuProvider: FC<MenuProviderProps> = ({
   children,
   menuConfigs = [],
   enableBackupCodes = true,
+  hiddenMenuIds = [],
 }) => {
   const {
     userData: user,
@@ -323,7 +332,11 @@ export const MenuProvider: FC<MenuProviderProps> = ({
 
   const getMenuOptions = useCallback(
     (menuType: MenuType, includeDividers: boolean) => {
+      const hidden = new Set(hiddenMenuIds);
       const MenuFilter = (o: IMenuOption) => {
+        // Suppress any option whose id the consumer asked to hide.
+        if (hidden.has(o.id)) return false;
+
         // Apply the custom filter first
         let customFilterPasses = true;
         if (o.filter !== undefined) {
@@ -341,9 +354,20 @@ export const MenuProvider: FC<MenuProviderProps> = ({
         );
       };
 
-      return menuOptions.filter(MenuFilter);
+      const filtered = menuOptions.filter(MenuFilter);
+
+      // Drop dividers left orphaned once hidden items are removed: a divider at
+      // the start or end of the list, or immediately following another divider,
+      // carries no meaning and would show as a stray separator.
+      return filtered.filter((o, i) => {
+        if (o.divider !== true) return true;
+        const prev = filtered[i - 1];
+        if (prev === undefined || prev.divider === true) return false;
+        if (i === filtered.length - 1) return false;
+        return true;
+      });
     },
-    [isAuthenticated, isGlobalAdmin, menuOptions]
+    [hiddenMenuIds, isAuthenticated, isGlobalAdmin, menuOptions]
   );
 
   useEffect(() => {
