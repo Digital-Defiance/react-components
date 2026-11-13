@@ -363,6 +363,11 @@ MIT © Digital Defiance
 - **[Menu Type Extensibility Guide](docs/MENU_TYPE_EXTENSIBILITY.md)** - Creating custom menu types
 
 ## ChangeLog
+### Version 5.1.0
+- Fixed: `I18nProvider` and the API clients resolve the persisted language with the same function, so the initial UI language matches the `Accept-Language` header
+- Changed: the default `SuiteConfigProvider` language list comes from the language registry; the fallback list uses the bundled codes (`fr`, `es`, `de` instead of `fr-FR`, `es-ES`, `de-DE`)
+- **NEW**: `resolvePreferredLanguageCode()`
+- Depends on `@digitaldefiance/i18n-lib` 4.8.0 and `@digitaldefiance/suite-core-lib` 5.0.1
 
 ### Version 5.0.1
 
