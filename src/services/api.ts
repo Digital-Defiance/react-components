@@ -1,11 +1,11 @@
 import axios from 'axios';
+import { resolvePreferredLanguageCode } from './language-preference';
 
 export function createApiClient(baseURL: string) {
   const api = axios.create({ baseURL });
 
   api.interceptors.request.use((config) => {
-    const languageCode = localStorage.getItem('languageCode') ?? 'en-US';
-    config.headers['Accept-Language'] = languageCode;
+    config.headers['Accept-Language'] = resolvePreferredLanguageCode();
     return config;
   });
 

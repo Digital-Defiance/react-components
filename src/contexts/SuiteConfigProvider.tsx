@@ -1,3 +1,4 @@
+import { LanguageRegistry } from '@digitaldefiance/i18n-lib';
 import { createContext, ReactNode, useContext } from 'react';
 
 export interface SuiteConfigRoutes {
@@ -42,16 +43,30 @@ const defaultRoutes: SuiteConfigRoutes = {
   settings: '/settings',
 };
 
-const defaultLanguages = [
+/**
+ * Used only when no language registry has been configured. Codes match the
+ * bundled i18n-lib registry (e.g. `fr`, not `fr-FR`) so selecting one is
+ * always accepted by I18nProvider.
+ */
+const bundledLanguages = [
   { code: 'en-US', label: 'English (US)' },
   { code: 'en-GB', label: 'English (UK)' },
-  { code: 'es-ES', label: 'Español' },
-  { code: 'fr-FR', label: 'Français' },
-  { code: 'de-DE', label: 'Deutsch' },
+  { code: 'es', label: 'Español' },
+  { code: 'fr', label: 'Français' },
+  { code: 'de', label: 'Deutsch' },
   { code: 'ja', label: '日本語' },
   { code: 'zh-CN', label: '中文 (简体)' },
   { code: 'uk', label: 'Українська' },
 ];
+
+/**
+ * The app's supported languages: whatever is registered in the LanguageRegistry,
+ * so the settings selector offers exactly what I18nProvider can switch to.
+ */
+const getDefaultLanguages = (): Array<{ code: string; label: string }> => {
+  const registered = LanguageRegistry.getCodeLabelMap();
+  return registered.length > 0 ? registered : bundledLanguages;
+};
 
 const SuiteConfigContext = createContext<SuiteConfigContextData | undefined>(undefined);
 
@@ -67,13 +82,13 @@ export const SuiteConfigProvider = ({
   children,
   baseUrl,
   routes = {},
-  languages = defaultLanguages,
+  languages,
   timezones,
 }: SuiteConfigProviderProps) => {
   const value: SuiteConfigContextData = {
     baseUrl,
     routes: { ...defaultRoutes, ...routes },
-    languages,
+    languages: languages ?? getDefaultLanguages(),
     timezones,
   };
 

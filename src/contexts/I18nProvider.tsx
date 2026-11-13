@@ -9,8 +9,10 @@ import {
   ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useState,
 } from 'react';
+import { resolvePreferredLanguageCode } from '../services/language-preference';
 
 /**
  * Minimal structural interface accepted by I18nProvider.
@@ -75,9 +77,25 @@ export const I18nProvider: FC<I18nProviderProps> = ({
     string,
     IActiveContext<string>
   >();
-  const [currentLanguage, setCurrentLanguage] = useState<string>(
-    context.userLanguage
+  // Resolve the initial language from the persisted preference with the same
+  // rule the API clients use for Accept-Language, so UI and requests agree.
+  const [currentLanguage, setCurrentLanguage] = useState<string>(() =>
+    resolvePreferredLanguageCode(context.userLanguage)
   );
+
+  // Bring the global context and the engine in line with the resolved language.
+  useEffect(() => {
+    if (context.userLanguage !== currentLanguage) {
+      context.userLanguage = currentLanguage;
+    }
+    try {
+      i18nEngine.setLanguage(currentLanguage);
+    } catch {
+      // Engine does not know this language; keep the current engine language.
+    }
+    // Only on mount: later changes go through changeLanguage().
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const changeLanguage = useCallback(
     async (language: string) => {

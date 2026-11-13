@@ -2,6 +2,7 @@ import { describe, it, expect } from '@jest/globals';
 import { renderHook } from '@testing-library/react';
 import { SuiteConfigProvider, useSuiteConfig } from '../../src/contexts/SuiteConfigProvider';
 import { ReactNode } from 'react';
+import { LanguageRegistry } from '@digitaldefiance/i18n-lib';
 
 describe('SuiteConfigProvider', () => {
   const defaultConfig = {
@@ -59,19 +60,37 @@ describe('SuiteConfigProvider', () => {
     });
   });
 
-  it('provides default languages', () => {
+  it('provides default languages matching the bundled registry codes when none are registered', () => {
+    LanguageRegistry.clear();
     const { result } = renderHook(() => useSuiteConfig(), { wrapper });
 
     expect(result.current.languages).toEqual([
       { code: 'en-US', label: 'English (US)' },
       { code: 'en-GB', label: 'English (UK)' },
-      { code: 'es-ES', label: 'Español' },
-      { code: 'fr-FR', label: 'Français' },
-      { code: 'de-DE', label: 'Deutsch' },
+      { code: 'es', label: 'Español' },
+      { code: 'fr', label: 'Français' },
+      { code: 'de', label: 'Deutsch' },
       { code: 'ja', label: '日本語' },
       { code: 'zh-CN', label: '中文 (简体)' },
       { code: 'uk', label: 'Українська' },
     ]);
+  });
+
+  it('defaults to the languages registered in the LanguageRegistry', () => {
+    LanguageRegistry.clear();
+    LanguageRegistry.registerLanguages([
+      { id: 'en-US', name: 'English', code: 'en-US', isDefault: true },
+      { id: 'fr', name: 'Français', code: 'fr' },
+    ]);
+    try {
+      const { result } = renderHook(() => useSuiteConfig(), { wrapper });
+      expect(result.current.languages).toEqual([
+        { code: 'en-US', label: 'English' },
+        { code: 'fr', label: 'Français' },
+      ]);
+    } finally {
+      LanguageRegistry.clear();
+    }
   });
 
   it('allows custom languages', () => {

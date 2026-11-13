@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { resolvePreferredLanguageCode } from './language-preference';
 
 export function createAuthenticatedApiClient(baseURL: string, tokenKey: string = 'authToken') {
   const api = axios.create({ baseURL });
@@ -8,8 +9,7 @@ export function createAuthenticatedApiClient(baseURL: string, tokenKey: string =
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
-    const languageCode = localStorage.getItem('languageCode') ?? 'en-US';
-    config.headers['Accept-Language'] = languageCode;
+    config.headers['Accept-Language'] = resolvePreferredLanguageCode();
     return config;
   });
 
